@@ -31,17 +31,22 @@ router.map(routes, {
 
 // Start server
 const server = Bun.serve({
-  port: 3000,
+  port: process.env.PORT || 3000,
   fetch: async (req) => {
-    const url = new URL(req.url);
+    try {
+      const url = new URL(req.url);
 
-    // Handle Better Auth routes
-    if (url.pathname.startsWith("/api/auth")) {
-      return betterAuthClient.handler(req);
+      // Handle Better Auth routes
+      if (url.pathname.startsWith("/api/auth")) {
+        return betterAuthClient.handler(req);
+      }
+
+      // Handle other routes with the router
+      return router.fetch(req);
+    } catch (error) {
+      console.error("Request error:", error);
+      return new Response("Internal Server Error", { status: 500 });
     }
-
-    // Handle other routes with the router
-    return router.fetch(req);
   },
 });
 
