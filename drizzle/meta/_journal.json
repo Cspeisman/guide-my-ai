@@ -1,0 +1,41 @@
+{
+  "version": "7",
+  "dialect": "sqlite",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "6",
+      "when": 1765559103542,
+      "tag": "0000_charming_pixie",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "6",
+      "when": 1765848736995,
+      "tag": "0001_nifty_the_fallen",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1765904397181,
+      "tag": "0002_steep_wild_child",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "6",
+      "when": 1766058043032,
+      "tag": "0003_tense_pete_wisdom",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "6",
+      "when": 1766144849280,
+      "tag": "0004_previous_captain_britain",
+      "breakpoints": true
+    }
+  ]
+}
