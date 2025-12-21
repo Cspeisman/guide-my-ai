@@ -38,10 +38,10 @@ COPY --from=build /app/bunfig.toml* .
 # Create directory for SQLite database
 RUN mkdir -p /app/data
 
-# Set environment variables
+# Set default environment variables
+# Note: Fly.io secrets will override these at runtime
 ENV NODE_ENV=production
 ENV PORT=3000
-ENV DATABASE_PATH=/app/data/data.sqlite
 
 # Expose the port
 EXPOSE 3000
