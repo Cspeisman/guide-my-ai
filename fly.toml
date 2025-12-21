@@ -1,9 +1,9 @@
-# fly.toml app configuration file generated for ai-profiles on 2025-12-21T11:26:52-05:00
+# fly.toml app configuration file generated for guide-my-ai on 2025-12-21T19:29:19Z
 #
 # See https://fly.io/docs/reference/configuration/ for information about how to use this file.
 #
 
-app = 'ai-profiles'
+app = 'guide-my-ai'
 primary_region = 'iad'
 
 [build]
