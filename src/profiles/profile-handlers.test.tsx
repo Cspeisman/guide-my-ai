@@ -5,6 +5,7 @@ import { Profile } from "./profile";
 import { profileHandlers } from "./profile-handlers";
 import { ProfilesRepository } from "./profiles-repository";
 import { routes } from "../routes";
+import { RequestContext } from "better-auth/client";
 
 class FakeProfilesRepository extends ProfilesRepository {
   profiles: Profile[];
@@ -120,7 +121,11 @@ describe("profileHandlers", () => {
       profilesRepository: fakeRepository as any,
     });
 
-    const response = await handlers.new();
+    const context = createMockContext({
+      userId: "user123",
+    });
+
+    const response = await handlers.new(context as any);
 
     expect(response.status).toBe(200);
 

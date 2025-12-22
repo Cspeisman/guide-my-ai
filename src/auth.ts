@@ -10,7 +10,12 @@ export const betterAuthClient = betterAuth({
     enabled: true,
     requireEmailVerification: false,
   },
-
+  socialProviders: {
+    github: {
+      clientId: process.env.GITHUB_CLIENT_ID as string,
+      clientSecret: process.env.GITHUB_CLIENT_SECRET as string,
+    },
+  },
   baseURL: process.env.APP_URL || "http://localhost:3000",
   secret: process.env.AUTH_SECRET || "change-me-to-a-secret-key-in-production",
 });

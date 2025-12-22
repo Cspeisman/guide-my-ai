@@ -21,7 +21,7 @@ export const useEditableField = (
     setIsSaving(true);
     try {
       const response = await fetch(
-        routes.rules.api.action.href({ id: ruleId }),
+        routes.rules.api.show.action.href({ id: ruleId }),
         {
           method: "POST",
           body: JSON.stringify({

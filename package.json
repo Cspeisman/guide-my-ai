@@ -7,6 +7,7 @@
     "dev": "bun --watch src/server.ts",
     "start": "bun run src/server.ts",
     "test": "bun test",
+    "typecheck": "tsc --noEmit",
     "build:assets": "bun run scripts/build-assets.ts && bunx @tailwindcss/cli -i ./src/input.css -o ./dist/css/output.css",
     "build:assets:watch": "bun run scripts/build-assets.ts --watch & bunx @tailwindcss/cli -i ./src/input.css -o ./dist/css/output.css --watch & wait",
     "db:generate": "drizzle-kit generate",
@@ -40,6 +41,7 @@
     "@types/react": "^19.2.7",
     "@types/react-dom": "^19.2.3",
     "@types/react-select": "^5.0.1",
-    "happy-dom": "^20.0.11"
+    "happy-dom": "^20.0.11",
+    "typescript": "^5.9.3"
   }
 }

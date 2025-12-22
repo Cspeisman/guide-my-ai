@@ -7,6 +7,7 @@ export const routes = route({
   auth: {
     signup: form("/auth/signup"),
     login: form("/auth/login"),
+    logout: { pattern: "/auth/logout", method: "POST" },
   },
   oauth: {
     login: form("/oauth/login"),

@@ -5,9 +5,14 @@ import { Mcp } from "./mcp";
 describe("mcpsHandlers", () => {
   const mockMcpsRepository = {
     getMcpsByUserId: mock(() => Promise.resolve([])),
-    getMcpById: mock(() => Promise.resolve(null)),
-    createMcp: mock(() => Promise.resolve(new Mcp("1", "Test", "{}", new Date()))),
-    updateMcp: mock(() => Promise.resolve(new Mcp("1", "Updated", "{}", new Date()))),
+    getMcpById: mock(() => Promise.resolve(null as Mcp | null)),
+    createMcp: mock(() =>
+      Promise.resolve(new Mcp("1", "Test", "{}", new Date()))
+    ),
+    updateMcp: mock(() =>
+      Promise.resolve(new Mcp("1", "Updated", "{}", new Date()))
+    ),
+    deleteMcp: mock(() => Promise.resolve()),
   };
 
   beforeEach(() => {
@@ -27,7 +32,7 @@ describe("mcpsHandlers", () => {
     };
 
     const handlers = mcpsHandlers({ mcpsRepository: mockMcpsRepository });
-    const response = await handlers.api.action(context as any);
+    const response = await handlers.api.show.action(context as any);
     const json = await response.json();
 
     expect(response.status).toBe(400);
@@ -36,6 +41,7 @@ describe("mcpsHandlers", () => {
 
   test("api.action updates mcp with valid JSON", async () => {
     const validJson = JSON.stringify({ key: "value" });
+    const createdAt = new Date();
     const context = {
       request: {
         json: async () => ({ name: "Test", context: validJson }),
@@ -44,16 +50,24 @@ describe("mcpsHandlers", () => {
       storage: new Map(),
     };
 
+    // Mock getMcpById to return an existing MCP
+    mockMcpsRepository.getMcpById.mockResolvedValueOnce(
+      new Mcp("1", "Old Name", "{}", createdAt, "user123")
+    );
+
+    // Mock updateMcp to return the updated MCP
     mockMcpsRepository.updateMcp.mockResolvedValueOnce(
-      new Mcp("1", "Test", validJson, new Date())
+      new Mcp("1", "Test", validJson, createdAt, "user123")
     );
 
     const handlers = mcpsHandlers({ mcpsRepository: mockMcpsRepository });
-    const response = await handlers.api.action(context as any);
+    const response = await handlers.api.show.action(context as any);
     const json = await response.json();
 
     expect(response.status).toBe(200);
     expect(json.context).toBe(validJson);
+    expect(json.name).toBe("Test");
+    expect(mockMcpsRepository.getMcpById).toHaveBeenCalledWith("1");
+    expect(mockMcpsRepository.updateMcp).toHaveBeenCalled();
   });
 });
-

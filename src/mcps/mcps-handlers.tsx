@@ -6,7 +6,7 @@ import { New } from "./views/new";
 import { McpsList } from "./views/mcps-list";
 import { Controller } from "@remix-run/fetch-router";
 import { routes } from "../routes";
-import { userIdKey } from "../auth/auth-middleware";
+import { userIdKey, userNameKey } from "../auth/auth-middleware";
 import { render } from "../utils";
 
 export const mcpsHandlers = (
@@ -16,16 +16,18 @@ export const mcpsHandlers = (
   return {
     async index(context) {
       const userId = context.storage.get(userIdKey);
+      const userName = context.storage.get(userNameKey);
       const userMcps = await mcpsRepository.getMcpsByUserId(userId!);
 
       return render(
-        <Layout activeNav="mcps">
+        <Layout activeNav="mcps" userName={userName}>
           <McpsList mcps={userMcps} />
         </Layout>
       );
     },
     async show(context) {
       const id = context.params?.id;
+      const userName = context.storage.get(userNameKey);
       const mcp = await mcpsRepository.getMcpById(id);
 
       if (!mcp) {
@@ -33,11 +35,15 @@ export const mcpsHandlers = (
       }
 
       return render(
-        <Layout assets={{ scripts: [routes.js.href({ path: "mcp" })] }} />
+        <Layout
+          assets={{ scripts: [routes.js.href({ path: "mcp" })] }}
+          userName={userName}
+        />
       );
     },
-    new() {
-      return render(<New />);
+    new(context) {
+      const userName = context.storage.get(userNameKey);
+      return render(<New userName={userName} />);
     },
     async create(context) {
       const formData = await context.request.formData();

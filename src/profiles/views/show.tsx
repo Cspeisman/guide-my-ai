@@ -7,6 +7,7 @@ import { CreatedAt } from "../../utils/created-at";
 
 interface Props {
   profile: Profile;
+  userName?: string | null;
 }
 export const Show = (props: Props) => {
   return (
@@ -15,6 +16,7 @@ export const Show = (props: Props) => {
         scripts: [routes.js.href({ path: "delete-confirmation" })],
       }}
       activeNav="profiles"
+      userName={props.userName}
     >
       <div>
         <div className="mb-8">

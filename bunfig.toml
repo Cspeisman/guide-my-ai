@@ -1,3 +1,7 @@
+[run]
+# Load .env file automatically
+env = [".env"]
+
 [test]
 preload = ["./setupTests.ts"]
 

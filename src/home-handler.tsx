@@ -1,6 +1,6 @@
 import React from "react";
 import { Layout } from "./layouts/Layout";
-import { userIdKey } from "./auth/auth-middleware";
+import { userIdKey, userNameKey } from "./auth/auth-middleware";
 import { Mcp } from "./mcps/mcp";
 import { McpsRepository } from "./mcps/mcps-repository";
 import { Rule } from "./rules/rule";
@@ -12,6 +12,7 @@ import { routes } from "./routes";
 import { render } from "./utils";
 import { CreatedAt } from "./utils/created-at";
 import { UnauthedLayout } from "./layouts/UnauthedLayout";
+import type { RequestContext } from "@remix-run/fetch-router";
 export const homeHandler = (
   dependencies = {
     rulesRepository: new RulesRepository(),
@@ -21,8 +22,9 @@ export const homeHandler = (
 ) => {
   const { rulesRepository, mcpsRepository, profilesRepository } = dependencies;
   return {
-    async home(context) {
+    async home(context: RequestContext) {
       const userId = context.storage.get(userIdKey);
+      const userName = context.storage.get(userNameKey);
 
       let userRules: Rule[] = [];
       let userMcps: Mcp[] = [];
@@ -62,7 +64,7 @@ export const homeHandler = (
               </div>
             </UnauthedLayout>
           ) : (
-            <Layout activeNav="dashboard">
+            <Layout activeNav="dashboard" userName={userName}>
               <div className="space-y-8">
                 {/* Dashboard Header */}
                 <div className="flex justify-between items-center mb-8">

@@ -1,6 +1,6 @@
 import { Controller } from "@remix-run/fetch-router";
 import React from "react";
-import { userIdKey } from "../auth/auth-middleware";
+import { userIdKey, userNameKey } from "../auth/auth-middleware";
 import { Layout } from "../layouts/Layout";
 import { routes } from "../routes";
 import { render } from "../utils";
@@ -14,24 +14,27 @@ export const profileHandlers = (
   return {
     async index(context) {
       const userId = context.storage.get(userIdKey);
+      const userName = context.storage.get(userNameKey);
       const userProfiles = await profilesRepository.getProfilesByUserId(
         userId!
       );
 
-      return render(<Index userProfiles={userProfiles} />);
+      return render(<Index userProfiles={userProfiles} userName={userName} />);
     },
     async show(context) {
       const id = context.params.id;
+      const userName = context.storage.get(userNameKey);
       const profile = await profilesRepository.getProfileById(id);
 
       if (!profile) {
         return new Response("Profile not found", { status: 404 });
       }
 
-      return render(<Show profile={profile} />);
+      return render(<Show profile={profile} userName={userName} />);
     },
-    new() {
-      return render(<New />);
+    new(context) {
+      const userName = context.storage.get(userNameKey);
+      return render(<New userName={userName} />);
     },
     async create(context) {
       const userId = context.storage.get(userIdKey);
@@ -52,11 +55,13 @@ export const profileHandlers = (
         303
       );
     },
-    async edit() {
+    async edit(context) {
+      const userName = context.storage.get(userNameKey);
       return render(
         <Layout
           assets={{ scripts: [routes.js.href({ path: "edit-form" })] }}
           activeNav="profiles"
+          userName={userName}
         />
       );
     },

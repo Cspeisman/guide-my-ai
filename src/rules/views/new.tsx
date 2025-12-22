@@ -2,9 +2,9 @@ import React from "react";
 import { Layout } from "../../layouts/Layout";
 import { routes } from "../../routes";
 
-export function New() {
+export function New({ userName }: { userName?: string | null }) {
   return (
-    <Layout activeNav="rules">
+    <Layout activeNav="rules" userName={userName}>
       <div>
         <div className="mb-6">
           <div className="flex items-center justify-between mb-2">

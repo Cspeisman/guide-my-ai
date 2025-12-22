@@ -1,6 +1,6 @@
 import { Controller } from "@remix-run/fetch-router";
 import React from "react";
-import { userIdKey } from "../auth/auth-middleware";
+import { userIdKey, userNameKey } from "../auth/auth-middleware";
 import { Layout } from "../layouts/Layout";
 import { routes } from "../routes";
 import { render } from "../utils";
@@ -16,16 +16,18 @@ export const rulesHandlers = (
   return {
     async index(context) {
       const userId = context.storage.get(userIdKey);
+      const userName = context.storage.get(userNameKey);
       const userRules = await rulesRepository.getRulesByUserId(userId!);
 
       return render(
-        <Layout activeNav="rules">
+        <Layout activeNav="rules" userName={userName}>
           <RulesList rules={userRules} />
         </Layout>
       );
     },
-    new() {
-      return render(<New />);
+    new(context) {
+      const userName = context.storage.get(userNameKey);
+      return render(<New userName={userName} />);
     },
     async create(context) {
       const formData = await context.request.formData();
@@ -58,6 +60,7 @@ export const rulesHandlers = (
     },
     async show(context) {
       const id = context.params?.id;
+      const userName = context.storage.get(userNameKey);
       const rule = await rulesRepository.getRuleById(id);
 
       if (!rule) {
@@ -65,7 +68,10 @@ export const rulesHandlers = (
       }
 
       return render(
-        <Layout assets={{ scripts: [routes.js.href({ path: "rule" })] }} />
+        <Layout
+          assets={{ scripts: [routes.js.href({ path: "rule" })] }}
+          userName={userName}
+        />
       );
     },
     async destroy(context) {

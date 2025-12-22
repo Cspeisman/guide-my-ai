@@ -8,10 +8,11 @@ export { New } from "./new";
 export { Show } from "./show";
 interface Props {
   userProfiles: Profile[];
+  userName?: string | null;
 }
 export const Index = (props: Props) => {
   return (
-    <Layout activeNav="profiles">
+    <Layout activeNav="profiles" userName={props.userName}>
       {/* Profiles Section */}
       <div>
         <div className="flex justify-between items-center mb-8">

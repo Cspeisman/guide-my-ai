@@ -1,11 +1,12 @@
 import { render, screen } from "@testing-library/react";
 import { test } from "bun:test";
-import React, { act } from "react";
-import { ProfilesList } from "./Profiles";
+import { act } from "react";
+import { ProfilesList } from "./profiles";
 
 test("Profiles component renders correctly", async () => {
   const profilesPromise = async () => [
     {
+      id: "id-1234",
       name: "Profile 1",
       rules: [],
     },

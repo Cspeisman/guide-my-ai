@@ -4,3 +4,4 @@ dist/
 .env
 .DS_Store
 data.sqlite
+.env

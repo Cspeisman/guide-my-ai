@@ -1,45 +1,30 @@
-import React, { useState, useEffect, FormEvent } from "react";
+import React, { useState, FormEvent } from "react";
 import { createRoot } from "react-dom/client";
 import { Github } from "lucide-react";
 import { routes } from "../../../routes";
 import { authClient } from "../../auth-client";
 
-function LoginForm() {
+function SignupForm() {
+  const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [redirectUri, setRedirectUri] = useState<string | null>(null);
-  const [clientName, setClientName] = useState<string | null>(null);
-  const [formAction, setFormAction] = useState(routes.auth.login.action.href());
-
-  useEffect(() => {
-    // Check if this is an OAuth login (has redirect_uri in URL)
-    const urlParams = new URLSearchParams(window.location.search);
-    const uri = urlParams.get("redirect_uri");
-    const name = urlParams.get("client_name");
-
-    if (uri) {
-      setRedirectUri(uri);
-      setFormAction(`/oauth/login?redirect_uri=${encodeURIComponent(uri)}`);
-    }
-
-    if (name) {
-      setClientName(name);
-    }
-  }, []);
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError("");
+    setSuccess("");
     setIsLoading(true);
 
     try {
       const formData = new FormData();
+      formData.append("name", name);
       formData.append("email", email);
       formData.append("password", password);
 
-      const response = await fetch(formAction, {
+      const response = await fetch(routes.auth.signup.action.href(), {
         method: "POST",
         body: formData,
       });
@@ -47,31 +32,27 @@ function LoginForm() {
       if (!response.ok) {
         const errorData = await response
           .json()
-          .catch(() => ({ error: "Login failed" }));
-        throw new Error(
-          errorData.error_description || errorData.error || "Login failed"
-        );
+          .catch(() => ({ message: "An error occurred" }));
+        throw new Error(errorData.message || "Signup failed");
       }
 
-      // For OAuth flow, the redirect is handled by the server
-      if (redirectUri) {
-        // Server will redirect
-        return;
-      }
-
-      // For regular login, handle the response
       const result = await response.json();
 
-      // Store token if provided (you may want to use a more secure method)
-      if (result.token) {
-        localStorage.setItem("auth_token", result.token);
-      }
+      // Show success message
+      setSuccess(result.message || "Account created successfully!");
 
-      // Redirect to home or dashboard
-      window.location.href = routes.home.href();
+      // Reset form
+      setName("");
+      setEmail("");
+      setPassword("");
+
+      // Redirect to login after 2 seconds
+      setTimeout(() => {
+        window.location.href = routes.auth.login.index.href();
+      }, 2000);
     } catch (err) {
       setError(
-        err instanceof Error ? err.message : "An error occurred during login"
+        err instanceof Error ? err.message : "An error occurred during signup"
       );
     } finally {
       setIsLoading(false);
@@ -101,18 +82,10 @@ function LoginForm() {
     <div className="max-w-2xl mx-auto">
       <div className="mb-6">
         <h2 className="text-3xl font-bold text-gray-900 font-mono mb-2">
-          {redirectUri ? "Authorize Application" : "Sign In"}
+          Create Account
         </h2>
-        <p className="text-gray-600">
-          {redirectUri ? "Please sign in to continue" : "Welcome back"}
-        </p>
+        <p className="text-gray-600">Sign up to get started</p>
       </div>
-
-      {clientName && (
-        <div className="bg-blue-50 border border-blue-200 text-blue-800 px-4 py-3 rounded-lg mb-6">
-          <strong>Application:</strong> <span>{clientName}</span>
-        </div>
-      )}
 
       {error && (
         <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-6">
@@ -120,8 +93,35 @@ function LoginForm() {
         </div>
       )}
 
+      {success && (
+        <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg mb-6">
+          {success}
+        </div>
+      )}
+
       <div className="bg-white rounded-xl border border-gray-200 p-8 shadow-sm">
-        <form id="loginForm" onSubmit={handleSubmit}>
+        <form id="signupForm" onSubmit={handleSubmit}>
+          <div className="mb-6">
+            <label
+              htmlFor="name"
+              className="block text-sm font-semibold text-gray-700 mb-2"
+            >
+              Full Name
+            </label>
+            <input
+              type="text"
+              id="name"
+              name="name"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              required
+              autoComplete="name"
+              placeholder="Enter your full name"
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
+              autoFocus
+            />
+          </div>
+
           <div className="mb-6">
             <label
               htmlFor="email"
@@ -139,7 +139,6 @@ function LoginForm() {
               autoComplete="email"
               placeholder="Enter your email"
               className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
-              autoFocus
             />
           </div>
 
@@ -157,10 +156,14 @@ function LoginForm() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
-              autoComplete="current-password"
+              autoComplete="new-password"
+              minLength={8}
               placeholder="Enter your password"
               className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
             />
+            <p className="mt-2 text-sm text-gray-500">
+              Must be at least 8 characters long
+            </p>
           </div>
 
           <div className="flex gap-4">
@@ -169,11 +172,7 @@ function LoginForm() {
               disabled={isLoading}
               className="px-6 py-2.5 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 transition-all shadow-sm hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {isLoading
-                ? redirectUri
-                  ? "Redirecting..."
-                  : "Signing in..."
-                : "Sign In"}
+              {isLoading ? "Signing up..." : "Sign Up"}
             </button>
           </div>
         </form>
@@ -201,12 +200,12 @@ function LoginForm() {
       </div>
 
       <div className="mt-6 text-center text-sm text-gray-600">
-        Don't have an account?{" "}
+        Already have an account?{" "}
         <a
-          href={routes.auth.signup.index.href()}
+          href={routes.auth.login.index.href()}
           className="text-indigo-600 hover:text-indigo-700 font-semibold"
         >
-          Sign up
+          Sign in
         </a>
       </div>
     </div>
@@ -216,5 +215,5 @@ function LoginForm() {
 const rootElement = document.getElementById("root");
 if (rootElement) {
   const root = createRoot(rootElement);
-  root.render(<LoginForm />);
+  root.render(<SignupForm />);
 }

@@ -4,8 +4,11 @@ import { betterAuthClient } from "../auth";
 import { RequestValidator } from "../utils/request-validator";
 import { routes } from "../routes";
 import { db } from "../db/db";
+import { user } from "./db-schema";
+import { eq } from "drizzle-orm";
 // Create storage keys for auth data
 export const userIdKey = createStorageKey<string | null>();
+export const userNameKey = createStorageKey<string | null>();
 export const betterAuthSessionKey = createStorageKey<any>();
 
 /**
@@ -15,6 +18,7 @@ export const betterAuthSessionKey = createStorageKey<any>();
 export function createApiAuthMiddleware(): Middleware {
   return async (context, next) => {
     context.storage.set(userIdKey, null);
+    context.storage.set(userNameKey, null);
 
     // Allow static assets and auth routes without authentication
     if (
@@ -59,9 +63,18 @@ export function createApiAuthMiddleware(): Middleware {
       }
     }
 
-    // Set userId if we found one
+    // Set userId and userName if we found a user
     if (userId) {
       context.storage.set(userIdKey, userId);
+      
+      // Fetch user details to get the name
+      const userRecord = await db.query.user.findFirst({
+        where: eq(user.id, userId),
+      });
+      
+      if (userRecord) {
+        context.storage.set(userNameKey, userRecord.name);
+      }
     }
 
     // Allow home route even without authentication
