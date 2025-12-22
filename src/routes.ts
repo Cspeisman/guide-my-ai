@@ -10,6 +10,7 @@ export const routes = route({
     logout: { pattern: "/auth/logout", method: "POST" },
     api: {
       signup: { pattern: "/api/signup", method: "POST" },
+      validateToken: { pattern: "api/validateToken", method: "POST" },
     },
   },
   oauth: {

@@ -73,6 +73,14 @@ export const authHandlers = (authService: AuthService) => {
           );
           return Response.json({ signup: "success" });
         },
+        async validateToken({ request }) {
+          const { token } = await request.json();
+          if (token) {
+            const isValid = await authService.validateToken(token);
+            return Response.json({ isValid });
+          }
+          return Response.json({ isvalid: false });
+        },
       },
     } satisfies Controller<typeof routes.auth>,
     oauth: {
@@ -105,7 +113,12 @@ export const authHandlers = (authService: AuthService) => {
               password.toString()
             );
 
-            const { token } = await result.json();
+            const json = await result.json();
+            if (json.code) {
+              return { error: json.code };
+            }
+            console.log(json);
+            const { token } = json;
             const redirectUrl = new URL(params.redirect_uri);
             redirectUrl.searchParams.set("code", token);
 

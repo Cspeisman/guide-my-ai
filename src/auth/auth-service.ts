@@ -1,5 +1,6 @@
 import { Auth } from "better-auth";
 import { betterAuthClient } from "../auth";
+import { db } from "../db/db";
 
 export interface OAuth2Error {
   error: string;
@@ -47,5 +48,15 @@ export class AuthService {
     } catch (error) {
       throw error;
     }
+  }
+
+  async validateToken(token: string) {
+    const userSession = await db.query.session.findFirst({
+      where: (session, { eq }) => eq(session.token, token),
+    });
+    if (userSession) {
+      return true;
+    }
+    return false;
   }
 }

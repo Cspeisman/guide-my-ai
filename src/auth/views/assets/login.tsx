@@ -55,6 +55,9 @@ function LoginForm() {
 
       // Get the response
       const result = await response.json();
+      if (result.error) {
+        throw new Error(result.error);
+      }
       // For OAuth flow, redirect to the authorization URL returned by the server
       if (redirectUri && result.redirectUrl) {
         window.location.href = result.redirectUrl;

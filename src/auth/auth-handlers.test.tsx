@@ -31,4 +31,44 @@ describe("authHandlers", () => {
       );
     });
   });
+
+  describe("validateToken", () => {
+    it("should return isValid true when token is valid", async () => {
+      const authService = {
+        async validateToken(token: string) {
+          return true;
+        },
+      };
+      const handler = authHandlers(authService as any);
+      const contextStub = {
+        request: {
+          async json() {
+            return { token: "valid-token" };
+          },
+        },
+      };
+      const response = await handler.auth.api.validateToken(contextStub as any);
+      const payload = await response.json();
+      expect(payload.isValid).toBe(true);
+    });
+
+    it("should return isValid false when token is invalid", async () => {
+      const authService = {
+        async validateToken(token: string) {
+          return false;
+        },
+      };
+      const handler = authHandlers(authService as any);
+      const contextStub = {
+        request: {
+          async json() {
+            return { token: "invalid-token" };
+          },
+        },
+      };
+      const response = await handler.auth.api.validateToken(contextStub as any);
+      const payload = await response.json();
+      expect(payload.isValid).toBe(false);
+    });
+  });
 });
