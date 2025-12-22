@@ -39,7 +39,6 @@ coverage/
 .git/
 .gitignore
 README.md
-README.docker.md
 FLY_SECRETS.md
 .dockerignore
 Dockerfile
