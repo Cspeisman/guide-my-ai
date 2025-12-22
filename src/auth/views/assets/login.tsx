@@ -53,16 +53,15 @@ function LoginForm() {
         );
       }
 
-      // For OAuth flow, the redirect is handled by the server
-      if (redirectUri) {
-        // Server will redirect
+      // Get the response
+      const result = await response.json();
+      // For OAuth flow, redirect to the authorization URL returned by the server
+      if (redirectUri && result.redirectUrl) {
+        window.location.href = result.redirectUrl;
         return;
       }
 
-      // For regular login, handle the response
-      const result = await response.json();
-
-      // Store token if provided (you may want to use a more secure method)
+      // For regular login, store token if provided
       if (result.token) {
         localStorage.setItem("auth_token", result.token);
       }
@@ -203,7 +202,7 @@ function LoginForm() {
       <div className="mt-6 text-center text-sm text-gray-600">
         Don't have an account?{" "}
         <a
-          href={routes.auth.signup.index.href()}
+          href={routes.auth.signup.href()}
           className="text-indigo-600 hover:text-indigo-700 font-semibold"
         >
           Sign up

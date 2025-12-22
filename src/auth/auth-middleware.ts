@@ -23,8 +23,11 @@ export function createApiAuthMiddleware(): Middleware {
     // Allow static assets and auth routes without authentication
     if (
       [
-        routes.auth.signup.index.href(),
+        routes.auth.signup.href(),
         routes.auth.login.index.href(),
+        routes.auth.api.signup.href(),
+        routes.oauth.login.index.href(),
+        routes.oauth.login.action.href(),
       ].includes(context.url.pathname) ||
       context.url.pathname.startsWith("/css/") ||
       context.url.pathname.startsWith("/js/")
@@ -66,12 +69,12 @@ export function createApiAuthMiddleware(): Middleware {
     // Set userId and userName if we found a user
     if (userId) {
       context.storage.set(userIdKey, userId);
-      
+
       // Fetch user details to get the name
       const userRecord = await db.query.user.findFirst({
         where: eq(user.id, userId),
       });
-      
+
       if (userRecord) {
         context.storage.set(userNameKey, userRecord.name);
       }

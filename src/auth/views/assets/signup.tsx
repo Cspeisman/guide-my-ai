@@ -24,7 +24,7 @@ function SignupForm() {
       formData.append("email", email);
       formData.append("password", password);
 
-      const response = await fetch(routes.auth.signup.action.href(), {
+      const response = await fetch(routes.auth.api.signup.href(), {
         method: "POST",
         body: formData,
       });
@@ -46,10 +46,10 @@ function SignupForm() {
       setEmail("");
       setPassword("");
 
-      // Redirect to login after 2 seconds
+      // Redirect to login after 1 seconds
       setTimeout(() => {
         window.location.href = routes.auth.login.index.href();
-      }, 2000);
+      }, 1000);
     } catch (err) {
       setError(
         err instanceof Error ? err.message : "An error occurred during signup"
@@ -106,7 +106,7 @@ function SignupForm() {
               htmlFor="name"
               className="block text-sm font-semibold text-gray-700 mb-2"
             >
-              Full Name
+              User name
             </label>
             <input
               type="text"

@@ -1,18 +1,17 @@
-import React from "react";
-import { Layout } from "./layouts/Layout";
+import type { RequestContext } from "@remix-run/fetch-router";
+import { FileCode, Settings, User } from "lucide-react";
 import { userIdKey, userNameKey } from "./auth/auth-middleware";
+import { Layout } from "./layouts/Layout";
+import { UnauthedLayout } from "./layouts/UnauthedLayout";
 import { Mcp } from "./mcps/mcp";
 import { McpsRepository } from "./mcps/mcps-repository";
-import { Rule } from "./rules/rule";
-import { RulesRepository } from "./rules/rules-repository";
 import { Profile } from "./profiles/profile";
 import { ProfilesRepository } from "./profiles/profiles-repository";
-import { FileCode, Plus, Settings, Sparkles, User } from "lucide-react";
 import { routes } from "./routes";
+import { Rule } from "./rules/rule";
+import { RulesRepository } from "./rules/rules-repository";
 import { render } from "./utils";
 import { CreatedAt } from "./utils/created-at";
-import { UnauthedLayout } from "./layouts/UnauthedLayout";
-import type { RequestContext } from "@remix-run/fetch-router";
 export const homeHandler = (
   dependencies = {
     rulesRepository: new RulesRepository(),
@@ -49,7 +48,7 @@ export const homeHandler = (
                 </p>
                 <div className="flex justify-center gap-4">
                   <a
-                    href={routes.auth.signup.index.href()}
+                    href={routes.auth.signup.href()}
                     className="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold px-8 py-3 rounded-lg transition-colors"
                   >
                     Sign Up

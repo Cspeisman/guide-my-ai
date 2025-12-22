@@ -5,9 +5,12 @@ export const routes = route({
   css: "/css/*path",
   home: "/",
   auth: {
-    signup: form("/auth/signup"),
+    signup: "/auth/signup",
     login: form("/auth/login"),
     logout: { pattern: "/auth/logout", method: "POST" },
+    api: {
+      signup: { pattern: "/api/signup", method: "POST" },
+    },
   },
   oauth: {
     login: form("/oauth/login"),

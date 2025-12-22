@@ -8,6 +8,7 @@ import { rulesHandlers } from "./rules/rules-handlers";
 import { mcpsHandlers } from "./mcps/mcps-handlers";
 import { routes } from "./routes";
 import { homeHandler } from "./home-handler";
+import { AuthService } from "./auth/auth-service";
 
 // Create router with middleware
 const router = createRouter({
@@ -23,7 +24,7 @@ router.map(routes, {
     return serveStaticFile(request);
   },
   ...homeHandler(),
-  ...authHandlers,
+  ...authHandlers(new AuthService()),
   profiles: profileHandlers(),
   rules: rulesHandlers(),
   mcps: mcpsHandlers(),
