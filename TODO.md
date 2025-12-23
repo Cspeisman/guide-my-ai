@@ -1,0 +1,1 @@
+- [ ] Do assets need to go through build process in dev?

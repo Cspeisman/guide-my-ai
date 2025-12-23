@@ -1,37 +1,6 @@
 import { describe, it, expect } from "bun:test";
 import { authHandlers } from "./auth-handlers";
 describe("authHandlers", () => {
-  describe("oauth", () => {
-    it("should redirect to the redirectUrl with the token when successfully signed in", async () => {
-      const authService = {
-        async signin(emai: string, pw: string) {
-          return {
-            async json() {
-              return { token: "my-test-token" };
-            },
-          };
-        },
-      };
-      const handler = authHandlers(authService as any);
-      const contextStub = {
-        request: {
-          url: "http://my-fake-url.com?redirect_uri=http://callback-url.com",
-          async formData() {
-            const map = new Map();
-            map.set("email", "my-email@gmail.com");
-            map.set("password", "my-password");
-            return map;
-          },
-        },
-      };
-      const response = await handler.oauth.login.action(contextStub as any);
-      const payload = await response.json();
-      expect(payload.redirectUrl).toBe(
-        "http://callback-url.com/?code=my-test-token"
-      );
-    });
-  });
-
   describe("validateToken", () => {
     it("should return isValid true when token is valid", async () => {
       const authService = {
@@ -69,6 +38,50 @@ describe("authHandlers", () => {
       const response = await handler.auth.api.validateToken(contextStub as any);
       const payload = await response.json();
       expect(payload.isValid).toBe(false);
+    });
+  });
+
+  describe("callback", () => {
+    it("should redirect to home when redirect_uri is not present", async () => {
+      const authService = {
+        async getSession(headers: Headers) {
+          return {
+            session: { token: "test-token" },
+          };
+        },
+      };
+      const handler = authHandlers(authService as any);
+      const contextStub = {
+        request: {
+          url: "http://my-fake-url.com/auth/callback",
+          headers: new Headers(),
+        },
+      };
+      const response = await handler.auth.callback(contextStub as any);
+      expect(response.status).toBe(302);
+      expect(response.headers.get("Location")).toBe("/");
+    });
+
+    it("should redirect to redirect_uri with token when redirect_uri is present", async () => {
+      const authService = {
+        async getSession(headers: Headers) {
+          return {
+            session: { token: "test-session-token" },
+          };
+        },
+      };
+      const handler = authHandlers(authService as any);
+      const contextStub = {
+        request: {
+          url: "http://my-fake-url.com/auth/callback?redirect_uri=http://callback-url.com",
+          headers: new Headers(),
+        },
+      };
+      const response = await handler.auth.callback(contextStub as any);
+      expect(response.status).toBe(302);
+      expect(response.headers.get("Location")).toBe(
+        "http://callback-url.com/?token=test-session-token"
+      );
     });
   });
 });

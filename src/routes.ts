@@ -5,16 +5,16 @@ export const routes = route({
   css: "/css/*path",
   home: "/",
   auth: {
-    signup: "/auth/signup",
+    signup: form("/auth/signup"),
     login: form("/auth/login"),
-    logout: { pattern: "/auth/logout", method: "POST" },
+    callback: "/auth/callback",
+    logout: {
+      pattern: "/auth/logout",
+      method: "POST",
+    },
     api: {
-      signup: { pattern: "/api/signup", method: "POST" },
       validateToken: { pattern: "api/validateToken", method: "POST" },
     },
-  },
-  oauth: {
-    login: form("/oauth/login"),
   },
   profiles: {
     ...resources("profiles", {

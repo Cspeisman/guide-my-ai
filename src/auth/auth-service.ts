@@ -59,4 +59,10 @@ export class AuthService {
     }
     return false;
   }
+
+  async getSession(headers: Headers) {
+    return await this.client.getSession({
+      headers: headers,
+    });
+  }
 }

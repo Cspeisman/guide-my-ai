@@ -22,16 +22,28 @@ export function createApiAuthMiddleware(): Middleware {
 
     // Allow static assets and auth routes without authentication
     if (
-      [
-        routes.auth.signup.href(),
-        routes.auth.login.index.href(),
-        routes.auth.api.signup.href(),
-        routes.oauth.login.index.href(),
-        routes.oauth.login.action.href(),
-      ].includes(context.url.pathname) ||
       context.url.pathname.startsWith("/css/") ||
       context.url.pathname.startsWith("/js/")
     ) {
+      return next();
+    }
+
+    if (
+      [
+        routes.auth.signup.index.href(),
+        routes.auth.signup.action.href(),
+        routes.auth.login.index.href(),
+      ].includes(context.url.pathname)
+    ) {
+      const session = await betterAuthClient.api.getSession({
+        headers: context.request.headers,
+      });
+      if (session) {
+        return Response.redirect(
+          routes.auth.callback.href(null, context.url.searchParams),
+          302
+        );
+      }
       return next();
     }
 

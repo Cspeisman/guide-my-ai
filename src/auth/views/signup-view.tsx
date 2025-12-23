@@ -1,83 +1,11 @@
-import React, { useState, FormEvent } from "react";
-import { createRoot } from "react-dom/client";
 import { Github } from "lucide-react";
-import { routes } from "../../../routes";
-import { authClient } from "../../auth-client";
+import { routes } from "../../routes";
 
-function SignupForm() {
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
+interface Props {
+  error?: string;
+}
 
-  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    setError("");
-    setSuccess("");
-    setIsLoading(true);
-
-    try {
-      const formData = new FormData();
-      formData.append("name", name);
-      formData.append("email", email);
-      formData.append("password", password);
-
-      const response = await fetch(routes.auth.api.signup.href(), {
-        method: "POST",
-        body: formData,
-      });
-
-      if (!response.ok) {
-        const errorData = await response
-          .json()
-          .catch(() => ({ message: "An error occurred" }));
-        throw new Error(errorData.message || "Signup failed");
-      }
-
-      const result = await response.json();
-
-      // Show success message
-      setSuccess(result.message || "Account created successfully!");
-
-      // Reset form
-      setName("");
-      setEmail("");
-      setPassword("");
-
-      // Redirect to login after 1 seconds
-      setTimeout(() => {
-        window.location.href = routes.auth.login.index.href();
-      }, 1000);
-    } catch (err) {
-      setError(
-        err instanceof Error ? err.message : "An error occurred during signup"
-      );
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleGitHubSignIn = async () => {
-    setError("");
-    setIsLoading(true);
-
-    try {
-      await authClient.signIn.social({
-        provider: "github",
-        callbackURL: routes.home.href(),
-      });
-    } catch (err) {
-      setError(
-        err instanceof Error
-          ? err.message
-          : "An error occurred with GitHub sign-in"
-      );
-      setIsLoading(false);
-    }
-  };
-
+export const SignupView = ({ error }: Props) => {
   return (
     <div className="max-w-2xl mx-auto">
       <div className="mb-6">
@@ -93,14 +21,8 @@ function SignupForm() {
         </div>
       )}
 
-      {success && (
-        <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg mb-6">
-          {success}
-        </div>
-      )}
-
       <div className="bg-white rounded-xl border border-gray-200 p-8 shadow-sm">
-        <form id="signupForm" onSubmit={handleSubmit}>
+        <form method={routes.auth.signup.action.method}>
           <div className="mb-6">
             <label
               htmlFor="name"
@@ -112,8 +34,6 @@ function SignupForm() {
               type="text"
               id="name"
               name="name"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
               required
               autoComplete="name"
               placeholder="Enter your full name"
@@ -133,8 +53,6 @@ function SignupForm() {
               type="email"
               id="email"
               name="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
               required
               autoComplete="email"
               placeholder="Enter your email"
@@ -153,8 +71,6 @@ function SignupForm() {
               type="password"
               id="password"
               name="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
               required
               autoComplete="new-password"
               minLength={8}
@@ -169,10 +85,9 @@ function SignupForm() {
           <div className="flex gap-4">
             <button
               type="submit"
-              disabled={isLoading}
               className="px-6 py-2.5 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 transition-all shadow-sm hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {isLoading ? "Signing up..." : "Sign Up"}
+              Sign Up
             </button>
           </div>
         </form>
@@ -188,15 +103,15 @@ function SignupForm() {
           </div>
         </div>
 
-        <button
-          type="button"
-          onClick={handleGitHubSignIn}
-          disabled={isLoading}
-          className="w-full flex items-center justify-center gap-3 px-4 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          <Github className="w-5 h-5" />
-          <span className="font-medium text-gray-700">GitHub</span>
-        </button>
+        <form id="github-oauth">
+          <button
+            type="submit"
+            className="w-full flex items-center justify-center gap-3 px-4 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            <Github className="w-5 h-5" />
+            <span className="font-medium text-gray-700">GitHub</span>
+          </button>
+        </form>
       </div>
 
       <div className="mt-6 text-center text-sm text-gray-600">
@@ -210,10 +125,4 @@ function SignupForm() {
       </div>
     </div>
   );
-}
-
-const rootElement = document.getElementById("root");
-if (rootElement) {
-  const root = createRoot(rootElement);
-  root.render(<SignupForm />);
-}
+};

@@ -48,7 +48,7 @@ export const homeHandler = (
                 </p>
                 <div className="flex justify-center gap-4">
                   <a
-                    href={routes.auth.signup.href()}
+                    href={routes.auth.signup.index.href()}
                     className="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold px-8 py-3 rounded-lg transition-colors"
                   >
                     Sign Up

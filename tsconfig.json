@@ -11,12 +11,8 @@
     "forceConsistentCasingInFileNames": true,
     "resolveJsonModule": true,
     "allowSyntheticDefaultImports": true,
-    "types": ["bun-types"],
-    "paths": {
-      "~/*": ["./src/*"]
-    }
+    "types": ["bun-types"]
   },
   "include": ["src/**/*", "scripts/**/*"],
   "exclude": ["node_modules", "dist"]
 }
-
