@@ -1,4 +1,3 @@
-- [ ] Logout not working on prod
 - [ ] Github auth on prod
 - [ ] Extension readme
 - [ ] Validate MCP context for expected json format

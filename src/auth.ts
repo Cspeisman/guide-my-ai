@@ -17,5 +17,9 @@ export const betterAuthClient = betterAuth({
     },
   },
   baseURL: process.env.APP_URL || "http://localhost:3000",
+  trustedOrigins: [
+    process.env.APP_URL || "http://localhost:3000",
+    ...(process.env.TRUSTED_ORIGINS?.split(",") || []),
+  ],
   secret: process.env.AUTH_SECRET || "change-me-to-a-secret-key-in-production",
 });
