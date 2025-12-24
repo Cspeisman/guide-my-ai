@@ -8,8 +8,8 @@
     "start": "bun run src/server.ts",
     "test": "bun test",
     "typecheck": "tsc --noEmit",
-    "build:assets": "bun run scripts/build-assets.ts && bunx @tailwindcss/cli -i ./src/input.css -o ./dist/css/output.css",
-    "build:assets:watch": "bun run scripts/build-assets.ts --watch & bunx @tailwindcss/cli -i ./src/input.css -o ./dist/css/output.css --watch & wait",
+    "build:assets": "bun run scripts/build-assets.ts && bunx @tailwindcss/cli -i ./src/input.css -o ./dist/css/output.css && cp scripts/favicon.ico dist/favicon.ico",
+    "build:assets:watch": "bun run scripts/build-assets.ts --watch & bunx @tailwindcss/cli -i ./src/input.css -o ./dist/css/output.css --watch & cp scripts/favicon.ico dist/favicon.ico & wait",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate"
   },

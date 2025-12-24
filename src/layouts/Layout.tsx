@@ -1,4 +1,5 @@
 import {
+  Download,
   FileCode,
   FolderCode,
   LayoutDashboard,
@@ -23,6 +24,7 @@ export function Document({
         <meta charSet="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>{title}</title>
+        <link rel="icon" type="image/x-icon" href={routes.favicon.href()} />
         <link href={routes.css.href({ path: "output.css" })} rel="stylesheet" />
         {assets?.scripts.map((fileName) => (
           <script key={fileName} type="module" async src={`${fileName}.js`} />
@@ -55,7 +57,6 @@ export function Layout({
             <div className="flex items-center gap-3 mb-2">
               <div>
                 <h2 className="font-bold text-gray-900">Guide My AI</h2>
-                <p className="text-xs text-gray-500 font-mono">~/config</p>
                 {userName && (
                   <p className="text-xs text-gray-600 mt-1">
                     Logged in as <span className="font-medium">{userName}</span>
@@ -113,17 +114,24 @@ export function Layout({
           </nav>
 
           {/* Logout Section */}
-          <div className="p-4 border-t border-gray-200">
+          <div className="p-4 border-t border-gray-200 space-y-1">
+            <a
+              href="cursor:extension/GuideMyAI.guide-my-ai-extension"
+              className="flex items-center gap-3 px-4 py-3 text-xs text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50 hover:border-gray-400 transition-all w-full"
+            >
+              <Download size={16} />
+              <span>Download extension</span>
+            </a>
             <form
               method={routes.auth.logout.method}
               action={routes.auth.logout.href()}
             >
               <button
                 type="submit"
-                className="flex items-center gap-3 px-4 py-3 rounded-lg transition-all text-gray-700 hover:bg-gray-100 hover:text-text-900 border-l-2 border-transparent w-full"
+                className="flex items-center gap-3 px-4 py-3 rounded-lg transition-all text-xs text-gray-700 hover:bg-gray-100 hover:text-text-900 border-l-2 border-transparent w-full"
               >
-                <LogOut size={10} />
-                <span className="text-xs">Logout</span>
+                <LogOut size={16} />
+                <span>Logout</span>
               </button>
             </form>
           </div>

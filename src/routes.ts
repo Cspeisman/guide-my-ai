@@ -3,6 +3,7 @@ import { form, resources, route } from "@remix-run/fetch-router";
 export const routes = route({
   js: "/js/*path",
   css: "/css/*path",
+  favicon: "/favicon.ico",
   home: "/",
   auth: {
     signup: form("/auth/signup"),

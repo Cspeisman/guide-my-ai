@@ -8,9 +8,9 @@
  *   bun run scripts/build-assets.ts --watch # Watch mode
  */
 
-import { mkdir, readdir } from "fs/promises";
 import { watch } from "fs";
-import { join, relative, dirname, basename } from "path";
+import { mkdir, readdir } from "fs/promises";
+import { basename, join } from "path";
 
 const srcDir = join(import.meta.dir, "..", "src");
 const distDir = join(import.meta.dir, "..", "dist", "js");

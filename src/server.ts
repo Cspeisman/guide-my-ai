@@ -23,6 +23,9 @@ router.map(routes, {
   css({ request }) {
     return serveStaticFile(request);
   },
+  favicon({ request }) {
+    return serveStaticFile(request);
+  },
   ...homeHandler(),
   ...authHandlers(new AuthService()),
   profiles: profileHandlers(),

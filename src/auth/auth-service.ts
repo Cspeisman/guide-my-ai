@@ -65,4 +65,11 @@ export class AuthService {
       headers: headers,
     });
   }
+
+  async signout(headers: Headers) {
+    return await this.client.signOut({
+      headers: headers,
+      asResponse: true,
+    });
+  }
 }

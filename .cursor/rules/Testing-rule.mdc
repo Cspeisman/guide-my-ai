@@ -1,0 +1,156 @@
+---
+description: Testing approach
+globs:
+alwaysApply: true
+---
+
+# Testing Approach
+
+## Testing Framework & Tools
+
+- **Vitest** for unit/integration tests
+- **React Testing Library** for component testing
+- **Playwright** for E2E tests
+
+## File Structure & Organization
+
+#### Unit/Integration Tests
+
+```
+src/
+  components/
+    component-name.tsx            # Component implementation
+    component-name.test.tsx       # Component tests (co-located)
+    component-name.mocks.ts       # Component-specific mocks (optional)
+  hooks/
+    use-custom-hook.ts            # Hook implementation
+    use-custom-hook.test.ts       # Hook tests (co-located)
+    use-custom-hook.mocks.ts      # Hook-specific mocks (optional)
+  services/
+    service-name.ts               # Service implementation
+    service-name.test.ts          # Service tests (co-located)
+```
+
+#### E2E Tests
+
+```
+__e2e-tests__/
+  feature-name.spec.ts            # Playwright E2E tests
+```
+
+## Naming Conventions
+
+- **Unit/Integration tests**: `*.test.tsx` or `*.test.ts`
+- **E2E tests**: `*.spec.ts`
+- **Mock files**: `*-mocks.ts` or `mock-*.ts`
+
+## React Component Testing Best Practices
+
+### Write Tests in Maintainable and Reusable Manner
+
+Writing maintainable tests is crucial for long-term project success. Well-structured tests reduce maintenance overhead, improve readability, and make debugging easier when tests fail.
+
+#### Key Principles
+
+##### 1. Use Descriptive Test Names
+
+Test names should clearly describe what is being tested and the expected outcome.
+
+```typescript
+// ❌ Bad: Vague test names
+it('works', () => { ... });
+it('test component', () => { ... });
+
+// ✅ Good: Descriptive test names
+it('renders service details when data is loaded successfully', () => { ... });
+it('displays error message when API call fails', () => { ... });
+it('calls onSelectService when user clicks service row', () => { ... });
+```
+
+##### 2. Test User Behavior, Not Implementation
+
+Focus on what users see and do, not internal component mechanics.
+
+```typescript
+// ❌ Bad: Testing implementation details
+it('sets isLoading state to true when fetching data', () => {
+    const { rerender } = render(<ServiceView />);
+    expect(component.state.isLoading).toBe(true);
+});
+
+it('calls useState hook with correct initial value', () => {
+    const setStateSpy = jest.spyOn(React, 'useState');
+    render(<ServiceView />);
+    expect(setStateSpy).toHaveBeenCalledWith(false);
+});
+
+// ✅ Good: Testing user-visible behavior
+it('displays loading spinner while fetching service data', () => {
+    mockUseServiceData.mockReturnValue(createMockQueryResult(undefined, true));
+    render(<ServiceView />);
+    expect(screen.getByText('Loading...')).toBeInTheDocument();
+});
+
+it('shows service details when data loads successfully', () => {
+    const mockService = createMockServiceData();
+    mockUseServiceData.mockReturnValue(createMockQueryResult([mockService]));
+    render(<ServiceView />);
+    expect(screen.getByText('test-service-api')).toBeInTheDocument();
+});
+```
+
+##### 2. Uses mocks via dependency injection, rather than module or global mocking.
+
+Example:
+```typescript
+// ❌ Bad: Creating a global module mock
+vi.mock('./userService', () => ({
+  userService: {
+    fetchUser: vi.fn(),
+  },
+}));
+
+it('displays user name from mocked service', async () => {
+    // Configure the global mock for this test
+    const { userService: mockUserService } = await import('./userService');
+    vi.mocked(mockUserService.fetchUser).mockResolvedValue({ name: 'Alice' });
+
+    render(<GlobalMockUserList />);
+
+    await screen.findByText('Alice');
+});
+
+// ✅ Good: Dependency Injection approach
+    const mockUserService = {
+      fetchUser: vi.fn().mockResolvedValue({ name: 'Alice' }),
+    };
+
+    render(<DIUserList userService={mockUserService} />);
+
+    // Assert the service was called
+    expect(mockUserService.fetchUser).toHaveBeenCalledWith('123');
+
+    // Assert the UI rendered correctly
+    const userName = await screen.findByText('Alice');
+```
+## Testing Guidelines
+
+### What to Test
+
+#### ✅ DO Test
+
+- **Component rendering** with different props/states
+- **User interactions** (clicks, form submissions, etc.)
+- **Loading, error, and success states**
+- **Edge cases** (empty data, missing props, etc.)
+- **Integration behavior** (component interactions with hooks/services)
+- **Conditional rendering** based on data/state
+- **Accessibility** (roles, labels, etc.)
+
+#### ❌ DON'T Test
+
+- **Implementation details** (internal state, private methods)
+- **Third-party library internals**
+- **Styling/CSS** (unless functional)
+- **Exact HTML structure** (focus on user-visible behavior)
+- **Provided libraries** (assume used libraries are implemented correctly)

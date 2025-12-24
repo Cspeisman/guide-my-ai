@@ -23,7 +23,8 @@ export function createApiAuthMiddleware(): Middleware {
     // Allow static assets and auth routes without authentication
     if (
       context.url.pathname.startsWith("/css/") ||
-      context.url.pathname.startsWith("/js/")
+      context.url.pathname.startsWith("/js/") ||
+      context.url.pathname === "/favicon.ico"
     ) {
       return next();
     }

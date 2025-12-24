@@ -1,0 +1,3 @@
+- When styling a component or markup, use Tailwind classes whenever you can. If Tailwind doesn't offer the support needed, use inline styles for jsx components or custom css for html markup.
+
+- When styling, keep a consistent theme: colors, typography, spacing, and layouts should be the same across all pages and components

@@ -1,1 +1,5 @@
-- [ ] Do assets need to go through build process in dev?
+- [ ] Logout not working on prod
+- [ ] Github auth on prod
+- [ ] Extension readme
+- [ ] Validate MCP context for expected json format
+- [ ] Extension download link from homepage

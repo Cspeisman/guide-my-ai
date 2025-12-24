@@ -111,14 +111,8 @@ export const authHandlers = (authService: AuthService) => {
         }
       },
       async logout({ request }: { request: Request }) {
-        // Call Better Auth's sign-out endpoint
-        const signOutResponse = await fetch(
-          new URL("/api/auth/sign-out", request.url).toString(),
-          {
-            method: "POST",
-            headers: request.headers,
-          }
-        );
+        // Call Better Auth's sign-out API directly
+        const signOutResponse = await authService.signout(request.headers);
 
         return redirectWithCookies(signOutResponse, routes.home.href());
       },
