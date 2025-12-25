@@ -39,8 +39,48 @@ describe("mcpsHandlers", () => {
     expect(json.error).toBe("Context must be valid JSON");
   });
 
+  test("api.action validates mcpServers structure is present", async () => {
+    const invalidContext = JSON.stringify({ someOtherKey: "value" });
+    const context = {
+      request: {
+        json: async () => ({ name: "Test", context: invalidContext }),
+      },
+      params: { id: "1" },
+      storage: new Map(),
+    };
+
+    const handlers = mcpsHandlers({ mcpsRepository: mockMcpsRepository });
+    const response = await handlers.api.show.action(context as any);
+    const json = await response.json();
+
+    expect(response.status).toBe(400);
+    expect(json.error).toBe("Context must contain an 'mcpServers' object");
+  });
+
+  test("api.action validates mcpServers contains at least one server", async () => {
+    const invalidContext = JSON.stringify({ mcpServers: {} });
+    const context = {
+      request: {
+        json: async () => ({ name: "Test", context: invalidContext }),
+      },
+      params: { id: "1" },
+      storage: new Map(),
+    };
+
+    const handlers = mcpsHandlers({ mcpsRepository: mockMcpsRepository });
+    const response = await handlers.api.show.action(context as any);
+    const json = await response.json();
+
+    expect(response.status).toBe(400);
+    expect(json.error).toBe(
+      "Context must contain at least one MCP server in 'mcpServers'"
+    );
+  });
+
   test("api.action updates mcp with valid JSON", async () => {
-    const validJson = JSON.stringify({ key: "value" });
+    const validJson = JSON.stringify({
+      mcpServers: { "test-server": { command: "test" } },
+    });
     const createdAt = new Date();
     const context = {
       request: {
@@ -69,5 +109,49 @@ describe("mcpsHandlers", () => {
     expect(json.name).toBe("Test");
     expect(mockMcpsRepository.getMcpById).toHaveBeenCalledWith("1");
     expect(mockMcpsRepository.updateMcp).toHaveBeenCalled();
+  });
+
+  test("create validates mcpServers structure is present", async () => {
+    const invalidContext = JSON.stringify({ someOtherKey: "value" });
+    const formData = new FormData();
+    formData.append("name", "Test MCP");
+    formData.append("context", invalidContext);
+
+    const context = {
+      request: {
+        formData: async () => formData,
+      },
+      storage: new Map([["userId", "user123"]]),
+    };
+
+    const handlers = mcpsHandlers({ mcpsRepository: mockMcpsRepository });
+    const response = await handlers.create(context as any);
+    const json = await response.json();
+
+    expect(response.status).toBe(400);
+    expect(json.error).toBe("Context must contain an 'mcpServers' object");
+  });
+
+  test("create validates mcpServers contains at least one server", async () => {
+    const invalidContext = JSON.stringify({ mcpServers: {} });
+    const formData = new FormData();
+    formData.append("name", "Test MCP");
+    formData.append("context", invalidContext);
+
+    const context = {
+      request: {
+        formData: async () => formData,
+      },
+      storage: new Map([["userId", "user123"]]),
+    };
+
+    const handlers = mcpsHandlers({ mcpsRepository: mockMcpsRepository });
+    const response = await handlers.create(context as any);
+    const json = await response.json();
+
+    expect(response.status).toBe(400);
+    expect(json.error).toBe(
+      "Context must contain at least one MCP server in 'mcpServers'"
+    );
   });
 });

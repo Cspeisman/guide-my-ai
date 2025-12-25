@@ -54,7 +54,7 @@ export function New({ userName }: { userName?: string | null }) {
                 rows={10}
                 required
                 placeholder='{"key": "value"}'
-                defaultValue="{}"
+                defaultValue={`{"mcpServers": {\n\n\  }\n}`}
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all font-mono text-sm"
               />
               <p className="mt-2 text-sm text-gray-500">

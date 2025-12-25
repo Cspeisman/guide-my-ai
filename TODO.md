@@ -1,4 +1,2 @@
-- [ ] Github auth on prod
-- [ ] Extension readme
-- [ ] Validate MCP context for expected json format
-- [ ] Extension download link from homepage
+- [ ] button to download profile to local disk
+- [ ] ability to query all rules and all profiles

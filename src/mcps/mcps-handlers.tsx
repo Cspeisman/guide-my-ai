@@ -1,13 +1,14 @@
+import { Controller } from "@remix-run/fetch-router";
 import React from "react";
+import { userIdKey, userNameKey } from "../auth/auth-middleware";
 import { Layout } from "../layouts/Layout";
+import { routes } from "../routes";
+import { render } from "../utils";
 import { Mcp } from "./mcp";
 import { McpsRepository } from "./mcps-repository";
-import { New } from "./views/new";
+import { validateMcpContext } from "./utils/validate-mcp-context";
 import { McpsList } from "./views/mcps-list";
-import { Controller } from "@remix-run/fetch-router";
-import { routes } from "../routes";
-import { userIdKey, userNameKey } from "../auth/auth-middleware";
-import { render } from "../utils";
+import { New } from "./views/new";
 
 export const mcpsHandlers = (
   dependecies = { mcpsRepository: new McpsRepository() }
@@ -58,14 +59,10 @@ export const mcpsHandlers = (
         return Response.json({ error: "Context is required" }, { status: 400 });
       }
 
-      // Validate that context is valid JSON
-      try {
-        JSON.parse(mcpContext.toString());
-      } catch (e) {
-        return Response.json(
-          { error: "Context must be valid JSON" },
-          { status: 400 }
-        );
+      // Validate MCP context structure
+      const validation = validateMcpContext(mcpContext.toString());
+      if (!validation.valid) {
+        return Response.json({ error: validation.error }, { status: 400 });
       }
 
       const userId = context.storage.get(userIdKey);
@@ -152,14 +149,10 @@ export const mcpsHandlers = (
             );
           }
 
-          // Validate that context is valid JSON
-          try {
-            JSON.parse(mcpContext);
-          } catch (e) {
-            return Response.json(
-              { error: "Context must be valid JSON" },
-              { status: 400 }
-            );
+          // Validate MCP context structure
+          const validation = validateMcpContext(mcpContext);
+          if (!validation.valid) {
+            return Response.json({ error: validation.error }, { status: 400 });
           }
 
           // Get the current MCP to preserve fields like userId and createdAt
