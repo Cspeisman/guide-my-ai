@@ -3,7 +3,7 @@ import { describe, expect, it } from "bun:test";
 import { Rule } from "./rule";
 import { rulesHandlers } from "./rules-handlers";
 import { RulesRepository } from "./rules-repository";
-import { userIdKey } from "../auth/auth-middleware";
+import { userIdKey, userNameKey } from "../auth/auth-middleware";
 
 class FakeRulesRepository extends RulesRepository {
   rules: Rule[];
@@ -20,7 +20,7 @@ class FakeRulesRepository extends RulesRepository {
 function createMockContext(options: { userId: string }) {
   const storage = new AppStorage();
   storage.set(userIdKey, options.userId);
-
+  storage.set(userNameKey, options.userId);
   return {
     storage,
   };

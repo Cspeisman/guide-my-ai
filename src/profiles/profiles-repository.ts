@@ -79,6 +79,7 @@ export class ProfilesRepository {
       result.profilesToMcps?.map((ptm) => ({
         id: ptm.mcp.id,
         name: ptm.mcp.name,
+        context: ptm.mcp.context,
       })) || []
     );
   }

@@ -1,11 +1,10 @@
 import { AppStorage } from "@remix-run/fetch-router";
 import { describe, expect, it } from "bun:test";
-import { userIdKey } from "../auth/auth-middleware";
+import { userIdKey, userNameKey } from "../auth/auth-middleware";
+import { routes } from "../routes";
 import { Profile } from "./profile";
 import { profileHandlers } from "./profile-handlers";
 import { ProfilesRepository } from "./profiles-repository";
-import { routes } from "../routes";
-import { RequestContext } from "better-auth/client";
 
 class FakeProfilesRepository extends ProfilesRepository {
   profiles: Profile[];
@@ -48,6 +47,7 @@ function createMockContext(options: {
 }) {
   const storage = new AppStorage();
   storage.set(userIdKey, options.userId);
+  storage.set(userNameKey, options.userId);
 
   return {
     storage,
@@ -70,8 +70,8 @@ describe("profileHandlers", () => {
           { id: "rule2", name: "Another Rule", content: "More content" },
         ],
         [
-          { id: "mcp1", name: "Test MCP" },
-          { id: "mcp2", name: "Another MCP" },
+          { id: "mcp1", name: "Test MCP", context: "" },
+          { id: "mcp2", name: "Another MCP", context: "" },
         ]
       ),
       new Profile(

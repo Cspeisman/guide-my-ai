@@ -1,9 +1,8 @@
-import { ArrowLeft } from "lucide-react";
-import React from "react";
-import { routes } from "../../routes";
-import { Profile } from "../profile";
+import { ArrowLeft, Download } from "lucide-react";
 import { Layout } from "../../layouts/Layout";
+import { routes } from "../../routes";
 import { CreatedAt } from "../../utils/created-at";
+import { Profile } from "../profile";
 
 interface Props {
   profile: Profile;
@@ -13,7 +12,10 @@ export const Show = (props: Props) => {
   return (
     <Layout
       assets={{
-        scripts: [routes.js.href({ path: "delete-confirmation" })],
+        scripts: [
+          routes.js.href({ path: "delete-confirmation" }),
+          routes.js.href({ path: "profile-download" }),
+        ],
       }}
       activeNav="profiles"
       userName={props.userName}
@@ -33,12 +35,29 @@ export const Show = (props: Props) => {
                 </div>
               </div>
             </div>
-            <a
-              href={routes.profiles.edit.href({ id: props.profile.id })}
-              className="px-6 py-2.5 rounded-lg bg-white border border-indigo-200 text-indigo-600 hover:bg-indigo-50 hover:border-indigo-300 transition-all shadow-sm hover:shadow"
-            >
-              Edit Profile
-            </a>
+            <div className="flex gap-3">
+              <button
+                type="button"
+                title="Download profile"
+                data-action="download-profile"
+                data-profile={JSON.stringify({
+                  name: props.profile.name,
+                  createdAt: props.profile.createdAt,
+                  updatedAt: props.profile.updatedAt,
+                  mcps: props.profile.mcps,
+                  rules: props.profile.rules,
+                })}
+                className="p-2 px-3 rounded-lg bg-white border border-emerald-200 text-emerald-600 hover:bg-emerald-50 hover:border-emerald-300 transition-all shadow-sm hover:shadow"
+              >
+                <Download size={16} width={24} />
+              </button>
+              <a
+                href={routes.profiles.edit.href({ id: props.profile.id })}
+                className="px-6 py-2.5 rounded-lg bg-white border border-indigo-200 text-indigo-600 hover:bg-indigo-50 hover:border-indigo-300 transition-all shadow-sm hover:shadow"
+              >
+                Edit Profile
+              </a>
+            </div>
           </div>
         </div>
 

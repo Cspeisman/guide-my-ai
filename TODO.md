@@ -1,2 +1,1 @@
-- [ ] button to download profile to local disk
-- [ ] ability to query all rules and all profiles
+- [ ] pull in individual mcps or rules
