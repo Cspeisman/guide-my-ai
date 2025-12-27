@@ -1,1 +1,0 @@
-- [ ] pull in individual mcps or rules
