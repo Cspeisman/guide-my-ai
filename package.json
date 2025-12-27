@@ -23,6 +23,7 @@
   "dependencies": {
     "@paralleldrive/cuid2": "^3.0.4",
     "@remix-run/fetch-router": "^0.13.0",
+    "@remix-run/logger-middleware": "^0.1.0",
     "@remix-run/response": "^0.2.0",
     "@tailwindcss/cli": "^4.1.18",
     "better-auth": "^1.4.6",

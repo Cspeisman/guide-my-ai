@@ -6,6 +6,7 @@
       "dependencies": {
         "@paralleldrive/cuid2": "^3.0.4",
         "@remix-run/fetch-router": "^0.13.0",
+        "@remix-run/logger-middleware": "^0.1.0",
         "@remix-run/response": "^0.2.0",
         "@tailwindcss/cli": "^4.1.18",
         "better-auth": "^1.4.6",
@@ -227,6 +228,8 @@
     "@remix-run/headers": ["@remix-run/headers@0.18.0", "", {}, "sha512-5V/doLOF1IBuMhV+USa/ImUzpql4SQ0VBbNKbRHvrwRK59GYGVqtcwpVzgdFb5QEa2vIedq4JdOy7FIesZUpIw=="],
 
     "@remix-run/html-template": ["@remix-run/html-template@0.3.0", "", {}, "sha512-aAMx68udtIk0fmCpCXHYscVeCDsRVEmEgh4XvtusPr3vkHu3jn4gx5oAxgsPXPdDmmD/d75SYyI0m/F+aLz5iQ=="],
+
+    "@remix-run/logger-middleware": ["@remix-run/logger-middleware@0.1.0", "", { "peerDependencies": { "@remix-run/fetch-router": "^0.9.0" } }, "sha512-XEQoUKyBK7jcaPdnWaqNlzRtEr31hRKjGS9T6qCiL/sNp9V8fzVlv+kSBJgZ+RqvOnCRQKV217lh+XTgXQjJ2g=="],
 
     "@remix-run/mime": ["@remix-run/mime@0.1.0", "", {}, "sha512-SUuIhuzaFdPPF8hPJ2qneILnP3Nxc96jvuz6QAhXDeqenXsCNUdduF+6J2PILdzme0t3dVZcHARfcgYPTaOWdg=="],
 
