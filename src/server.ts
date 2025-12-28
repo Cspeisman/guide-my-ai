@@ -9,11 +9,12 @@ import { mcpsHandlers } from "./mcps/mcps-handlers";
 import { routes } from "./routes";
 import { homeHandler } from "./home-handler";
 import { AuthService } from "./auth/auth-service";
-import { logger } from "@remix-run/logger-middleware";
+import { logger } from "./middleware/logger";
+
 
 // Create router with middleware
 const router = createRouter({
-  middleware: [logger(), createApiAuthMiddleware()],
+  middleware: [logger({ logBody: true }), createApiAuthMiddleware()],
 });
 
 // Map routes to handlers
