@@ -1,0 +1,4 @@
+- [ ] make it more mobile friendly
+- [ ] Supply default example rules or quickly pull in rules from somwhere else
+- [ ] Google oauth
+- [ ] share profiles/rules/mcps
