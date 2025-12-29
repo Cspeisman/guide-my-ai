@@ -10,6 +10,7 @@ import {
 import React from "react";
 import { routes } from "../routes";
 import { TopNavBar } from "../components/TopNavBar";
+import { IdeDownloadMenu } from "../components/IdeDownloadMenu";
 
 export function Document({
   title = "Title",
@@ -120,13 +121,7 @@ export function Layout({
 
           {/* Logout Section */}
           <div className="p-4 border-t border-gray-200 space-y-1">
-            <a
-              href="cursor:extension/GuideMyAI.guide-my-ai-extension"
-              className="flex items-center gap-3 px-4 py-3 text-xs text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50 hover:border-gray-400 transition-all w-full"
-            >
-              <Download size={16} />
-              <span>Download extension</span>
-            </a>
+            <IdeDownloadMenu />
             <form
               method={routes.auth.logout.method}
               action={routes.auth.logout.href()}

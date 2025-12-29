@@ -3,6 +3,7 @@ import React from "react";
 import { routes } from "../routes";
 import { Document } from "./Layout";
 import { TopNavBar } from "../components/TopNavBar";
+import { IdeDownloadMenu } from "../components/IdeDownloadMenu";
 export function UnauthedLayout({
   children,
   assets,
@@ -31,13 +32,9 @@ export function UnauthedLayout({
               </a>
             </div>
           </div>
-          <a
-            href="cursor:extension/GuideMyAI.guide-my-ai-extension"
-            className="m-3 py-2 px-3 text-xs text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50 hover:border-gray-400 transition-all flex align-middle gap-3"
-          >
-            <Download size={16} />
-            <span>Download extension</span>
-          </a>
+          <div className="p-6">
+            <IdeDownloadMenu />
+          </div>
         </aside>
 
         {/* Main Content */}
