@@ -3,7 +3,8 @@ export class Rule {
     public id: string,
     public name: string,
     public content: string,
-    public createdAt: Date
+    public createdAt: Date,
+    public userId: string
   ) {}
 
   toJson() {
@@ -12,6 +13,7 @@ export class Rule {
       name: this.name,
       content: this.content,
       createdAt: this.createdAt,
+      userId: this.userId,
     };
   }
 }

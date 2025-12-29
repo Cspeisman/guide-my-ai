@@ -11,7 +11,13 @@ export class RulesRepository {
     });
     return results.map(
       (result) =>
-        new Rule(result.id, result.name, result.content, result.createdAt)
+        new Rule(
+          result.id,
+          result.name,
+          result.content,
+          result.createdAt,
+          result.userId
+        )
     );
   }
 
@@ -22,7 +28,13 @@ export class RulesRepository {
     if (!result) {
       return null;
     }
-    return new Rule(result.id, result.name, result.content, result.createdAt);
+    return new Rule(
+      result.id,
+      result.name,
+      result.content,
+      result.createdAt,
+      result.userId
+    );
   }
 
   async createRule(rule: {
@@ -31,7 +43,13 @@ export class RulesRepository {
     userId: string;
   }): Promise<Rule> {
     const [result] = await db.insert(rules).values(rule).returning();
-    return new Rule(result.id, result.name, result.content, result.createdAt);
+    return new Rule(
+      result.id,
+      result.name,
+      result.content,
+      result.createdAt,
+      result.userId
+    );
   }
 
   async updateRule(rule: Rule): Promise<Rule> {
@@ -44,7 +62,13 @@ export class RulesRepository {
       })
       .where(eq(rules.id, rule.id))
       .returning();
-    return new Rule(result.id, result.name, result.content, result.createdAt);
+    return new Rule(
+      result.id,
+      result.name,
+      result.content,
+      result.createdAt,
+      result.userId
+    );
   }
 
   async deleteRule(id: string): Promise<void> {

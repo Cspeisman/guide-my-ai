@@ -19,7 +19,11 @@ class FakeProfilesRepository extends ProfilesRepository {
   }
 
   async getProfileById(id: string): Promise<Profile | null> {
-    return new Profile(id, `Profile ${id}`, "", new Date(), new Date(), [], []);
+    const profile = this.profiles.find((p) => p.id === id);
+    if (!profile) {
+      return null;
+    }
+    return profile;
   }
 
   async createProfile(data: {
@@ -37,6 +41,26 @@ class FakeProfilesRepository extends ProfilesRepository {
     );
     this.profiles.push(newProfile);
     return newProfile;
+  }
+
+  async updateProfile(profile: Profile): Promise<Profile> {
+    const index = this.profiles.findIndex((p) => p.id === profile.id);
+    if (index !== -1) {
+      this.profiles[index] = profile;
+    }
+    return profile;
+  }
+
+  async updateProfileAssociations(
+    profileId: string,
+    ruleIds: string[],
+    mcpIds: string[]
+  ): Promise<void> {
+    // Mock implementation
+  }
+
+  async deleteProfile(id: string): Promise<void> {
+    this.profiles = this.profiles.filter((p) => p.id !== id);
   }
 }
 
@@ -101,7 +125,16 @@ describe("profileHandlers", () => {
   });
 
   it("should a SHOW page for the profile with the url params id", async () => {
-    const fakeRepository = new FakeProfilesRepository([]);
+    const testProfile = new Profile(
+      "profile-1",
+      "Profile profile-1",
+      "user123",
+      new Date(),
+      new Date(),
+      [],
+      []
+    );
+    const fakeRepository = new FakeProfilesRepository([testProfile]);
     const handlers = profileHandlers({
       profilesRepository: fakeRepository as any,
     });
@@ -165,5 +198,177 @@ describe("profileHandlers", () => {
     expect(fakeRepository.profiles[0].id).toBe("new-profile-123");
     expect(fakeRepository.profiles[0].name).toBe("My New Profile");
     expect(fakeRepository.profiles[0].userId).toBe("user123");
+  });
+
+  describe("Authorization", () => {
+    it("should prevent user from viewing another user's profile", async () => {
+      const otherUsersProfile = new Profile(
+        "profile-999",
+        "Other User's Profile",
+        "other-user-id",
+        new Date(),
+        new Date(),
+        [],
+        []
+      );
+      const fakeRepository = new FakeProfilesRepository([otherUsersProfile]);
+      const handlers = profileHandlers({
+        profilesRepository: fakeRepository as any,
+      });
+
+      const context = createMockContext({
+        userId: "user123",
+        params: { id: "profile-999" },
+      });
+
+      const response = await handlers.show(context as any);
+      expect(response.status).toBe(403);
+      const text = await response.text();
+      expect(text).toContain("permission");
+    });
+
+    it("should prevent user from editing another user's profile", async () => {
+      const otherUsersProfile = new Profile(
+        "profile-999",
+        "Other User's Profile",
+        "other-user-id",
+        new Date(),
+        new Date(),
+        [],
+        []
+      );
+      const fakeRepository = new FakeProfilesRepository([otherUsersProfile]);
+      const handlers = profileHandlers({
+        profilesRepository: fakeRepository as any,
+      });
+
+      const context = createMockContext({
+        userId: "user123",
+        params: { id: "profile-999" },
+      });
+
+      const response = await handlers.edit(context as any);
+      expect(response.status).toBe(403);
+    });
+
+    it("should prevent user from deleting another user's profile", async () => {
+      const otherUsersProfile = new Profile(
+        "profile-999",
+        "Other User's Profile",
+        "other-user-id",
+        new Date(),
+        new Date(),
+        [],
+        []
+      );
+      const fakeRepository = new FakeProfilesRepository([otherUsersProfile]);
+      const handlers = profileHandlers({
+        profilesRepository: fakeRepository as any,
+      });
+
+      const formData = new FormData();
+      formData.append("_method", "DELETE");
+
+      const request = new Request("http://localhost/profiles/profile-999", {
+        method: "POST",
+        body: formData,
+      });
+
+      const context = createMockContext({
+        userId: "user123",
+        params: { id: "profile-999" },
+        request,
+      });
+
+      const response = await handlers.destroy(context as any);
+      expect(response.status).toBe(403);
+
+      // Verify profile was not deleted
+      expect(fakeRepository.profiles).toHaveLength(1);
+    });
+
+    it("should prevent user from viewing another user's profile via API", async () => {
+      const otherUsersProfile = new Profile(
+        "profile-999",
+        "Other User's Profile",
+        "other-user-id",
+        new Date(),
+        new Date(),
+        [],
+        []
+      );
+      const fakeRepository = new FakeProfilesRepository([otherUsersProfile]);
+      const handlers = profileHandlers({
+        profilesRepository: fakeRepository as any,
+      });
+
+      const context = createMockContext({
+        userId: "user123",
+        params: { id: "profile-999" },
+      });
+
+      const response = await handlers.api.edit.index(context as any);
+      expect(response.status).toBe(403);
+
+      const json = await response.json();
+      expect(json.error).toContain("permission");
+    });
+
+    it("should prevent user from updating another user's profile via API", async () => {
+      const otherUsersProfile = new Profile(
+        "profile-999",
+        "Other User's Profile",
+        "other-user-id",
+        new Date(),
+        new Date(),
+        [],
+        []
+      );
+      const fakeRepository = new FakeProfilesRepository([otherUsersProfile]);
+      const handlers = profileHandlers({
+        profilesRepository: fakeRepository as any,
+      });
+
+      const request = new Request("http://localhost/api/profiles/profile-999", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: "Hacked Name",
+          ruleIds: [],
+          mcpIds: [],
+        }),
+      });
+
+      const context = createMockContext({
+        userId: "user123",
+        params: { id: "profile-999" },
+        request,
+      });
+
+      const response = await handlers.api.edit.action(context as any);
+      expect(response.status).toBe(403);
+
+      const json = await response.json();
+      expect(json.error).toContain("permission");
+
+      // Verify profile was not modified
+      const profile = fakeRepository.profiles[0];
+      expect(profile.name).toBe("Other User's Profile");
+    });
+
+    it("should return 404 when profile does not exist", async () => {
+      const fakeRepository = new FakeProfilesRepository([]);
+      const handlers = profileHandlers({
+        profilesRepository: fakeRepository as any,
+      });
+
+      const context = createMockContext({
+        userId: "user123",
+        params: { id: "nonexistent-profile" },
+      });
+
+      const response = await handlers.show(context as any);
+      expect(response.status).toBe(404);
+    });
   });
 });

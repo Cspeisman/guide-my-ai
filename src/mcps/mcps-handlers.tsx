@@ -4,6 +4,7 @@ import { userIdKey, userNameKey } from "../auth/auth-middleware";
 import { Layout } from "../layouts/Layout";
 import { routes } from "../routes";
 import { render } from "../utils";
+import { withOwnership, withOwnershipJson } from "../utils/authorization";
 import { Mcp } from "./mcp";
 import { McpsRepository } from "./mcps-repository";
 import { validateMcpContext } from "./utils/validate-mcp-context";
@@ -26,22 +27,18 @@ export const mcpsHandlers = (
         </Layout>
       );
     },
-    async show(context) {
-      const id = context.params?.id;
-      const userName = context.storage.get(userNameKey);
-      const mcp = await mcpsRepository.getMcpById(id);
-
-      if (!mcp) {
-        return Response.json({ error: "MCP not found" }, { status: 404 });
+    show: withOwnership(
+      async (context) => mcpsRepository.getMcpById(context.params?.id!),
+      async (context, mcp) => {
+        const userName = context.storage.get(userNameKey);
+        return render(
+          <Layout
+            assets={{ scripts: [routes.js.href({ path: "mcp" })] }}
+            userName={userName}
+          />
+        );
       }
-
-      return render(
-        <Layout
-          assets={{ scripts: [routes.js.href({ path: "mcp" })] }}
-          userName={userName}
-        />
-      );
-    },
+    ),
     new(context) {
       const userName = context.storage.get(userNameKey);
       return render(<New userName={userName} />);
@@ -81,37 +78,27 @@ export const mcpsHandlers = (
       // Redirect to the mcps index or show page after creation
       return Response.redirect(routes.mcps.index.href(), 302);
     },
-    async destroy(context) {
-      const id = context.params?.id;
-      const userId = context.storage.get(userIdKey);
+    destroy: withOwnership(
+      async (context) => mcpsRepository.getMcpById(context.params.id!),
+      async (context, mcp) => {
+        const formData = await context.request.formData();
+        const method = formData.get("_method");
 
-      // Parse the form data to check the _method field
-      const formData = await context.request.formData();
-      const method = formData.get("_method");
+        // Validate that the _method field is DELETE
+        if (method !== "DELETE") {
+          return Response.json(
+            { error: "Method not allowed" },
+            { status: 405 }
+          );
+        }
 
-      // Validate that the _method field is DELETE
-      if (method !== "DELETE") {
-        return Response.json({ error: "Method not allowed" }, { status: 405 });
+        // Delete the MCP
+        await mcpsRepository.deleteMcp(mcp.id);
+
+        // Redirect to MCPs index
+        return Response.redirect(routes.mcps.index.href(), 303);
       }
-
-      // Get the MCP to check ownership
-      const mcp = await mcpsRepository.getMcpById(id);
-
-      if (!mcp) {
-        return Response.json({ error: "MCP not found" }, { status: 404 });
-      }
-
-      // Verify the user owns the MCP
-      if (mcp.userId !== userId) {
-        return Response.json({ error: "Unauthorized" }, { status: 403 });
-      }
-
-      // Delete the MCP
-      await mcpsRepository.deleteMcp(id);
-
-      // Redirect to MCPs index
-      return Response.redirect(routes.mcps.index.href(), 303);
-    },
+    ),
     api: {
       async index(context) {
         const userId = context.storage.get(userIdKey);
@@ -120,60 +107,55 @@ export const mcpsHandlers = (
         return Response.json(userMcps.map((mcp) => mcp.toJson()));
       },
       show: {
-        async index(context) {
-          const id = context.params?.id;
-          const mcp = await mcpsRepository.getMcpById(id);
-
-          if (!mcp) {
-            return Response.json({ error: "MCP not found" }, { status: 404 });
+        index: withOwnershipJson(
+          async (context) => mcpsRepository.getMcpById(context.params?.id!),
+          async (context, mcp) => {
+            return Response.json(mcp.toJson());
           }
+        ),
+        action: withOwnershipJson(
+          async (context) => mcpsRepository.getMcpById(context.params?.id!),
+          async (context, currentMcp) => {
+            const body = await context.request.json();
+            const { name, context: mcpContext } = body;
 
-          return Response.json(mcp.toJson());
-        },
-        async action(context) {
-          const id = context.params?.id;
-          const body = await context.request.json();
-          const { name, context: mcpContext } = body;
+            if (!name || typeof name !== "string") {
+              return Response.json(
+                { error: "Name is required" },
+                { status: 400 }
+              );
+            }
 
-          if (!name || typeof name !== "string") {
-            return Response.json(
-              { error: "Name is required" },
-              { status: 400 }
+            if (!mcpContext || typeof mcpContext !== "string") {
+              return Response.json(
+                { error: "Context is required" },
+                { status: 400 }
+              );
+            }
+
+            // Validate MCP context structure
+            const validation = validateMcpContext(mcpContext);
+            if (!validation.valid) {
+              return Response.json(
+                { error: validation.error },
+                { status: 400 }
+              );
+            }
+
+            // Update the mcp
+            const updatedMcp = await mcpsRepository.updateMcp(
+              new Mcp(
+                currentMcp.id,
+                name,
+                mcpContext,
+                currentMcp.createdAt,
+                currentMcp.userId
+              )
             );
+
+            return Response.json(updatedMcp.toJson());
           }
-
-          if (!mcpContext || typeof mcpContext !== "string") {
-            return Response.json(
-              { error: "Context is required" },
-              { status: 400 }
-            );
-          }
-
-          // Validate MCP context structure
-          const validation = validateMcpContext(mcpContext);
-          if (!validation.valid) {
-            return Response.json({ error: validation.error }, { status: 400 });
-          }
-
-          // Get the current MCP to preserve fields like userId and createdAt
-          const currentMcp = await mcpsRepository.getMcpById(id);
-          if (!currentMcp) {
-            return Response.json({ error: "MCP not found" }, { status: 404 });
-          }
-
-          // Update the mcp
-          const updatedMcp = await mcpsRepository.updateMcp(
-            new Mcp(
-              id,
-              name,
-              mcpContext,
-              currentMcp.createdAt,
-              currentMcp.userId
-            )
-          );
-
-          return Response.json(updatedMcp.toJson());
-        },
+        ),
       },
     },
   } satisfies Controller<typeof routes.mcps>;

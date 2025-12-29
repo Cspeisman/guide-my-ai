@@ -4,7 +4,7 @@ export class Mcp {
     public name: string,
     public context: string, // JSON string
     public createdAt: Date,
-    public userId?: string
+    public userId: string
   ) {}
 
   toJson() {
