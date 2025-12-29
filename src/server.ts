@@ -10,6 +10,7 @@ import { routes } from "./routes";
 import { homeHandler } from "./home-handler";
 import { AuthService } from "./auth/auth-service";
 import { logger } from "./middleware/logger";
+import { aboutHandler } from "./about-handler";
 
 
 // Create router with middleware
@@ -29,6 +30,7 @@ router.map(routes, {
     return serveStaticFile(request);
   },
   ...homeHandler(),
+  ...aboutHandler(),
   ...authHandlers(new AuthService()),
   profiles: profileHandlers(),
   rules: rulesHandlers(),

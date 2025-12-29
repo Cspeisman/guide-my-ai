@@ -94,7 +94,10 @@ export function createApiAuthMiddleware(): Middleware {
     }
 
     // Allow home route even without authentication
-    if (context.url.pathname === routes.home.href()) {
+    if (
+      context.url.pathname === routes.home.href() ||
+      context.url.pathname === routes.about.href()
+    ) {
       return next();
     }
 

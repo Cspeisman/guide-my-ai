@@ -5,9 +5,11 @@ import {
   LayoutDashboard,
   LogOut,
   Settings,
+  Info,
 } from "lucide-react";
 import React from "react";
 import { routes } from "../routes";
+import { TopNavBar } from "../components/TopNavBar";
 
 export function Document({
   title = "Title",
@@ -56,12 +58,15 @@ export function Layout({
           <div className="p-6 border-b border-gray-200">
             <div className="flex items-center gap-3 mb-2">
               <div>
-                <h2 className="font-bold text-gray-900">Guide My AI</h2>
-                {userName && (
-                  <p className="text-xs text-gray-600 mt-1">
-                    Logged in as <span className="font-medium">{userName}</span>
-                  </p>
-                )}
+                <a href={routes.home.href()}>
+                  <h2 className="font-bold text-gray-900">Guide My AI</h2>
+                  {userName && (
+                    <p className="text-xs text-gray-600 mt-1">
+                      Logged in as{" "}
+                      <span className="font-medium">{userName}</span>
+                    </p>
+                  )}
+                </a>
               </div>
             </div>
           </div>
@@ -136,9 +141,9 @@ export function Layout({
             </form>
           </div>
         </aside>
-
         {/* Main Content */}
-        <div className="flex-1 flex flex-col">
+        <div className="flex-1 flex flex-col relative">
+          <TopNavBar />
           <main className="flex-1 p-8">
             {children}
             <div id="root" />

@@ -4,6 +4,7 @@ export const routes = route({
   js: "/js/*path",
   css: "/css/*path",
   favicon: "/favicon.ico",
+  about: "/about",
   home: "/",
   auth: {
     signup: form("/auth/signup"),
