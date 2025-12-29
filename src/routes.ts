@@ -48,4 +48,5 @@ export const routes = route({
       show: form("/api/mcps/:id"),
     },
   },
+  users: "/:user",
 });

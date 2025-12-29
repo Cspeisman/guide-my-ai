@@ -11,6 +11,7 @@ export const EditableField = ({
   onSave,
   onCancel,
   multiline = false,
+  disabled = false,
 }: {
   label: string;
   value: string;
@@ -21,6 +22,7 @@ export const EditableField = ({
   onSave: () => void;
   onCancel: () => void;
   multiline?: boolean;
+  disabled?: boolean;
 }) => {
   const handleKeyDown = (
     e: React.KeyboardEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -69,15 +71,23 @@ export const EditableField = ({
         )
       ) : multiline ? (
         <pre
-          className="text-gray-800 bg-gray-50 p-4 rounded-lg leading-relaxed whitespace-pre-wrap font-mono text-sm cursor-pointer hover:bg-gray-100 transition-colors"
-          onClick={onEdit}
+          className={`text-gray-800 bg-gray-50 p-4 rounded-lg leading-relaxed whitespace-pre-wrap font-mono text-sm transition-colors cursor-pointer ${
+            disabled
+              ? "opacity-75"
+              : "hover:bg-gray-100"
+          }`}
+          onClick={disabled ? undefined : onEdit}
         >
           {value}
         </pre>
       ) : (
         <span
-          className="text-gray-800 font-semibold bg-gray-50 p-3 rounded-lg cursor-pointer hover:bg-gray-100 transition-colors"
-          onClick={onEdit}
+          className={`text-gray-800 font-semibold bg-gray-50 p-3 rounded-lg transition-colors cursor-pointer ${
+            disabled
+              ? "opacity-75"
+              : "hover:bg-gray-100"
+          }`}
+          onClick={disabled ? undefined : onEdit}
         >
           {value}
         </span>

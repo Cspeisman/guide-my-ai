@@ -11,7 +11,8 @@ import { homeHandler } from "./home-handler";
 import { AuthService } from "./auth/auth-service";
 import { logger } from "./middleware/logger";
 import { aboutHandler } from "./about-handler";
-
+import { UsersRepository } from "./users/users-repository";
+import { usersHandler } from "./users/users-handler";
 
 // Create router with middleware
 const router = createRouter({
@@ -35,6 +36,7 @@ router.map(routes, {
   profiles: profileHandlers(),
   rules: rulesHandlers(),
   mcps: mcpsHandlers(),
+  users: usersHandler(new UsersRepository()),
 });
 
 // Start server
