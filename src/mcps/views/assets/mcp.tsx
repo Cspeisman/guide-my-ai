@@ -16,6 +16,7 @@ const getMcp = async (id: string) => {
     name: string;
     context: string;
     createdAt: string;
+    userId: string;
   }>;
 };
 
@@ -27,6 +28,7 @@ const McpDisplay = ({
     name: string;
     context: string;
     createdAt: string;
+    userId: string;
   }>;
 }) => {
   const mcpData = use(mcpPromise);
@@ -34,7 +36,8 @@ const McpDisplay = ({
     mcpData.id,
     mcpData.name,
     mcpData.context,
-    new Date(mcpData.createdAt)
+    new Date(mcpData.createdAt),
+    mcpData.userId
   );
 
   // Track the current field values for API updates

@@ -36,7 +36,7 @@ router.map(routes, {
   profiles: profileHandlers(),
   rules: rulesHandlers(),
   mcps: mcpsHandlers(),
-  users: usersHandler(new UsersRepository()),
+  users: usersHandler(),
 });
 
 // Start server

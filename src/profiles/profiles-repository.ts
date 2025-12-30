@@ -1,7 +1,9 @@
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { db } from "../db/db";
 import { Profile } from "./profile";
 import { profiles, profilesToMcps, profilesToRules } from "./profiles-schema";
+import { Rule } from "../rules/rule";
+import { Mcp } from "../mcps/mcp";
 
 export class ProfilesRepository {
   async getProfilesByUserId(userId: string): Promise<Profile[]> {
@@ -30,23 +32,36 @@ export class ProfilesRepository {
           result.userId,
           result.createdAt,
           result.updatedAt,
-          result.profilesToRules?.map((ptr) => ({
-            id: ptr.rule.id,
-            name: ptr.rule.name,
-            content: ptr.rule.content,
-          })) || [],
-          result.profilesToMcps?.map((ptm) => ({
-            id: ptm.mcp.id,
-            name: ptm.mcp.name,
-            context: ptm.mcp.context,
-          })) || []
+          result.profilesToRules?.map(
+            (ptr) =>
+              new Rule(
+                ptr.rule.id,
+                ptr.rule.name,
+                ptr.rule.content,
+                ptr.rule.createdAt,
+                ptr.rule.userId
+              )
+          ) || [],
+          result.profilesToMcps?.map(
+            (ptm) =>
+              new Mcp(
+                ptm.mcp.id,
+                ptm.mcp.name,
+                ptm.mcp.context,
+                ptm.mcp.createdAt,
+                ptm.mcp.userId
+              )
+          ) || []
         )
     );
   }
 
-  async getProfileById(id: string): Promise<Profile | null> {
+  async getProfileByIdAndUserId(
+    profileId: string,
+    userId: string
+  ): Promise<Profile | null> {
     const result = await db.query.profiles.findFirst({
-      where: eq(profiles.id, id),
+      where: and(eq(profiles.id, profileId), eq(profiles.userId, userId)),
       with: {
         profilesToRules: {
           with: {
@@ -71,16 +86,26 @@ export class ProfilesRepository {
       result.userId,
       result.createdAt,
       result.updatedAt,
-      result.profilesToRules?.map((ptr) => ({
-        id: ptr.rule.id,
-        name: ptr.rule.name,
-        content: ptr.rule.content,
-      })) || [],
-      result.profilesToMcps?.map((ptm) => ({
-        id: ptm.mcp.id,
-        name: ptm.mcp.name,
-        context: ptm.mcp.context,
-      })) || []
+      result.profilesToRules?.map(
+        (ptr) =>
+          new Rule(
+            ptr.rule.id,
+            ptr.rule.name,
+            ptr.rule.content,
+            ptr.rule.createdAt,
+            ptr.rule.userId
+          )
+      ) || [],
+      result.profilesToMcps?.map(
+        (ptm) =>
+          new Mcp(
+            ptm.mcp.id,
+            ptm.mcp.name,
+            ptm.mcp.context,
+            ptm.mcp.createdAt,
+            ptm.mcp.userId
+          )
+      ) || []
     );
   }
 

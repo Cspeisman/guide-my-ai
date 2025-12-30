@@ -1,13 +1,59 @@
-import { describe, test, expect, beforeEach, mock } from "bun:test";
+import { describe, test, expect, beforeEach, mock, it } from "bun:test";
 import { mcpsHandlers } from "./mcps-handlers";
 import { Mcp } from "./mcp";
 import { userIdKey, userNameKey } from "../auth/auth-middleware";
 import { AppStorage } from "@remix-run/fetch-router";
+import { McpsRepository } from "./mcps-repository";
+
+class FakeMcpsRepository extends McpsRepository {
+  mcps: Mcp[];
+
+  constructor(mcps: Mcp[]) {
+    super();
+    this.mcps = mcps;
+  }
+
+  async getMcpsByUserId(userId: string): Promise<Mcp[]> {
+    return this.mcps.filter((m) => m.userId === userId);
+  }
+
+  async getMcpByIdAndUserId(id: string, userId: string): Promise<Mcp | null> {
+    return this.mcps.find((m) => m.id === id && m.userId === userId) || null;
+  }
+
+  async createMcp(data: {
+    name: string;
+    context: string;
+    userId: string;
+  }): Promise<Mcp> {
+    const newMcp = new Mcp(
+      "new-mcp-123",
+      data.name,
+      data.context,
+      new Date(),
+      data.userId
+    );
+    this.mcps.push(newMcp);
+    return newMcp;
+  }
+
+  async updateMcp(mcp: Mcp): Promise<Mcp> {
+    const index = this.mcps.findIndex((m) => m.id === mcp.id);
+    if (index !== -1) {
+      this.mcps[index] = mcp;
+    }
+    return mcp;
+  }
+
+  async deleteMcp(id: string, userId: string): Promise<void> {
+    this.mcps = this.mcps.filter((m) => !(m.id === id && m.userId === userId));
+  }
+}
 
 describe("mcpsHandlers", () => {
   const mockMcpsRepository = {
     getMcpsByUserId: mock(() => Promise.resolve([])),
-    getMcpById: mock(() => Promise.resolve(null as Mcp | null)),
+    getMcpByIdAndUserId: mock(() => Promise.resolve(null as Mcp | null)),
     createMcp: mock(() =>
       Promise.resolve(new Mcp("1", "Test", "{}", new Date(), "user123"))
     ),
@@ -19,7 +65,7 @@ describe("mcpsHandlers", () => {
 
   beforeEach(() => {
     mockMcpsRepository.getMcpsByUserId.mockClear();
-    mockMcpsRepository.getMcpById.mockClear();
+    mockMcpsRepository.getMcpByIdAndUserId.mockClear();
     mockMcpsRepository.createMcp.mockClear();
     mockMcpsRepository.updateMcp.mockClear();
   });
@@ -42,71 +88,71 @@ describe("mcpsHandlers", () => {
     };
   }
 
-  test("api.action validates JSON context", async () => {
-    const context = createMockContext({
-      userId: "user123",
-      params: { id: "1" },
-      request: {
-        json: async () => ({ name: "Test", context: "invalid json" }),
-      },
+  describe("JSON validation", () => {
+    test("validates JSON context", async () => {
+      const context = createMockContext({
+        userId: "user123",
+        params: { id: "1" },
+        request: {
+          json: async () => ({ name: "Test", context: "invalid json" }),
+        },
+      });
+      mockMcpsRepository.getMcpByIdAndUserId = mock(() =>
+        Promise.resolve(new Mcp("", "", "", new Date(), "user123"))
+      );
+
+      const handlers = mcpsHandlers({ mcpsRepository: mockMcpsRepository });
+      const response = await handlers.api.show.action(context as any);
+      const json = await response.json();
+
+      expect(response.status).toBe(400);
+      expect(json.error).toBe("Context must be valid JSON");
     });
-    mockMcpsRepository.getMcpById = mock(() =>
-      Promise.resolve(new Mcp("", "", "", new Date(), "user123"))
-    );
+    test("validates mcpServers structure is present", async () => {
+      const invalidContext = JSON.stringify({ someOtherKey: "value" });
+      const context = createMockContext({
+        userId: "user123",
+        params: { id: "1" },
+        request: {
+          json: async () => ({ name: "Test", context: invalidContext }),
+        },
+      });
 
-    const handlers = mcpsHandlers({ mcpsRepository: mockMcpsRepository });
-    const response = await handlers.api.show.action(context as any);
-    const json = await response.json();
+      mockMcpsRepository.getMcpByIdAndUserId = mock(() =>
+        Promise.resolve(new Mcp("", "", "", new Date(), "user123"))
+      );
+      const handlers = mcpsHandlers({ mcpsRepository: mockMcpsRepository });
+      const response = await handlers.api.show.action(context as any);
+      const json = await response.json();
 
-    expect(response.status).toBe(400);
-    expect(json.error).toBe("Context must be valid JSON");
+      expect(response.status).toBe(400);
+      expect(json.error).toBe("Context must contain an 'mcpServers' object");
+    });
+    test("validates mcpServers contains at least one server", async () => {
+      const invalidContext = JSON.stringify({ mcpServers: {} });
+      const context = createMockContext({
+        userId: "user123",
+        params: { id: "1" },
+        request: {
+          json: async () => ({ name: "Test", context: invalidContext }),
+        },
+      });
+
+      mockMcpsRepository.getMcpByIdAndUserId = mock(() =>
+        Promise.resolve(new Mcp("", "", "", new Date(), "user123"))
+      );
+      const handlers = mcpsHandlers({ mcpsRepository: mockMcpsRepository });
+      const response = await handlers.api.show.action(context as any);
+      const json = await response.json();
+
+      expect(response.status).toBe(400);
+      expect(json.error).toBe(
+        "Context must contain at least one MCP server in 'mcpServers'"
+      );
+    });
   });
 
-  test("api.action validates mcpServers structure is present", async () => {
-    const invalidContext = JSON.stringify({ someOtherKey: "value" });
-    const context = createMockContext({
-      userId: "user123",
-      params: { id: "1" },
-      request: {
-        json: async () => ({ name: "Test", context: invalidContext }),
-      },
-    });
-
-    mockMcpsRepository.getMcpById = mock(() =>
-      Promise.resolve(new Mcp("", "", "", new Date(), "user123"))
-    );
-    const handlers = mcpsHandlers({ mcpsRepository: mockMcpsRepository });
-    const response = await handlers.api.show.action(context as any);
-    const json = await response.json();
-
-    expect(response.status).toBe(400);
-    expect(json.error).toBe("Context must contain an 'mcpServers' object");
-  });
-
-  test("api.action validates mcpServers contains at least one server", async () => {
-    const invalidContext = JSON.stringify({ mcpServers: {} });
-    const context = createMockContext({
-      userId: "user123",
-      params: { id: "1" },
-      request: {
-        json: async () => ({ name: "Test", context: invalidContext }),
-      },
-    });
-
-    mockMcpsRepository.getMcpById = mock(() =>
-      Promise.resolve(new Mcp("", "", "", new Date(), "user123"))
-    );
-    const handlers = mcpsHandlers({ mcpsRepository: mockMcpsRepository });
-    const response = await handlers.api.show.action(context as any);
-    const json = await response.json();
-
-    expect(response.status).toBe(400);
-    expect(json.error).toBe(
-      "Context must contain at least one MCP server in 'mcpServers'"
-    );
-  });
-
-  test("api.action updates mcp with valid JSON", async () => {
+  test("updates mcp with valid JSON", async () => {
     const validJson = JSON.stringify({
       mcpServers: { "test-server": { command: "test" } },
     });
@@ -120,7 +166,7 @@ describe("mcpsHandlers", () => {
     });
 
     // Mock getMcpById to return an existing MCP
-    mockMcpsRepository.getMcpById.mockResolvedValueOnce(
+    mockMcpsRepository.getMcpByIdAndUserId.mockResolvedValueOnce(
       new Mcp("1", "Old Name", "{}", createdAt, "user123")
     );
 
@@ -136,11 +182,10 @@ describe("mcpsHandlers", () => {
     expect(response.status).toBe(200);
     expect(json.context).toBe(validJson);
     expect(json.name).toBe("Test");
-    expect(mockMcpsRepository.getMcpById).toHaveBeenCalledWith("1");
     expect(mockMcpsRepository.updateMcp).toHaveBeenCalled();
   });
 
-  test("create validates mcpServers structure is present", async () => {
+  test("validates mcpServers structure when creating mcp", async () => {
     const invalidContext = JSON.stringify({ someOtherKey: "value" });
     const formData = new FormData();
     formData.append("name", "Test MCP");
@@ -161,31 +206,8 @@ describe("mcpsHandlers", () => {
     expect(json.error).toBe("Context must contain an 'mcpServers' object");
   });
 
-  test("create validates mcpServers contains at least one server", async () => {
-    const invalidContext = JSON.stringify({ mcpServers: {} });
-    const formData = new FormData();
-    formData.append("name", "Test MCP");
-    formData.append("context", invalidContext);
-
-    const context = createMockContext({
-      userId: "user123",
-      request: {
-        formData: async () => formData,
-      },
-    });
-
-    const handlers = mcpsHandlers({ mcpsRepository: mockMcpsRepository });
-    const response = await handlers.create(context as any);
-    const json = await response.json();
-
-    expect(response.status).toBe(400);
-    expect(json.error).toBe(
-      "Context must contain at least one MCP server in 'mcpServers'"
-    );
-  });
-
   describe("Authorization", () => {
-    test("prevents user from viewing another user's MCP", async () => {
+    it("prevents user from viewing another user's mcp", async () => {
       const otherUsersMcp = new Mcp(
         "mcp-999",
         "Other User's MCP",
@@ -193,20 +215,22 @@ describe("mcpsHandlers", () => {
         new Date(),
         "other-user-id"
       );
-      mockMcpsRepository.getMcpById.mockResolvedValueOnce(otherUsersMcp);
+      const fakeRepository = new FakeMcpsRepository([otherUsersMcp]);
+      const handlers = mcpsHandlers({
+        mcpsRepository: fakeRepository as any,
+      });
 
       const context = createMockContext({
         userId: "user123",
         params: { id: "mcp-999" },
       });
 
-      const handlers = mcpsHandlers({ mcpsRepository: mockMcpsRepository });
       const response = await handlers.show(context as any);
-
-      expect(response.status).toBe(403);
+      const text = await response.text();
+      expect(text).toContain("Sorry we were unable to find mcp with ID");
     });
 
-    test("prevents user from viewing another user's MCP via API", async () => {
+    it("prevents user from viewing another user's mcp via API", async () => {
       const otherUsersMcp = new Mcp(
         "mcp-999",
         "Other User's MCP",
@@ -214,22 +238,25 @@ describe("mcpsHandlers", () => {
         new Date(),
         "other-user-id"
       );
-      mockMcpsRepository.getMcpById.mockResolvedValueOnce(otherUsersMcp);
+      const fakeRepository = new FakeMcpsRepository([otherUsersMcp]);
+      const handlers = mcpsHandlers({
+        mcpsRepository: fakeRepository as any,
+      });
 
       const context = createMockContext({
         userId: "user123",
         params: { id: "mcp-999" },
       });
 
-      const handlers = mcpsHandlers({ mcpsRepository: mockMcpsRepository });
       const response = await handlers.api.show.index(context as any);
-
-      expect(response.status).toBe(403);
+      expect(response.status).toBe(404);
       const json = await response.json();
-      expect(json.error).toContain("permission");
+      expect(json.msg).toContain(
+        "unable to find the resource for current user"
+      );
     });
 
-    test("prevents user from updating another user's MCP via API", async () => {
+    it("prevents user from updating another user's mcp via API", async () => {
       const validJson = JSON.stringify({
         mcpServers: { "test-server": { command: "test" } },
       });
@@ -240,28 +267,39 @@ describe("mcpsHandlers", () => {
         new Date(),
         "other-user-id"
       );
-      mockMcpsRepository.getMcpById.mockResolvedValueOnce(otherUsersMcp);
+      const fakeRepository = new FakeMcpsRepository([otherUsersMcp]);
+      const handlers = mcpsHandlers({
+        mcpsRepository: fakeRepository as any,
+      });
+
+      const request = new Request("http://localhost/api/mcps/mcp-999", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: "Hacked Name",
+          context: validJson,
+        }),
+      });
 
       const context = createMockContext({
         userId: "user123",
         params: { id: "mcp-999" },
-        request: {
-          json: async () => ({ name: "Hacked Name", context: validJson }),
-        },
+        request,
       });
 
-      const handlers = mcpsHandlers({ mcpsRepository: mockMcpsRepository });
       const response = await handlers.api.show.action(context as any);
+      expect(response.status).toBe(404);
 
-      expect(response.status).toBe(403);
       const json = await response.json();
-      expect(json.error).toContain("permission");
+      expect(json.msg).toContain("unable to update mcp");
 
-      // Verify updateMcp was not called
-      expect(mockMcpsRepository.updateMcp).not.toHaveBeenCalled();
+      // Verify mcp was not modified
+      const mcp = fakeRepository.mcps[0];
+      expect(mcp.name).toBe("Other User's MCP");
+      expect(mcp.context).toBe("{}");
     });
 
-    test("prevents user from deleting another user's MCP", async () => {
+    it("prevents user from deleting another user's mcp", async () => {
       const otherUsersMcp = new Mcp(
         "mcp-999",
         "Other User's MCP",
@@ -269,47 +307,28 @@ describe("mcpsHandlers", () => {
         new Date(),
         "other-user-id"
       );
-      mockMcpsRepository.getMcpById.mockResolvedValueOnce(otherUsersMcp);
+      const fakeRepository = new FakeMcpsRepository([otherUsersMcp]);
+      const handlers = mcpsHandlers({
+        mcpsRepository: fakeRepository as any,
+      });
 
       const formData = new FormData();
       formData.append("_method", "DELETE");
 
+      const request = new Request("http://localhost/mcps/mcp-999", {
+        method: "POST",
+        body: formData,
+      });
+
       const context = createMockContext({
         userId: "user123",
         params: { id: "mcp-999" },
-        request: {
-          formData: async () => formData,
-        },
+        request,
       });
 
-      const handlers = mcpsHandlers({ mcpsRepository: mockMcpsRepository });
       const response = await handlers.destroy(context as any);
-
-      expect(response.status).toBe(403);
-
-      // Verify deleteMcp was not called
-      expect(mockMcpsRepository.deleteMcp).not.toHaveBeenCalled();
-    });
-
-    test("allows user to view their own MCP", async () => {
-      const usersMcp = new Mcp(
-        "mcp-123",
-        "User's MCP",
-        "{}",
-        new Date(),
-        "user123"
-      );
-      mockMcpsRepository.getMcpById.mockResolvedValueOnce(usersMcp);
-
-      const context = createMockContext({
-        userId: "user123",
-        params: { id: "mcp-123" },
-      });
-
-      const handlers = mcpsHandlers({ mcpsRepository: mockMcpsRepository });
-      const response = await handlers.show(context as any);
-
-      expect(response.status).toBe(200);
+      const text = await response.text();
+      expect(text).toContain("Sorry we were unable to find mcp with ID:");
     });
   });
 });

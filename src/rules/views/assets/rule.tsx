@@ -16,6 +16,7 @@ const getRule = async (id: string) => {
     name: string;
     content: string;
     createdAt: string;
+    userId: string;
   }>;
 };
 
@@ -27,6 +28,7 @@ const RuleDisplay = ({
     name: string;
     content: string;
     createdAt: string;
+    userId: string;
   }>;
 }) => {
   const ruleData = use(rulePromise);
@@ -34,7 +36,8 @@ const RuleDisplay = ({
     ruleData.id,
     ruleData.name,
     ruleData.content,
-    new Date(ruleData.createdAt)
+    new Date(ruleData.createdAt),
+    ruleData.userId
   );
 
   // Track the current field values for API updates

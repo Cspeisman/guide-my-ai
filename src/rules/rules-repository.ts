@@ -1,7 +1,7 @@
 import { db } from "../db/db";
 import { Rule } from "./rule";
 import { rules } from "./rules-schema";
-import { eq } from "drizzle-orm";
+import { eq, and } from "drizzle-orm";
 
 export class RulesRepository {
   async getRulesByUserId(userId: string): Promise<Rule[]> {
@@ -21,9 +21,12 @@ export class RulesRepository {
     );
   }
 
-  async getRuleById(id: string): Promise<Rule | null> {
+  async getRuleByIdAndUserId(
+    ruleId: string,
+    userId: string
+  ): Promise<Rule | null> {
     const result = await db.query.rules.findFirst({
-      where: eq(rules.id, id),
+      where: and(eq(rules.id, ruleId), eq(rules.userId, userId)),
     });
     if (!result) {
       return null;
@@ -60,7 +63,7 @@ export class RulesRepository {
         content: rule.content,
         updatedAt: new Date(),
       })
-      .where(eq(rules.id, rule.id))
+      .where(and(eq(rules.id, rule.id), eq(rules.userId, rule.userId)))
       .returning();
     return new Rule(
       result.id,
@@ -71,7 +74,9 @@ export class RulesRepository {
     );
   }
 
-  async deleteRule(id: string): Promise<void> {
-    await db.delete(rules).where(eq(rules.id, id));
+  async deleteRule(id: string, userId: string): Promise<void> {
+    await db
+      .delete(rules)
+      .where(and(eq(rules.id, id), eq(rules.userId, userId)));
   }
 }

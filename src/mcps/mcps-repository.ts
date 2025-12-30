@@ -1,7 +1,7 @@
 import { db } from "../db/db";
 import { Mcp } from "./mcp";
 import { mcps } from "./mcp-schema";
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 
 export class McpsRepository {
   async getMcpsByUserId(userId: string): Promise<Mcp[]> {
@@ -21,9 +21,9 @@ export class McpsRepository {
     );
   }
 
-  async getMcpById(id: string): Promise<Mcp | null> {
+  async getMcpByIdAndUserId(id: string, userId: string): Promise<Mcp | null> {
     const result = await db.query.mcps.findFirst({
-      where: eq(mcps.id, id),
+      where: and(eq(mcps.id, id), eq(mcps.userId, userId)),
     });
     if (!result) {
       return null;
@@ -71,7 +71,7 @@ export class McpsRepository {
     );
   }
 
-  async deleteMcp(id: string): Promise<void> {
-    await db.delete(mcps).where(eq(mcps.id, id));
+  async deleteMcp(id: string, userId: string): Promise<void> {
+    await db.delete(mcps).where(and(eq(mcps.id, id), eq(mcps.userId, userId)));
   }
 }

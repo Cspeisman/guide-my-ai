@@ -13,7 +13,6 @@ export function IdeDownloadMenu() {
           className="text-gray-500 transition-transform group-open:rotate-180"
         />
       </summary>
-
       {/* Dropdown Menu */}
       <div className="absolute bottom-full left-0 right-0 mb-2 bg-white border border-gray-200 rounded-lg shadow-lg overflow-hidden py-1 z-50">
         <a

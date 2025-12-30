@@ -3,7 +3,6 @@ import { userIdKey, userNameKey } from "../auth/auth-middleware";
 import { Layout } from "../layouts/Layout";
 import { routes } from "../routes";
 import { render } from "../utils";
-import { withOwnership, withOwnershipJson } from "../utils/authorization";
 import { Rule } from "./rule";
 import { RulesRepository } from "./rules-repository";
 import { New } from "./views/new";
@@ -13,6 +12,15 @@ export const rulesHandlers = (
   dependecies = { rulesRepository: new RulesRepository() }
 ) => {
   const { rulesRepository } = dependecies;
+  const NotFoundComponent = (props: { id: string }) => (
+    <Layout>
+      <pre>
+        Sorry we were unable to find rule with ID: {props.id} assigned to this
+        user.
+      </pre>
+    </Layout>
+  );
+
   return {
     async index(context) {
       const userId = context.storage.get(userIdKey);
@@ -58,18 +66,25 @@ export const rulesHandlers = (
       // Redirect to the rules index or show page after creation
       return Response.redirect(routes.rules.index.href(), 302);
     },
-    show: withOwnership(
-      async (context) => rulesRepository.getRuleById(context.params?.id!),
-      async (context) => {
-        const userName = context.storage.get(userNameKey);
-        return render(
-          <Layout
-            assets={{ scripts: [routes.js.href({ path: "rule" })] }}
-            userName={userName}
-          />
+    async show(context) {
+      const userId = context.storage.get(userIdKey);
+      if (userId) {
+        const rule = await rulesRepository.getRuleByIdAndUserId(
+          context.params.id,
+          userId
         );
+        if (rule) {
+          const userName = context.storage.get(userNameKey);
+          return render(
+            <Layout
+              assets={{ scripts: [routes.js.href({ path: "rule" })] }}
+              userName={userName}
+            />
+          );
+        }
       }
-    ),
+      return render(<NotFoundComponent id={context.params.id} />);
+    },
 
     api: {
       async index(context) {
@@ -79,66 +94,95 @@ export const rulesHandlers = (
         return Response.json(userRules.map((rule) => rule.toJson()));
       },
       show: {
-        index: withOwnershipJson(
-          async (context) => rulesRepository.getRuleById(context.params?.id!),
-          async (_context, rule) => {
-            return Response.json(rule.toJson());
-          }
-        ),
-        action: withOwnershipJson(
-          async (context) => rulesRepository.getRuleById(context.params?.id!),
-          async (context, currentRule) => {
-            const body = await context.request.json();
-            const { name, content } = body;
-
-            if (!name) {
-              return Response.json(
-                { error: "Name is required" },
-                { status: 400 }
-              );
-            }
-
-            if (!content) {
-              return Response.json(
-                { error: "Content is required" },
-                { status: 400 }
-              );
-            }
-
-            // Update the rule
-            const updatedRule = await rulesRepository.updateRule(
-              new Rule(
-                currentRule.id,
-                name,
-                content,
-                new Date(),
-                currentRule.userId
-              )
+        async index(context) {
+          const userId = context.storage.get(userIdKey);
+          if (userId) {
+            const rule = await rulesRepository.getRuleByIdAndUserId(
+              context.params?.id!,
+              userId
             );
-
-            return Response.json(updatedRule.toJson());
+            if (rule) {
+              return Response.json(rule.toJson());
+            }
           }
-        ),
+          return Response.json(
+            { msg: "unable to find the resource for current user" },
+            { status: 404 }
+          );
+        },
+        async action(context) {
+          const userId = context.storage.get(userIdKey);
+          if (userId) {
+            const currentRule = await rulesRepository.getRuleByIdAndUserId(
+              context.params.id,
+              userId
+            );
+            if (currentRule) {
+              const body = await context.request.json();
+              const { name, content } = body;
+
+              if (!name) {
+                return Response.json(
+                  { error: "Name is required" },
+                  { status: 400 }
+                );
+              }
+
+              if (!content) {
+                return Response.json(
+                  { error: "Content is required" },
+                  { status: 400 }
+                );
+              }
+
+              // Update the rule
+              const updatedRule = await rulesRepository.updateRule(
+                new Rule(
+                  currentRule.id,
+                  name,
+                  content,
+                  new Date(),
+                  currentRule.userId
+                )
+              );
+
+              return Response.json(updatedRule.toJson());
+            }
+          }
+          return Response.json(
+            { msg: "unable to update rule" },
+            { status: 404 }
+          );
+        },
       },
     },
-    destroy: withOwnership(
-      async (context) => rulesRepository.getRuleById(context.params?.id!),
-      async (context, rule) => {
-        // Parse the form data to check the _method field
-        const formData = await context.request.formData();
-        const method = formData.get("_method");
+    async destroy(context) {
+      const userId = context.storage.get(userIdKey);
 
-        // Validate that the _method field is DELETE
-        if (method !== "DELETE") {
-          return new Response("Method not allowed", { status: 405 });
-        }
+      const formData = await context.request.formData();
+      const method = formData.get("_method");
 
-        // Delete the rule
-        await rulesRepository.deleteRule(rule.id);
-
-        // Redirect to rules index
-        return Response.redirect(routes.rules.index.href(), 303);
+      // Validate that the _method field is DELETE
+      if (method !== "DELETE") {
+        return new Response("Method not allowed", { status: 405 });
       }
-    ),
+
+      if (userId) {
+        const rule = await rulesRepository.getRuleByIdAndUserId(
+          context.params.id,
+          userId
+        );
+
+        if (rule) {
+          // Delete the rule
+          await rulesRepository.deleteRule(rule.id, rule.userId);
+
+          // Redirect to rules index
+          return Response.redirect(routes.rules.index.href(), 303);
+        }
+      }
+
+      return render(<NotFoundComponent id={context.params.id} />);
+    },
   } satisfies Controller<typeof routes.rules>;
 };

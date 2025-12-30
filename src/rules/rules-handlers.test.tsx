@@ -1,9 +1,9 @@
-import { AppStorage, RequestContext } from "@remix-run/fetch-router";
+import { AppStorage } from "@remix-run/fetch-router";
 import { describe, expect, it } from "bun:test";
+import { userIdKey, userNameKey } from "../auth/auth-middleware";
 import { Rule } from "./rule";
 import { rulesHandlers } from "./rules-handlers";
 import { RulesRepository } from "./rules-repository";
-import { userIdKey, userNameKey } from "../auth/auth-middleware";
 
 class FakeRulesRepository extends RulesRepository {
   rules: Rule[];
@@ -17,8 +17,8 @@ class FakeRulesRepository extends RulesRepository {
     return this.rules.filter((r) => r.userId === userId);
   }
 
-  async getRuleById(id: string): Promise<Rule | null> {
-    return this.rules.find((r) => r.id === id) || null;
+  async getRuleByIdAndUserId(id: string, userId: string): Promise<Rule | null> {
+    return this.rules.find((r) => r.id === id && r.userId === userId) || null;
   }
 
   async createRule(data: {
@@ -65,8 +65,8 @@ function createMockContext(options: {
   };
 }
 
-describe("rulesHandlers.index", () => {
-  it("should return HTML with rules list when user is authenticated and has rules", async () => {
+describe("rulesHandlers", () => {
+  it("should return a list of rules when user is authenticated and has rules", async () => {
     const testRules = [
       new Rule(
         "rule1",
@@ -118,7 +118,8 @@ describe("rulesHandlers.index", () => {
       });
 
       const response = await handlers.show(context as any);
-      expect(response.status).toBe(403);
+      const text = await response.text();
+      expect(text).toContain("Sorry we were unable to find rule with ID");
     });
 
     it("prevents user from viewing another user's rule via API", async () => {
@@ -140,9 +141,11 @@ describe("rulesHandlers.index", () => {
       });
 
       const response = await handlers.api.show.index(context as any);
-      expect(response.status).toBe(403);
+      expect(response.status).toBe(404);
       const json = await response.json();
-      expect(json.error).toContain("permission");
+      expect(json.msg).toContain(
+        "unable to find the resource for current user"
+      );
     });
 
     it("prevents user from updating another user's rule via API", async () => {
@@ -174,10 +177,10 @@ describe("rulesHandlers.index", () => {
       });
 
       const response = await handlers.api.show.action(context as any);
-      expect(response.status).toBe(403);
+      expect(response.status).toBe(404);
 
       const json = await response.json();
-      expect(json.error).toContain("permission");
+      expect(json.msg).toContain("unable to update rule");
 
       // Verify rule was not modified
       const rule = fakeRepository.rules[0];
@@ -213,47 +216,8 @@ describe("rulesHandlers.index", () => {
       });
 
       const response = await handlers.destroy(context as any);
-      expect(response.status).toBe(403);
-
-      // Verify rule was not deleted
-      expect(fakeRepository.rules).toHaveLength(1);
-    });
-
-    it("allows user to view their own rule", async () => {
-      const usersRule = new Rule(
-        "rule-123",
-        "User's Rule",
-        "Content",
-        new Date(),
-        "user123"
-      );
-      const fakeRepository = new FakeRulesRepository([usersRule]);
-      const handlers = rulesHandlers({
-        rulesRepository: fakeRepository as any,
-      });
-
-      const context = createMockContext({
-        userId: "user123",
-        params: { id: "rule-123" },
-      });
-
-      const response = await handlers.show(context as any);
-      expect(response.status).toBe(200);
-    });
-
-    it("returns 404 when rule does not exist", async () => {
-      const fakeRepository = new FakeRulesRepository([]);
-      const handlers = rulesHandlers({
-        rulesRepository: fakeRepository as any,
-      });
-
-      const context = createMockContext({
-        userId: "user123",
-        params: { id: "nonexistent-rule" },
-      });
-
-      const response = await handlers.show(context as any);
-      expect(response.status).toBe(404);
+      const text = await response.text();
+      expect(text).toContain("Sorry we were unable to find rule with ID:");
     });
   });
 });

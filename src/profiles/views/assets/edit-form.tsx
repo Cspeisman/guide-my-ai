@@ -1,4 +1,4 @@
-import React, { Suspense, use, useState } from "react";
+import React, { Suspense, use, useState, useEffect } from "react";
 import { createRoot } from "react-dom/client";
 import { McpAndRules } from "./mcp-and-rules";
 import { routes } from "../../../routes";
@@ -110,6 +110,10 @@ const EditFormView = (props: Props) => {
     const response = await fetch(
       routes.profiles.api.edit.index.href({ id: props.profileId })
     );
+    if (response.status === 404) {
+      window.location.href = routes.home.href();
+      throw new Error("Profile not found");
+    }
     return response.json();
   };
 

@@ -6,6 +6,7 @@ export const routes = route({
   favicon: "/favicon.ico",
   about: "/about",
   home: "/",
+  dashboard: "/dashboard",
   auth: {
     signup: form("/auth/signup"),
     login: form("/auth/login"),
@@ -48,5 +49,19 @@ export const routes = route({
       show: form("/api/mcps/:id"),
     },
   },
-  users: "/:user",
+  users: {
+    index: { pattern: "/:user", method: "GET" },
+    profile: {
+      pattern: "/:user/profiles/:id",
+      method: "GET",
+    },
+    rule: {
+      pattern: "/:user/rules/:id",
+      method: "GET",
+    },
+    mcp: {
+      pattern: "/:user/mcps/:id",
+      method: "GET",
+    },
+  },
 });

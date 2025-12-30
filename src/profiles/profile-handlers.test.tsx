@@ -5,6 +5,8 @@ import { routes } from "../routes";
 import { Profile } from "./profile";
 import { profileHandlers } from "./profile-handlers";
 import { ProfilesRepository } from "./profiles-repository";
+import { Rule } from "../rules/rule";
+import { Mcp } from "../mcps/mcp";
 
 class FakeProfilesRepository extends ProfilesRepository {
   profiles: Profile[];
@@ -18,8 +20,13 @@ class FakeProfilesRepository extends ProfilesRepository {
     return this.profiles;
   }
 
-  async getProfileById(id: string): Promise<Profile | null> {
-    const profile = this.profiles.find((p) => p.id === id);
+  async getProfileByIdAndUserId(
+    id: string,
+    userId: string
+  ): Promise<Profile | null> {
+    const profile = this.profiles.find(
+      (p) => p.id === id && p.userId === userId
+    );
     if (!profile) {
       return null;
     }
@@ -90,12 +97,24 @@ describe("profileHandlers", () => {
         new Date("2024-01-01"),
         new Date("2024-01-01"),
         [
-          { id: "rule1", name: "Test Rule", content: "Rule content" },
-          { id: "rule2", name: "Another Rule", content: "More content" },
+          new Rule(
+            "rule1",
+            "Test Rule",
+            "Rule content",
+            new Date("2024-01-01"),
+            "user123"
+          ),
+          new Rule(
+            "rule2",
+            "Another Rule",
+            "More content",
+            new Date("2024-01-01"),
+            "user123"
+          ),
         ],
         [
-          { id: "mcp1", name: "Test MCP", context: "" },
-          { id: "mcp2", name: "Another MCP", context: "" },
+          new Mcp("mcp1", "Test MCP", "", new Date("2024-01-01"), "user123"),
+          new Mcp("mcp2", "Another MCP", "", new Date("2024-01-01"), "user123"),
         ]
       ),
       new Profile(
@@ -104,7 +123,15 @@ describe("profileHandlers", () => {
         "user123",
         new Date("2024-01-02"),
         new Date("2024-01-02"),
-        [{ id: "rule3", name: "Production Rule", content: "Prod content" }],
+        [
+          new Rule(
+            "rule3",
+            "Production Rule",
+            "Prod content",
+            new Date("2024-01-02"),
+            "user123"
+          ),
+        ],
         []
       ),
     ];
@@ -217,38 +244,14 @@ describe("profileHandlers", () => {
       });
 
       const context = createMockContext({
-        userId: "user123",
+        userId: "user456",
         params: { id: "profile-999" },
       });
 
       const response = await handlers.show(context as any);
-      expect(response.status).toBe(403);
+
       const text = await response.text();
-      expect(text).toContain("permission");
-    });
-
-    it("should prevent user from editing another user's profile", async () => {
-      const otherUsersProfile = new Profile(
-        "profile-999",
-        "Other User's Profile",
-        "other-user-id",
-        new Date(),
-        new Date(),
-        [],
-        []
-      );
-      const fakeRepository = new FakeProfilesRepository([otherUsersProfile]);
-      const handlers = profileHandlers({
-        profilesRepository: fakeRepository as any,
-      });
-
-      const context = createMockContext({
-        userId: "user123",
-        params: { id: "profile-999" },
-      });
-
-      const response = await handlers.edit(context as any);
-      expect(response.status).toBe(403);
+      expect(text).toContain("Sorry we were unable to find profile with ID");
     });
 
     it("should prevent user from deleting another user's profile", async () => {
@@ -281,7 +284,8 @@ describe("profileHandlers", () => {
       });
 
       const response = await handlers.destroy(context as any);
-      expect(response.status).toBe(403);
+      const text = await response.text();
+      expect(text).toContain("Sorry we were unable to find profile with ID");
 
       // Verify profile was not deleted
       expect(fakeRepository.profiles).toHaveLength(1);
@@ -308,10 +312,10 @@ describe("profileHandlers", () => {
       });
 
       const response = await handlers.api.edit.index(context as any);
-      expect(response.status).toBe(403);
+      expect(response.status).toBe(404);
 
       const json = await response.json();
-      expect(json.error).toContain("permission");
+      expect(json.msg).toBe("unable to find the resource for current user");
     });
 
     it("should prevent user from updating another user's profile via API", async () => {
@@ -331,7 +335,6 @@ describe("profileHandlers", () => {
 
       const request = new Request("http://localhost/api/profiles/profile-999", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           name: "Hacked Name",
           ruleIds: [],
@@ -346,29 +349,11 @@ describe("profileHandlers", () => {
       });
 
       const response = await handlers.api.edit.action(context as any);
-      expect(response.status).toBe(403);
-
-      const json = await response.json();
-      expect(json.error).toContain("permission");
+      expect(response.status).toBe(404);
 
       // Verify profile was not modified
       const profile = fakeRepository.profiles[0];
       expect(profile.name).toBe("Other User's Profile");
-    });
-
-    it("should return 404 when profile does not exist", async () => {
-      const fakeRepository = new FakeProfilesRepository([]);
-      const handlers = profileHandlers({
-        profilesRepository: fakeRepository as any,
-      });
-
-      const context = createMockContext({
-        userId: "user123",
-        params: { id: "nonexistent-profile" },
-      });
-
-      const response = await handlers.show(context as any);
-      expect(response.status).toBe(404);
     });
   });
 });

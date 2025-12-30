@@ -1,6 +1,6 @@
 import { db } from "../db/db";
 import { user } from "../auth/db-schema";
-import { eq } from "drizzle-orm";
+import { eq, and } from "drizzle-orm";
 import { profiles } from "../profiles/profiles-schema";
 import { Profile } from "../profiles/profile";
 import { Mcp } from "../mcps/mcp";
@@ -17,14 +17,16 @@ export type User = {
 };
 
 export class UsersRepository {
-  async getProfilesByUsername(name: string): Promise<{userId: string, profiles: Profile[]} | null> {
+  async getProfilesByUsername(
+    name: string
+  ): Promise<{ userId: string; profiles: Profile[] } | null> {
     const userRecord = await db.query.user.findFirst({
       where: eq(user.name, name),
     });
     if (!userRecord) {
       return null;
     }
-    
+
     // Fetch profiles by userId
     const profileRecords = await db.query.profiles.findMany({
       where: eq(profiles.userId, userRecord.id),
@@ -44,19 +46,56 @@ export class UsersRepository {
     });
 
     const userProfiles = (profileRecords ?? []).map(
-        (profile) =>
-          new Profile(
-            profile.id,
-            profile.name,
-            profile.userId,
-            profile.createdAt,
-            profile.updatedAt,
-            profile.profilesToRules?.map((ptr) => (new Rule(ptr.rule.id, ptr.rule.name, ptr.rule.content, ptr.rule.createdAt, ptr.rule.userId))) || [],
-            profile.profilesToMcps?.map((ptm) => (new Mcp(ptm.mcp.id, ptm.mcp.name, ptm.mcp.context, ptm.mcp.createdAt))) || []
-          )
-      );
+      (profile) =>
+        new Profile(
+          profile.id,
+          profile.name,
+          profile.userId,
+          profile.createdAt,
+          profile.updatedAt,
+          profile.profilesToRules?.map(
+            (ptr) =>
+              new Rule(
+                ptr.rule.id,
+                ptr.rule.name,
+                ptr.rule.content,
+                ptr.rule.createdAt,
+                ptr.rule.userId
+              )
+          ) || [],
+          profile.profilesToMcps?.map(
+            (ptm) =>
+              new Mcp(
+                ptm.mcp.id,
+                ptm.mcp.name,
+                ptm.mcp.context,
+                ptm.mcp.createdAt,
+                ptm.mcp.userId
+              )
+          ) || []
+        )
+    );
     // Convert to Profile instances (optional - you can return raw data if preferred)
-    return {userId: userRecord.id, profiles: userProfiles}
+    return { userId: userRecord.id, profiles: userProfiles };
+  }
+
+  async getUserByUsername(username: string): Promise<User | null> {
+    const userRecord = await db.query.user.findFirst({
+      where: eq(user.name, username),
+    });
+
+    if (!userRecord) {
+      return null;
+    }
+
+    return {
+      id: userRecord.id,
+      name: userRecord.name,
+      email: userRecord.email,
+      emailVerified: userRecord.emailVerified,
+      image: userRecord.image,
+      createdAt: userRecord.createdAt,
+      updatedAt: userRecord.updatedAt,
+    };
   }
 }
-
