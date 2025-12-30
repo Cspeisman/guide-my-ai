@@ -1,16 +1,15 @@
 ---
 description: Testing approach
-globs:
-alwaysApply: true
+alwaysApply: false
+globs: *.test.*
 ---
 
 # Testing Approach
 
 ## Testing Framework & Tools
 
-- **Vitest** for unit/integration tests
+- **bun:test** for unit/integration tests
 - **React Testing Library** for component testing
-- **Playwright** for E2E tests
 
 ## File Structure & Organization
 
@@ -29,13 +28,6 @@ src/
   services/
     service-name.ts               # Service implementation
     service-name.test.ts          # Service tests (co-located)
-```
-
-#### E2E Tests
-
-```
-__e2e-tests__/
-  feature-name.spec.ts            # Playwright E2E tests
 ```
 
 ## Naming Conventions
@@ -73,66 +65,50 @@ Focus on what users see and do, not internal component mechanics.
 
 ```typescript
 // ❌ Bad: Testing implementation details
-it('sets isLoading state to true when fetching data', () => {
-    const { rerender } = render(<ServiceView />);
-    expect(component.state.isLoading).toBe(true);
+it("sets isLoading state to true when fetching data", () => {
+  const { rerender } = render(<ServiceView />);
+  expect(component.state.isLoading).toBe(true);
 });
 
-it('calls useState hook with correct initial value', () => {
-    const setStateSpy = jest.spyOn(React, 'useState');
-    render(<ServiceView />);
-    expect(setStateSpy).toHaveBeenCalledWith(false);
+it("calls useState hook with correct initial value", () => {
+  const setStateSpy = jest.spyOn(React, "useState");
+  render(<ServiceView />);
+  expect(setStateSpy).toHaveBeenCalledWith(false);
 });
 
 // ✅ Good: Testing user-visible behavior
-it('displays loading spinner while fetching service data', () => {
-    mockUseServiceData.mockReturnValue(createMockQueryResult(undefined, true));
-    render(<ServiceView />);
-    expect(screen.getByText('Loading...')).toBeInTheDocument();
+it("displays loading spinner while fetching service data", () => {
+  mockUseServiceData.mockReturnValue(createMockQueryResult(undefined, true));
+  render(<ServiceView />);
+  expect(screen.getByText("Loading...")).toBeInTheDocument();
 });
 
-it('shows service details when data loads successfully', () => {
-    const mockService = createMockServiceData();
-    mockUseServiceData.mockReturnValue(createMockQueryResult([mockService]));
-    render(<ServiceView />);
-    expect(screen.getByText('test-service-api')).toBeInTheDocument();
+it("shows service details when data loads successfully", () => {
+  const mockService = createMockServiceData();
+  mockUseServiceData.mockReturnValue(createMockQueryResult([mockService]));
+  render(<ServiceView />);
+  expect(screen.getByText("test-service-api")).toBeInTheDocument();
 });
 ```
 
 ##### 2. Uses mocks via dependency injection, rather than module or global mocking.
 
 Example:
-```typescript
-// ❌ Bad: Creating a global module mock
-vi.mock('./userService', () => ({
-  userService: {
-    fetchUser: vi.fn(),
-  },
-}));
-
-it('displays user name from mocked service', async () => {
-    // Configure the global mock for this test
-    const { userService: mockUserService } = await import('./userService');
-    vi.mocked(mockUserService.fetchUser).mockResolvedValue({ name: 'Alice' });
-
-    render(<GlobalMockUserList />);
-
-    await screen.findByText('Alice');
-});
-
 // ✅ Good: Dependency Injection approach
-    const mockUserService = {
-      fetchUser: vi.fn().mockResolvedValue({ name: 'Alice' }),
-    };
+const mockUserService = {
+fetchUser: mock(async () => { name: "Alice" }),
+};
 
-    render(<DIUserList userService={mockUserService} />);
+render(<DIUserList userService={mockUserService} />);
 
-    // Assert the service was called
-    expect(mockUserService.fetchUser).toHaveBeenCalledWith('123');
+// Assert the service was called
+expect(mockUserService.fetchUser).toHaveBeenCalledWith("123");
 
-    // Assert the UI rendered correctly
-    const userName = await screen.findByText('Alice');
+// Assert the UI rendered correctly
+const userName = await screen.findByText("Alice");
+
 ```
+
 ## Testing Guidelines
 
 ### What to Test
@@ -154,3 +130,4 @@ it('displays user name from mocked service', async () => {
 - **Styling/CSS** (unless functional)
 - **Exact HTML structure** (focus on user-visible behavior)
 - **Provided libraries** (assume used libraries are implemented correctly)
+```

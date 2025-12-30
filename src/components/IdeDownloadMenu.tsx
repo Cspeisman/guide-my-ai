@@ -35,15 +35,6 @@ export function IdeDownloadMenu() {
           For Antigravity
         </a>
       </div>
-
-      {/* Invisible overlay to close menu when clicking outside - purely CSS trick utilizing focus/blur behavior often requires tabindex, 
-          but for pure details/summary, clicking outside doesn't auto-close without JS. 
-          However, usually clicking the summary again toggles it. 
-          The Request was "css only? no client side javascript". 
-          Standard behavior for details is it stays open until toggled. 
-          If a "click outside to close" is strictly needed without JS, it's very hacky (e.g. peer inputs).
-          I will stick to the standard details behavior as requested.
-      */}
     </details>
   );
 }
