@@ -63,5 +63,8 @@ export const routes = route({
       pattern: "/:user/mcps/:id",
       method: "GET",
     },
+    api: {
+      show: { pattern: "/api/users/:user", method: "GET" },
+    },
   },
 });

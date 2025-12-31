@@ -306,5 +306,43 @@ export const usersHandler = (
       }
       return render(<NotFoundComponent id={mcpId ?? ""} type="mcp" />);
     },
+    api: {
+      async show(context) {
+        const matches = routes.users.api.show.match(context.request.url);
+        const userName = matches?.params.user;
+
+        if (!userName) {
+          return Response.json(
+            { error: "Username is required" },
+            { status: 400 }
+          );
+        }
+
+        // Get user information
+        const user = await usersRepository.getUserByUsername(userName);
+
+        if (!user) {
+          return Response.json(
+            { error: `User '${userName}' not found` },
+            { status: 404 }
+          );
+        }
+
+        // Get all profiles with their rules and mcps
+        const result = await usersRepository.getProfilesByUsername(userName);
+        const { profiles } = result ?? { profiles: [] };
+
+        return Response.json({
+          profiles: profiles.map((profile) => ({
+            id: profile.id,
+            name: profile.name,
+            createdAt: profile.createdAt,
+            updatedAt: profile.updatedAt,
+            rulesCount: profile.rules.length,
+            mcpsCount: profile.mcps.length,
+          })),
+        });
+      },
+    },
   } satisfies Controller<typeof routes.users>;
 };
