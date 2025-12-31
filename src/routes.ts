@@ -65,6 +65,7 @@ export const routes = route({
     },
     api: {
       show: { pattern: "/api/users/:user", method: "GET" },
+      profile: { pattern: "/api/users/:user/profiles/:id", method: "GET" },
     },
   },
 });

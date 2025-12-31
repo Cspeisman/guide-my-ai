@@ -130,15 +130,7 @@ export const profileHandlers = (
               user.userId!
             );
             if (profile) {
-              return Response.json({
-                id: profile.id,
-                name: profile.name,
-                userId: profile.userId,
-                createdAt: profile.createdAt,
-                updatedAt: profile.updatedAt,
-                rules: profile.rules,
-                mcps: profile.mcps,
-              });
+              return Response.json(profile.toJson());
             }
           }
           return Response.json(

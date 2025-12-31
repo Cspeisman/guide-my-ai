@@ -331,6 +331,24 @@ export const usersHandler = (
           })),
         });
       },
+      async profile(context) {
+        const matches = routes.users.api.profile.match(context.request.url);
+        const userName = matches?.params.user;
+        const profileId = matches?.params.id;
+        if (userName && profileId) {
+          const user = await usersRepository.getUserByUsername(userName);
+          if (user) {
+            const profile = await profilesRepository.getProfileByIdAndUserId(
+              profileId,
+              user.id
+            );
+            if (profile) {
+              return Response.json(profile.toJson());
+            }
+          }
+        }
+        return Response.json({});
+      },
     },
   } satisfies Controller<typeof routes.users>;
 };
