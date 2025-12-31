@@ -14,6 +14,8 @@ export type User = {
   image: string | null;
   createdAt: Date;
   updatedAt: Date;
+  githubUsername?: string | null;
+  githubUrl?: string | null;
 };
 
 export class UsersRepository {
@@ -21,7 +23,7 @@ export class UsersRepository {
     name: string
   ): Promise<{ userId: string; profiles: Profile[] } | null> {
     const userRecord = await db.query.user.findFirst({
-      where: eq(user.name, name),
+      where: eq(user.name, name.toLowerCase()),
     });
     if (!userRecord) {
       return null;
@@ -81,7 +83,7 @@ export class UsersRepository {
 
   async getUserByUsername(username: string): Promise<User | null> {
     const userRecord = await db.query.user.findFirst({
-      where: eq(user.name, username),
+      where: eq(user.name, username.toLowerCase()),
     });
 
     if (!userRecord) {
@@ -96,6 +98,8 @@ export class UsersRepository {
       image: userRecord.image,
       createdAt: userRecord.createdAt,
       updatedAt: userRecord.updatedAt,
+      githubUsername: userRecord.githubUsername,
+      githubUrl: userRecord.githubUrl,
     };
   }
 }

@@ -6,7 +6,7 @@ export const user = sqliteTable("user", {
   id: text("id")
     .primaryKey()
     .$defaultFn(() => createId()),
-  name: text("name").notNull(),
+  name: text("name").notNull().unique(),
   email: text("email").notNull().unique(),
   emailVerified: integer("emailVerified", { mode: "boolean" })
     .notNull()
@@ -18,6 +18,9 @@ export const user = sqliteTable("user", {
   updatedAt: integer("updatedAt", { mode: "timestamp" })
     .notNull()
     .$defaultFn(() => new Date()),
+  // GitHub profile fields
+  githubUsername: text("githubUsername"),
+  githubUrl: text("githubUrl"),
 });
 
 export const session = sqliteTable("session", {

@@ -1,16 +1,14 @@
 import {
-  Download,
   FileCode,
   FolderCode,
   LayoutDashboard,
   LogOut,
   Settings,
-  Info,
 } from "lucide-react";
 import React from "react";
-import { routes } from "../routes";
-import { TopNavBar } from "../components/TopNavBar";
 import { IdeDownloadMenu } from "../components/IdeDownloadMenu";
+import { TopNavBar } from "../components/TopNavBar";
+import { routes } from "../routes";
 
 export function Document({
   title = "Title",
