@@ -1,8 +1,14 @@
-- [ ] show a user's profiles/rules/mcps
-  - [ ] as I user I can see other users profiles
-  - [ ] as I user I can see other users rules
-  - [ ] as I user I can see other users mcps
+- [x] show a user's profiles/rules/mcps
+  - [x] as I user I can see other users profiles
+  - [x] as I user I can see other users rules
+  - [x] as I user I can see other users mcps
   - [ ] as a user I can pull in another user's profiles/rules/mcps
+- [ ] User settings
+  - [ ] can change username
+  - [ ] set profile as public or private
+- [ ] Community
+  - [ ] list all profiles, rules, and mcps
+  - [ ] add download count to all resources
 - [ ] Supply default example rules or quickly pull in rules from somwhere else
 - [ ] Google oauth
 - [ ] make it more mobile friendly

@@ -1,5 +1,5 @@
 import type { RequestContext } from "@remix-run/fetch-router";
-import { userIdKey, userNameKey } from "./auth/auth-middleware";
+import { getUserContext } from "./auth/user-context";
 import { Layout } from "./layouts/Layout";
 import { UnauthedLayout } from "./layouts/UnauthedLayout";
 import { render } from "./utils";
@@ -8,8 +8,7 @@ import { Info } from "lucide-react";
 export const aboutHandler = () => {
   return {
     async about(context: RequestContext) {
-      const userId = context.storage.get(userIdKey);
-      const userName = context.storage.get(userNameKey);
+      const user = getUserContext(context);
 
       const content = (
         <div className="max-w-4xl mx-auto">
@@ -203,9 +202,9 @@ export const aboutHandler = () => {
         </div>
       );
 
-      if (userId) {
+      if (user.userId) {
         return render(
-          <Layout activeNav="about" userName={userName}>
+          <Layout activeNav="about" user={user}>
             {content}
           </Layout>
         );

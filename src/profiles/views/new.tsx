@@ -1,10 +1,22 @@
-import React from "react";
 import { Layout } from "../../layouts/Layout";
 import { routes } from "../../routes";
 
-export function New({ userName }: { userName?: string | null }) {
+export function New({
+  userName,
+  githubUrl,
+  githubUsername,
+}: {
+  userName?: string | null;
+  githubUrl?: string | null;
+  githubUsername?: string | null;
+}) {
   return (
-    <Layout activeNav="profiles" userName={userName}>
+    <Layout
+      activeNav="profiles"
+      userName={userName}
+      githubUrl={githubUrl}
+      githubUsername={githubUsername}
+    >
       <div>
         <div className="mb-6">
           <div className="flex items-center justify-between mb-2">

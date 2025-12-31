@@ -8,9 +8,16 @@ export const UserProfile = (props: {
   profile: Profile;
   currentUserName: string;
   userName: string;
+  currentUserGithubUrl?: string | null;
+  currentUserGithubUsername?: string | null;
 }) => {
   return (
-    <Layout activeNav="profiles" userName={props.currentUserName}>
+    <Layout
+      activeNav="profiles"
+      userName={props.currentUserName}
+      githubUrl={props.currentUserGithubUrl}
+      githubUsername={props.currentUserGithubUsername}
+    >
       <div className="mb-4">
         <a
           href={routes.users.index.href({ user: props.userName })}

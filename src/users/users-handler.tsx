@@ -9,7 +9,7 @@ import { ProfilesRepository } from "../profiles/profiles-repository";
 import { RulesRepository } from "../rules/rules-repository";
 import { McpsRepository } from "../mcps/mcps-repository";
 import { UserProfile } from "./views/user-profile";
-import { userNameKey } from "../auth/auth-middleware";
+import { getUserContext } from "../auth/user-context";
 import { UserResource } from "./views/user-rule";
 
 export const usersHandler = (
@@ -56,9 +56,9 @@ export const usersHandler = (
       const userRules = profiles.flatMap((profile) => profile.rules);
       // Collect all mcps from all profiles into a single userMcps array
       const userMcps = profiles.flatMap((profile) => profile.mcps);
-      const currentUserName = context.storage.get(userNameKey);
+      const currentUser = getUserContext(context);
       return render(
-        <Layout activeNav="dashboard" userName={currentUserName ?? "unknown"}>
+        <Layout activeNav="dashboard" user={currentUser}>
           <div className="space-y-8">
             {/* Dashboard Header */}
             <div className="flex justify-between items-center mb-8">
@@ -236,12 +236,14 @@ export const usersHandler = (
             user.id
           );
           if (profile) {
-            const currentUserName = context.storage.get(userNameKey);
+            const currentUser = getUserContext(context);
             return render(
               <UserProfile
                 profile={profile}
-                currentUserName={currentUserName ?? "unknown"}
+                currentUserName={currentUser.userName ?? "unknown"}
                 userName={userName}
+                currentUserGithubUrl={currentUser.githubUrl}
+                currentUserGithubUsername={currentUser.githubUsername}
               />
             );
           }
@@ -261,14 +263,16 @@ export const usersHandler = (
             user.id
           );
           if (rule) {
-            const currentUserName = context.storage.get(userNameKey);
+            const currentUser = getUserContext(context);
             return render(
               <UserResource
                 name={rule.name}
                 content={rule.content}
                 createdAt={rule.createdAt}
-                currentUserName={currentUserName ?? "unknown"}
+                currentUserName={currentUser.userName ?? "unknown"}
                 userName={userName}
+                currentUserGithubUrl={currentUser.githubUrl}
+                currentUserGithubUsername={currentUser.githubUsername}
               />
             );
           }
@@ -285,14 +289,16 @@ export const usersHandler = (
         if (user) {
           const mcp = await mcpsRepository.getMcpByIdAndUserId(mcpId, user.id);
           if (mcp) {
-            const currentUserName = context.storage.get(userNameKey);
+            const currentUser = getUserContext(context);
             return render(
               <UserResource
                 name={mcp.name}
                 content={mcp.context}
                 createdAt={mcp.createdAt}
-                currentUserName={currentUserName ?? "unknown"}
+                currentUserName={currentUser.userName ?? "unknown"}
                 userName={userName}
+                currentUserGithubUrl={currentUser.githubUrl}
+                currentUserGithubUsername={currentUser.githubUsername}
               />
             );
           }

@@ -1,5 +1,5 @@
 import { Controller } from "@remix-run/fetch-router";
-import { userIdKey, userNameKey } from "../auth/auth-middleware";
+import { getUserContext } from "../auth/user-context";
 import { Layout } from "../layouts/Layout";
 import { routes } from "../routes";
 import { render } from "../utils";
@@ -23,19 +23,24 @@ export const rulesHandlers = (
 
   return {
     async index(context) {
-      const userId = context.storage.get(userIdKey);
-      const userName = context.storage.get(userNameKey);
-      const userRules = await rulesRepository.getRulesByUserId(userId!);
+      const user = getUserContext(context);
+      const userRules = await rulesRepository.getRulesByUserId(user.userId!);
 
       return render(
-        <Layout activeNav="rules" userName={userName}>
+        <Layout activeNav="rules" user={user}>
           <RulesList rules={userRules} />
         </Layout>
       );
     },
     new(context) {
-      const userName = context.storage.get(userNameKey);
-      return render(<New userName={userName} />);
+      const user = getUserContext(context);
+      return render(
+        <New
+          userName={user.userName}
+          githubUrl={user.githubUrl}
+          githubUsername={user.githubUsername}
+        />
+      );
     },
     async create(context) {
       const formData = await context.request.formData();
@@ -50,9 +55,9 @@ export const rulesHandlers = (
         return Response.json({ error: "Content is required" }, { status: 400 });
       }
 
-      const userId = context.storage.get(userIdKey);
+      const user = getUserContext(context);
 
-      if (!userId) {
+      if (!user.userId) {
         return Response.json({ error: "Unauthorized" }, { status: 401 });
       }
 
@@ -60,25 +65,24 @@ export const rulesHandlers = (
       await rulesRepository.createRule({
         name: name.toString(),
         content: content.toString(),
-        userId: userId,
+        userId: user.userId,
       });
 
       // Redirect to the rules index or show page after creation
       return Response.redirect(routes.rules.index.href(), 302);
     },
     async show(context) {
-      const userId = context.storage.get(userIdKey);
-      if (userId) {
+      const user = getUserContext(context);
+      if (user.userId) {
         const rule = await rulesRepository.getRuleByIdAndUserId(
           context.params.id,
-          userId
+          user.userId
         );
         if (rule) {
-          const userName = context.storage.get(userNameKey);
           return render(
             <Layout
               assets={{ scripts: [routes.js.href({ path: "rule" })] }}
-              userName={userName}
+              user={user}
             />
           );
         }
@@ -88,18 +92,18 @@ export const rulesHandlers = (
 
     api: {
       async index(context) {
-        const userId = context.storage.get(userIdKey);
-        const userRules = await rulesRepository.getRulesByUserId(userId!);
+        const user = getUserContext(context);
+        const userRules = await rulesRepository.getRulesByUserId(user.userId!);
 
         return Response.json(userRules.map((rule) => rule.toJson()));
       },
       show: {
         async index(context) {
-          const userId = context.storage.get(userIdKey);
-          if (userId) {
+          const user = getUserContext(context);
+          if (user.userId) {
             const rule = await rulesRepository.getRuleByIdAndUserId(
               context.params?.id!,
-              userId
+              user.userId
             );
             if (rule) {
               return Response.json(rule.toJson());
@@ -111,11 +115,11 @@ export const rulesHandlers = (
           );
         },
         async action(context) {
-          const userId = context.storage.get(userIdKey);
-          if (userId) {
+          const user = getUserContext(context);
+          if (user.userId) {
             const currentRule = await rulesRepository.getRuleByIdAndUserId(
               context.params.id,
-              userId
+              user.userId
             );
             if (currentRule) {
               const body = await context.request.json();
@@ -157,7 +161,7 @@ export const rulesHandlers = (
       },
     },
     async destroy(context) {
-      const userId = context.storage.get(userIdKey);
+      const user = getUserContext(context);
 
       const formData = await context.request.formData();
       const method = formData.get("_method");
@@ -167,10 +171,10 @@ export const rulesHandlers = (
         return new Response("Method not allowed", { status: 405 });
       }
 
-      if (userId) {
+      if (user.userId) {
         const rule = await rulesRepository.getRuleByIdAndUserId(
           context.params.id,
-          userId
+          user.userId
         );
 
         if (rule) {

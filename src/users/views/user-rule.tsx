@@ -9,10 +9,17 @@ interface Props {
   createdAt: Date;
   currentUserName: string;
   userName: string;
+  currentUserGithubUrl?: string | null;
+  currentUserGithubUsername?: string | null;
 }
 export const UserResource = (props: Props) => {
   return (
-    <Layout activeNav="rules" userName={props.currentUserName}>
+    <Layout
+      activeNav="rules"
+      userName={props.currentUserName}
+      githubUrl={props.currentUserGithubUrl}
+      githubUsername={props.currentUserGithubUsername}
+    >
       <div className="mb-4">
         <a
           href={routes.users.index.href({ user: props.userName })}

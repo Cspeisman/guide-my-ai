@@ -7,9 +7,11 @@ import { db } from "../db/db";
 import { user } from "./db-schema";
 import { eq } from "drizzle-orm";
 // Create storage keys for auth data
-export const userIdKey = createStorageKey<string | null>();
-export const userNameKey = createStorageKey<string | null>();
-export const betterAuthSessionKey = createStorageKey<any>();
+export const userIdKey = createStorageKey<string | null>(null);
+export const userNameKey = createStorageKey<string | null>(null);
+export const userGithubUrlKey = createStorageKey<string | null>(null);
+export const userGithubUsernameKey = createStorageKey<string | null>(null);
+export const betterAuthSessionKey = createStorageKey<any>(null);
 
 /**
  * Creates middleware to check authorization for API routes
@@ -19,6 +21,8 @@ export function createApiAuthMiddleware(): Middleware {
   return async (context, next) => {
     context.storage.set(userIdKey, null);
     context.storage.set(userNameKey, null);
+    context.storage.set(userGithubUrlKey, null);
+    context.storage.set(userGithubUsernameKey, null);
 
     // Allow static assets and auth routes without authentication
     if (
@@ -90,6 +94,12 @@ export function createApiAuthMiddleware(): Middleware {
 
       if (userRecord) {
         context.storage.set(userNameKey, userRecord.name);
+        if (userRecord.githubUrl) {
+          context.storage.set(userGithubUrlKey, userRecord.githubUrl);
+        }
+        if (userRecord.githubUsername) {
+          context.storage.set(userGithubUsernameKey, userRecord.githubUsername);
+        }
       }
     }
 

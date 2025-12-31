@@ -7,6 +7,8 @@ import { Profile } from "../profile";
 interface Props {
   profile: Profile;
   userName?: string | null;
+  githubUrl?: string | null;
+  githubUsername?: string | null;
 }
 export const Show = (props: Props) => {
   return (
@@ -19,6 +21,8 @@ export const Show = (props: Props) => {
       }}
       activeNav="profiles"
       userName={props.userName}
+      githubUrl={props.githubUrl}
+      githubUsername={props.githubUsername}
     >
       <div>
         <div className="mb-8">

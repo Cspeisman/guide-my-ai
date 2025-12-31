@@ -1,6 +1,6 @@
 import { Controller } from "@remix-run/fetch-router";
 import React from "react";
-import { userIdKey, userNameKey } from "../auth/auth-middleware";
+import { getUserContext } from "../auth/user-context";
 import { Layout } from "../layouts/Layout";
 import { routes } from "../routes";
 import { render } from "../utils";
@@ -25,29 +25,27 @@ export const mcpsHandlers = (
 
   return {
     async index(context) {
-      const userId = context.storage.get(userIdKey);
-      const userName = context.storage.get(userNameKey);
-      const userMcps = await mcpsRepository.getMcpsByUserId(userId!);
+      const user = getUserContext(context);
+      const userMcps = await mcpsRepository.getMcpsByUserId(user.userId!);
 
       return render(
-        <Layout activeNav="mcps" userName={userName}>
+        <Layout activeNav="mcps" user={user}>
           <McpsList mcps={userMcps} />
         </Layout>
       );
     },
     async show(context) {
-      const userId = context.storage.get(userIdKey);
-      if (userId) {
+      const user = getUserContext(context);
+      if (user.userId) {
         const mcp = await mcpsRepository.getMcpByIdAndUserId(
           context.params.id,
-          userId
+          user.userId
         );
         if (mcp) {
-          const userName = context.storage.get(userNameKey);
           return render(
             <Layout
               assets={{ scripts: [routes.js.href({ path: "mcp" })] }}
-              userName={userName}
+              user={user}
             />
           );
         }
@@ -55,8 +53,14 @@ export const mcpsHandlers = (
       return render(<NotFoundComponent id={context.params.id} />);
     },
     new(context) {
-      const userName = context.storage.get(userNameKey);
-      return render(<New userName={userName} />);
+      const user = getUserContext(context);
+      return render(
+        <New
+          userName={user.userName}
+          githubUrl={user.githubUrl}
+          githubUsername={user.githubUsername}
+        />
+      );
     },
     async create(context) {
       const formData = await context.request.formData();
@@ -77,9 +81,9 @@ export const mcpsHandlers = (
         return Response.json({ error: validation.error }, { status: 400 });
       }
 
-      const userId = context.storage.get(userIdKey);
+      const user = getUserContext(context);
 
-      if (!userId) {
+      if (!user.userId) {
         return Response.json({ error: "Unauthorized" }, { status: 401 });
       }
 
@@ -87,14 +91,14 @@ export const mcpsHandlers = (
       await mcpsRepository.createMcp({
         name: name.toString(),
         context: mcpContext.toString(),
-        userId: userId,
+        userId: user.userId,
       });
 
       // Redirect to the mcps index or show page after creation
       return Response.redirect(routes.mcps.index.href(), 302);
     },
     async destroy(context) {
-      const userId = context.storage.get(userIdKey);
+      const user = getUserContext(context);
 
       const formData = await context.request.formData();
       const method = formData.get("_method");
@@ -104,10 +108,10 @@ export const mcpsHandlers = (
         return new Response("Method not allowed", { status: 405 });
       }
 
-      if (userId) {
+      if (user.userId) {
         const mcp = await mcpsRepository.getMcpByIdAndUserId(
           context.params.id,
-          userId
+          user.userId
         );
 
         if (mcp) {
@@ -123,18 +127,18 @@ export const mcpsHandlers = (
     },
     api: {
       async index(context) {
-        const userId = context.storage.get(userIdKey);
-        const userMcps = await mcpsRepository.getMcpsByUserId(userId!);
+        const user = getUserContext(context);
+        const userMcps = await mcpsRepository.getMcpsByUserId(user.userId!);
 
         return Response.json(userMcps.map((mcp) => mcp.toJson()));
       },
       show: {
         async index(context) {
-          const userId = context.storage.get(userIdKey);
-          if (userId) {
+          const user = getUserContext(context);
+          if (user.userId) {
             const mcp = await mcpsRepository.getMcpByIdAndUserId(
               context.params?.id!,
-              userId
+              user.userId
             );
             if (mcp) {
               return Response.json(mcp.toJson());
@@ -146,11 +150,11 @@ export const mcpsHandlers = (
           );
         },
         async action(context) {
-          const userId = context.storage.get(userIdKey);
-          if (userId) {
+          const user = getUserContext(context);
+          if (user.userId) {
             const currentMcp = await mcpsRepository.getMcpByIdAndUserId(
               context.params.id,
-              userId
+              user.userId
             );
             if (currentMcp) {
               const body = await context.request.json();

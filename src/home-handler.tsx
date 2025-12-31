@@ -1,5 +1,5 @@
 import type { RequestContext } from "@remix-run/fetch-router";
-import { userIdKey, userNameKey } from "./auth/auth-middleware";
+import { getUserContext } from "./auth/user-context";
 import { UnauthedLayout } from "./layouts/UnauthedLayout";
 import { routes } from "./routes";
 import { render } from "./utils";
@@ -22,9 +22,9 @@ export const homeHandler = (
 ) => {
   return {
     async home(context: RequestContext) {
-      const userName = context.storage.get(userNameKey);
+      const user = getUserContext(context);
 
-      if (userName) {
+      if (user.userName) {
         return Response.redirect(routes.dashboard.href());
       }
 
@@ -59,19 +59,20 @@ export const homeHandler = (
     async dashboard(context: RequestContext) {
       const { rulesRepository, mcpsRepository, profilesRepository } =
         dependencies;
-      const userId = context.storage.get(userIdKey);
-      const userName = context.storage.get(userNameKey);
+      const user = getUserContext(context);
 
       let userRules: Rule[] = [];
       let userMcps: Mcp[] = [];
       let userProfiles: Profile[] = [];
-      if (userId) {
-        userRules = await rulesRepository.getRulesByUserId(userId);
-        userMcps = await mcpsRepository.getMcpsByUserId(userId);
-        userProfiles = await profilesRepository.getProfilesByUserId(userId);
+      if (user.userId) {
+        userRules = await rulesRepository.getRulesByUserId(user.userId);
+        userMcps = await mcpsRepository.getMcpsByUserId(user.userId);
+        userProfiles = await profilesRepository.getProfilesByUserId(
+          user.userId
+        );
       }
       return render(
-        <Layout activeNav="dashboard" userName={userName}>
+        <Layout activeNav="dashboard" user={user}>
           <div className="space-y-8">
             {/* Dashboard Header */}
             <div className="flex justify-between items-center mb-8">

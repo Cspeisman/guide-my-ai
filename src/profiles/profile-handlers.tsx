@@ -1,5 +1,5 @@
 import { Controller } from "@remix-run/fetch-router";
-import { userIdKey, userNameKey } from "../auth/auth-middleware";
+import { getUserContext } from "../auth/user-context";
 import { Layout } from "../layouts/Layout";
 import { routes } from "../routes";
 import { render } from "../utils";
@@ -21,34 +21,45 @@ export const profileHandlers = (
 
   return {
     async index(context) {
-      const userId = context.storage.get(userIdKey);
-      const userName = context.storage.get(userNameKey);
+      const user = getUserContext(context);
       const userProfiles = await profilesRepository.getProfilesByUserId(
-        userId!
+        user.userId!
       );
 
-      return render(<Index userProfiles={userProfiles} userName={userName} />);
+      return render(<Index userProfiles={userProfiles} user={user} />);
     },
     async show(context) {
-      const userId = context.storage.get(userIdKey);
-      if (userId) {
+      const user = getUserContext(context);
+      if (user.userId) {
         const profile = await profilesRepository.getProfileByIdAndUserId(
           context.params.id,
-          userId
+          user.userId
         );
         if (profile) {
-          const userName = context.storage.get(userNameKey);
-          return render(<Show profile={profile} userName={userName} />);
+          return render(
+            <Show
+              profile={profile}
+              userName={user.userName}
+              githubUrl={user.githubUrl}
+              githubUsername={user.githubUsername}
+            />
+          );
         }
       }
       return render(<NotFoundComponent id={context.params.id} />);
     },
     new(context) {
-      const userName = context.storage.get(userNameKey);
-      return render(<New userName={userName} />);
+      const user = getUserContext(context);
+      return render(
+        <New
+          userName={user.userName}
+          githubUrl={user.githubUrl}
+          githubUsername={user.githubUsername}
+        />
+      );
     },
     async create(context) {
-      const userId = context.storage.get(userIdKey);
+      const user = getUserContext(context);
       const formData = await context.request.formData();
       const name = formData.get("name");
 
@@ -58,7 +69,7 @@ export const profileHandlers = (
 
       const profile = await profilesRepository.createProfile({
         name,
-        userId: userId!,
+        userId: user.userId!,
       });
 
       return Response.redirect(
@@ -67,17 +78,17 @@ export const profileHandlers = (
       );
     },
     edit(context) {
-      const userName = context.storage.get(userNameKey);
+      const user = getUserContext(context);
       return render(
         <Layout
           assets={{ scripts: [routes.js.href({ path: "edit-form" })] }}
           activeNav="profiles"
-          userName={userName}
+          user={user}
         />
       );
     },
     async destroy(context) {
-      const userId = context.storage.get(userIdKey);
+      const user = getUserContext(context);
 
       const formData = await context.request.formData();
       const method = formData.get("_method");
@@ -87,10 +98,10 @@ export const profileHandlers = (
         return new Response("Method not allowed", { status: 405 });
       }
 
-      if (userId) {
+      if (user.userId) {
         const profile = await profilesRepository.getProfileByIdAndUserId(
           context.params.id,
-          userId
+          user.userId
         );
 
         if (profile) {
@@ -106,9 +117,9 @@ export const profileHandlers = (
     },
     api: {
       async index(context) {
-        const userId = context.storage.get(userIdKey);
+        const user = getUserContext(context);
         const userProfiles = await profilesRepository.getProfilesByUserId(
-          userId!
+          user.userId!
         );
 
         return Response.json(
@@ -125,11 +136,11 @@ export const profileHandlers = (
       },
       edit: {
         async index(context) {
-          const userId = context.storage.get(userIdKey);
-          if (userId) {
+          const user = getUserContext(context);
+          if (user.userId) {
             const profile = await profilesRepository.getProfileByIdAndUserId(
               context.params?.id,
-              userId!
+              user.userId!
             );
             if (profile) {
               return Response.json({
@@ -149,12 +160,12 @@ export const profileHandlers = (
           );
         },
         async action(context) {
-          const userId = context.storage.get(userIdKey);
-          if (userId) {
+          const user = getUserContext(context);
+          if (user.userId) {
             const existProfile =
               await profilesRepository.getProfileByIdAndUserId(
                 context.params.id,
-                userId
+                user.userId
               );
             if (existProfile) {
               const body = await context.request.json();
@@ -174,7 +185,7 @@ export const profileHandlers = (
               const updatedProfile =
                 await profilesRepository.getProfileByIdAndUserId(
                   existProfile.id,
-                  userId
+                  user.userId
                 );
               if (updatedProfile) {
                 return Response.json({

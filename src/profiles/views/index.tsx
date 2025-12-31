@@ -4,15 +4,16 @@ import { routes } from "../../routes";
 import { User } from "lucide-react";
 import { Profile } from "../profile";
 import { CreatedAt } from "../../utils/created-at";
+import { UserContext } from "../../auth/user-context";
 export { New } from "./new";
 export { Show } from "./show";
 interface Props {
   userProfiles: Profile[];
-  userName?: string | null;
+  user: UserContext;
 }
 export const Index = (props: Props) => {
   return (
-    <Layout activeNav="profiles" userName={props.userName}>
+    <Layout activeNav="profiles" user={props.user}>
       {/* Profiles Section */}
       <div>
         <div className="flex justify-between items-center mb-8">
