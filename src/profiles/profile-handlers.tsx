@@ -36,27 +36,14 @@ export const profileHandlers = (
           user.userId
         );
         if (profile) {
-          return render(
-            <Show
-              profile={profile}
-              userName={user.userName}
-              githubUrl={user.githubUrl}
-              githubUsername={user.githubUsername}
-            />
-          );
+          return render(<Show profile={profile} user={user} />);
         }
       }
       return render(<NotFoundComponent id={context.params.id} />);
     },
     new(context) {
       const user = getUserContext(context);
-      return render(
-        <New
-          userName={user.userName}
-          githubUrl={user.githubUrl}
-          githubUsername={user.githubUsername}
-        />
-      );
+      return render(<New user={user} />);
     },
     async create(context) {
       const user = getUserContext(context);

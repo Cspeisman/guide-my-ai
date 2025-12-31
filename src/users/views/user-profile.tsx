@@ -3,28 +3,18 @@ import { Layout } from "../../layouts/Layout";
 import { Profile } from "../../profiles/profile";
 import { CreatedAt } from "../../utils/created-at";
 import { routes } from "../../routes";
+import { UserContext } from "../../auth/user-context";
 
-export const UserProfile = (props: {
-  profile: Profile;
-  currentUserName: string;
-  userName: string;
-  currentUserGithubUrl?: string | null;
-  currentUserGithubUsername?: string | null;
-}) => {
+export const UserProfile = (props: { profile: Profile; user: UserContext }) => {
   return (
-    <Layout
-      activeNav="profiles"
-      userName={props.currentUserName}
-      githubUrl={props.currentUserGithubUrl}
-      githubUsername={props.currentUserGithubUsername}
-    >
+    <Layout activeNav="profiles" user={props.user}>
       <div className="mb-4">
         <a
-          href={routes.users.index.href({ user: props.userName })}
+          href={routes.users.show.href({ user: props.user.userName ?? "" })}
           className="inline-flex items-center gap-2 underline  hover:text-indigo-900 transition-colors"
         >
           <ArrowLeft className="w-4 h-4" />
-          <span>{props.userName}'s Dashboard</span>
+          <span>{props.user.userName}'s Dashboard</span>
         </a>
       </div>
       <div>
@@ -86,7 +76,7 @@ export const UserProfile = (props: {
                   </div>
                   <a
                     href={routes.users.rule.href({
-                      user: props.userName,
+                      user: props.user.userName ?? "",
                       id: rule.id,
                     })}
                     className="text-sm text-blue-600 hover:text-blue-800 mt-3 inline-block font-medium"
@@ -122,7 +112,7 @@ export const UserProfile = (props: {
                   </h3>
                   <a
                     href={routes.users.mcp.href({
-                      user: props.userName,
+                      user: props.user.userName ?? "",
                       id: mcp.id,
                     })}
                     className="text-sm text-blue-600 hover:text-blue-800 inline-block font-medium"

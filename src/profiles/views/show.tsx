@@ -3,12 +3,11 @@ import { Layout } from "../../layouts/Layout";
 import { routes } from "../../routes";
 import { CreatedAt } from "../../utils/created-at";
 import { Profile } from "../profile";
+import type { UserContext } from "../../auth/user-context";
 
 interface Props {
   profile: Profile;
-  userName?: string | null;
-  githubUrl?: string | null;
-  githubUsername?: string | null;
+  user: UserContext;
 }
 export const Show = (props: Props) => {
   return (
@@ -20,9 +19,7 @@ export const Show = (props: Props) => {
         ],
       }}
       activeNav="profiles"
-      userName={props.userName}
-      githubUrl={props.githubUrl}
-      githubUsername={props.githubUsername}
+      user={props.user}
     >
       <div>
         <div className="mb-8">

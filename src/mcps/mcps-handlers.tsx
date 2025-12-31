@@ -54,13 +54,7 @@ export const mcpsHandlers = (
     },
     new(context) {
       const user = getUserContext(context);
-      return render(
-        <New
-          userName={user.userName}
-          githubUrl={user.githubUrl}
-          githubUsername={user.githubUsername}
-        />
-      );
+      return render(<New user={user} />);
     },
     async create(context) {
       const formData = await context.request.formData();

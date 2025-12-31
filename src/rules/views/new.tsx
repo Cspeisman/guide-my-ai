@@ -1,23 +1,10 @@
-import React from "react";
+import { UserContext } from "../../auth/user-context";
 import { Layout } from "../../layouts/Layout";
 import { routes } from "../../routes";
 
-export function New({
-  userName,
-  githubUrl,
-  githubUsername,
-}: {
-  userName?: string | null;
-  githubUrl?: string | null;
-  githubUsername?: string | null;
-}) {
+export function New({ user }: { user: UserContext }) {
   return (
-    <Layout
-      activeNav="rules"
-      userName={userName}
-      githubUrl={githubUrl}
-      githubUsername={githubUsername}
-    >
+    <Layout activeNav="rules" user={user}>
       <div>
         <div className="mb-6">
           <div className="flex items-center justify-between mb-2">

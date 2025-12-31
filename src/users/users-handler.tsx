@@ -36,8 +36,8 @@ export const usersHandler = (
   );
 
   return {
-    async index(context: RequestContext) {
-      const matches = routes.users.index.match(context.request.url);
+    async show(context: RequestContext) {
+      const matches = routes.users.show.match(context.request.url);
       const userName = matches?.params.user;
 
       if (!userName) {
@@ -238,13 +238,7 @@ export const usersHandler = (
           if (profile) {
             const currentUser = getUserContext(context);
             return render(
-              <UserProfile
-                profile={profile}
-                currentUserName={currentUser.userName ?? "unknown"}
-                userName={userName}
-                currentUserGithubUrl={currentUser.githubUrl}
-                currentUserGithubUsername={currentUser.githubUsername}
-              />
+              <UserProfile profile={profile} user={currentUser ?? {}} />
             );
           }
         }
@@ -269,10 +263,7 @@ export const usersHandler = (
                 name={rule.name}
                 content={rule.content}
                 createdAt={rule.createdAt}
-                currentUserName={currentUser.userName ?? "unknown"}
-                userName={userName}
-                currentUserGithubUrl={currentUser.githubUrl}
-                currentUserGithubUsername={currentUser.githubUsername}
+                user={currentUser ?? {}}
               />
             );
           }
@@ -295,10 +286,7 @@ export const usersHandler = (
                 name={mcp.name}
                 content={mcp.context}
                 createdAt={mcp.createdAt}
-                currentUserName={currentUser.userName ?? "unknown"}
-                userName={userName}
-                currentUserGithubUrl={currentUser.githubUrl}
-                currentUserGithubUsername={currentUser.githubUsername}
+                user={currentUser ?? {}}
               />
             );
           }

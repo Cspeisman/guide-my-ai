@@ -2,31 +2,24 @@ import { ArrowLeft } from "lucide-react";
 import { Layout } from "../../layouts/Layout";
 import { routes } from "../../routes";
 import { CreatedAt } from "../../utils/created-at";
+import { UserContext } from "../../auth/user-context";
 
 interface Props {
   name: string;
   content: string;
   createdAt: Date;
-  currentUserName: string;
-  userName: string;
-  currentUserGithubUrl?: string | null;
-  currentUserGithubUsername?: string | null;
+  user: UserContext;
 }
 export const UserResource = (props: Props) => {
   return (
-    <Layout
-      activeNav="rules"
-      userName={props.currentUserName}
-      githubUrl={props.currentUserGithubUrl}
-      githubUsername={props.currentUserGithubUsername}
-    >
+    <Layout activeNav="rules" user={props.user}>
       <div className="mb-4">
         <a
-          href={routes.users.index.href({ user: props.userName })}
+          href={routes.users.show.href({ user: props.user.userName ?? "" })}
           className="inline-flex items-center gap-2 underline  hover:text-indigo-900 transition-colors"
         >
           <ArrowLeft className="w-4 h-4" />
-          <span>{props.userName}'s Dashboard</span>
+          <span>{props.user.userName ?? "unknown"}'s Dashboard</span>
         </a>
       </div>
       <div className="block bg-white rounded-xl border border-gray-200 p-6 transition-all group">
