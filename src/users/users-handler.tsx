@@ -320,34 +320,7 @@ export const usersHandler = (
         const result = await usersRepository.getProfilesByUsername(userName);
         const { profiles } = result ?? { profiles: [] };
 
-        return Response.json({
-          profiles: profiles.map((profile) => ({
-            id: profile.id,
-            name: profile.name,
-            createdAt: profile.createdAt,
-            updatedAt: profile.updatedAt,
-            rulesCount: profile.rules.length,
-            mcpsCount: profile.mcps.length,
-          })),
-        });
-      },
-      async profile(context) {
-        const matches = routes.users.api.profile.match(context.request.url);
-        const userName = matches?.params.user;
-        const profileId = matches?.params.id;
-        if (userName && profileId) {
-          const user = await usersRepository.getUserByUsername(userName);
-          if (user) {
-            const profile = await profilesRepository.getProfileByIdAndUserId(
-              profileId,
-              user.id
-            );
-            if (profile) {
-              return Response.json(profile.toJson());
-            }
-          }
-        }
-        return Response.json({});
+        return Response.json(profiles.map((p) => p.toJson()));
       },
     },
   } satisfies Controller<typeof routes.users>;
