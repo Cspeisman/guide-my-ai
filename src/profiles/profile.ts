@@ -5,6 +5,7 @@ export class Profile {
   constructor(
     public id: string,
     public name: string,
+    public slug: string,
     public userId: string,
     public createdAt: Date,
     public updatedAt: Date,
@@ -16,6 +17,7 @@ export class Profile {
     return {
       id: this.id,
       name: this.name,
+      slug: this.slug,
       userId: this.userId,
       createdAt: this.createdAt,
       updatedAt: this.updatedAt,

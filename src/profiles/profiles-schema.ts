@@ -3,6 +3,7 @@ import {
   text,
   integer,
   primaryKey,
+  unique,
 } from "drizzle-orm/sqlite-core";
 import { relations } from "drizzle-orm";
 import { createId } from "@paralleldrive/cuid2";
@@ -10,21 +11,29 @@ import { user } from "../auth/db-schema";
 import { rules } from "../rules/rules-schema";
 import { mcps } from "../mcps/mcp-schema";
 
-export const profiles = sqliteTable("profiles", {
-  id: text("id")
-    .primaryKey()
-    .$defaultFn(() => createId()),
-  name: text("name").notNull().unique().default("Untitled Profile"),
-  userId: text("userId")
-    .notNull()
-    .references(() => user.id, { onDelete: "cascade" }),
-  createdAt: integer("createdAt", { mode: "timestamp" })
-    .notNull()
-    .$defaultFn(() => new Date()),
-  updatedAt: integer("updatedAt", { mode: "timestamp" })
-    .notNull()
-    .$defaultFn(() => new Date()),
-});
+export const profiles = sqliteTable(
+  "profiles",
+  {
+    id: text("id")
+      .primaryKey()
+      .$defaultFn(() => createId()),
+    name: text("name").notNull().default("Untitled Profile"),
+    slug: text("slug").notNull(),
+    userId: text("userId")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    createdAt: integer("createdAt", { mode: "timestamp" })
+      .notNull()
+      .$defaultFn(() => new Date()),
+    updatedAt: integer("updatedAt", { mode: "timestamp" })
+      .notNull()
+      .$defaultFn(() => new Date()),
+  },
+  (table) => [
+    // Ensure slug is unique per user
+    unique("unique_user_slug").on(table.userId, table.slug),
+  ]
+);
 
 // Junction table for profiles-rules many-to-many relationship
 export const profilesToRules = sqliteTable(

@@ -43,6 +43,13 @@
       "when": 1767186387963,
       "tag": "0005_slow_maelstrom",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "6",
+      "when": 1767215078580,
+      "tag": "0006_noisy_spectrum",
+      "breakpoints": true
     }
   ]
 }

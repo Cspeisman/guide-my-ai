@@ -2,7 +2,7 @@
   - [x] as I user I can see other users profiles
   - [x] as I user I can see other users rules
   - [x] as I user I can see other users mcps
-  - [ ] as a user I can pull in another user's profiles/rules/mcps
+  - [x] as a user I can pull in another user's profiles
 - [ ] User settings
   - [ ] can change username
   - [ ] set profile as public or private

@@ -4,35 +4,38 @@ Guide My AI is a centralized hub designed to manage your AI configuration assets
 
 ## ✨ Key Features
 
--   **🤖 AI Profiles**: Create and manage distinct personas or configurations for your AI assistants.
--   **📏 Rules Management**: Define and store reusable rules and instructions to guide AI behavior.
--   **🔌 MCP Server Configs**: Manage configurations for Model Context Protocol servers to easily connect your AI to external tools and data.
+- **🤖 AI Profiles**: Create and manage distinct personas or configurations for your AI assistants.
+- **📏 Rules Management**: Define and store reusable rules and instructions to guide AI behavior.
+- **🔌 MCP Server Configs**: Manage configurations for Model Context Protocol servers to easily connect your AI to external tools and data.
+- **🔗 Shareable URLs**: Each profile has a unique, URL-safe slug (e.g., `username/react-profile`) for easy sharing and bookmarking.
 
 ## 🛠️ Tech Stack
 
--   **Runtime**: [Bun](https://bun.sh)
--   **Backend Framework**: Native Bun HTTP with `@remix-run/fetch-router`
--   **Frontend**: React (Server-side rendering approach)
--   **Styling**: Tailwind CSS
--   **Database**: SQLite with [Drizzle ORM](https://orm.drizzle.team)
--   **Authentication**: [Better Auth](https://www.better-auth.com)
+- **Runtime**: [Bun](https://bun.sh)
+- **Backend Framework**: Native Bun HTTP with `@remix-run/fetch-router`
+- **Frontend**: React (Server-side rendering approach)
+- **Styling**: Tailwind CSS
+- **Database**: SQLite with [Drizzle ORM](https://orm.drizzle.team)
+- **Authentication**: [Better Auth](https://www.better-auth.com)
 
 ## 🚀 Getting Started
 
 ### Prerequisites
 
--   [Bun](https://bun.sh) (v1.0.0 or later)
--   A GitHub OAuth App (see [Authentication Setup](#authentication-setup))
+- [Bun](https://bun.sh) (v1.0.0 or later)
+- A GitHub OAuth App (see [Authentication Setup](#authentication-setup))
 
 ### Installation
 
 1.  **Clone the repository**
+
     ```bash
     git clone <repository-url>
     cd guide-my-ai
     ```
 
 2.  **Install dependencies**
+
     ```bash
     bun install
     ```
@@ -82,21 +85,21 @@ bun run build:assets:watch
 
 ## 📜 Scripts
 
--   `bun run dev`: Start the dev server in watch mode.
--   `bun start`: Start the production server.
--   `bun run build:assets`: Build Tailwind CSS output.
--   `bun run build:assets:watch`: Build Tailwind CSS output in watch mode.
--   `bun run db:generate`: Generate Drizzle migrations.
--   `bun run db:migrate`: Apply Drizzle migrations.
--   `bun test`: Run tests.
+- `bun run dev`: Start the dev server in watch mode.
+- `bun start`: Start the production server.
+- `bun run build:assets`: Build Tailwind CSS output.
+- `bun run build:assets:watch`: Build Tailwind CSS output in watch mode.
+- `bun run db:generate`: Generate Drizzle migrations.
+- `bun run db:migrate`: Apply Drizzle migrations.
+- `bun test`: Run tests.
 
 ## 📂 Project Structure
 
--   `src/server.ts`: Main entry point and server configuration.
--   `src/routes.ts`: Route definitions.
--   `src/auth/`: Authentication logic and handlers.
--   `src/profiles/`: Profile management logic.
--   `src/rules/`: Rule management logic.
--   `src/mcps/`: MCP server management logic.
--   `src/db/`: Database schema and connection.
--   `src/layouts/`: UI layout components.
+- `src/server.ts`: Main entry point and server configuration.
+- `src/routes.ts`: Route definitions.
+- `src/auth/`: Authentication logic and handlers.
+- `src/profiles/`: Profile management logic.
+- `src/rules/`: Rule management logic.
+- `src/mcps/`: MCP server management logic.
+- `src/db/`: Database schema and connection.
+- `src/layouts/`: UI layout components.

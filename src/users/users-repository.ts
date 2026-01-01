@@ -52,6 +52,7 @@ export class UsersRepository {
         new Profile(
           profile.id,
           profile.name,
+          profile.slug,
           profile.userId,
           profile.createdAt,
           profile.updatedAt,

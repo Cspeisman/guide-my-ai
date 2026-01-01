@@ -28,10 +28,11 @@ export const Show = (props: Props) => {
               <h1 className="text-3xl font-bold text-gray-900 font-mono mb-2">
                 {props.profile.name}
               </h1>
-              <div className="flex gap-3 items-center">
+              <div className="flex gap-3 items-center text-[10px] text-gray-400">
+                <div>{props.profile.slug}</div>
                 <CreatedAt date={props.profile.createdAt} />
-                <span className="text-[10px] text-gray-400">|</span>
-                <div className="text-[10px] text-gray-400 font-mono">
+                <span>|</span>
+                <div>
                   updated: {props.profile.updatedAt.toLocaleDateString()}
                 </div>
               </div>

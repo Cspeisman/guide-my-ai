@@ -1,9 +1,10 @@
-import { and, eq } from "drizzle-orm";
+import { and, eq, ne } from "drizzle-orm";
 import { db } from "../db/db";
 import { Profile } from "./profile";
 import { profiles, profilesToMcps, profilesToRules } from "./profiles-schema";
 import { Rule } from "../rules/rule";
 import { Mcp } from "../mcps/mcp";
+import { generateSlug, ensureUniqueSlug } from "./slug-utils";
 
 export class ProfilesRepository {
   async getProfilesByUserId(userId: string): Promise<Profile[]> {
@@ -29,6 +30,7 @@ export class ProfilesRepository {
         new Profile(
           result.id,
           result.name,
+          result.slug,
           result.userId,
           result.createdAt,
           result.updatedAt,
@@ -83,6 +85,7 @@ export class ProfilesRepository {
     return new Profile(
       result.id,
       result.name,
+      result.slug,
       result.userId,
       result.createdAt,
       result.updatedAt,
@@ -113,10 +116,27 @@ export class ProfilesRepository {
     name: string;
     userId: string;
   }): Promise<Profile> {
-    const [result] = await db.insert(profiles).values(profile).returning();
+    // Generate slug from name
+    const baseSlug = generateSlug(profile.name);
+
+    // Get existing slugs for this user to ensure uniqueness
+    const existingProfiles = await db.query.profiles.findMany({
+      where: eq(profiles.userId, profile.userId),
+      columns: { slug: true },
+    });
+    const existingSlugs = existingProfiles.map((p) => p.slug);
+
+    // Ensure unique slug
+    const slug = ensureUniqueSlug(baseSlug, existingSlugs);
+
+    const [result] = await db
+      .insert(profiles)
+      .values({ ...profile, slug })
+      .returning();
     return new Profile(
       result.id,
       result.name,
+      result.slug,
       result.userId,
       result.createdAt,
       result.updatedAt,
@@ -126,10 +146,34 @@ export class ProfilesRepository {
   }
 
   async updateProfile(profile: Profile): Promise<Profile> {
+    // Generate new slug if name changed
+    const existingProfile = await db.query.profiles.findFirst({
+      where: eq(profiles.id, profile.id),
+    });
+
+    let slug = profile.slug;
+    if (existingProfile && existingProfile.name !== profile.name) {
+      const baseSlug = generateSlug(profile.name);
+
+      // Get existing slugs for this user (excluding current profile)
+      const existingProfiles = await db.query.profiles.findMany({
+        where: and(
+          eq(profiles.userId, profile.userId),
+          // Exclude current profile from slug check
+          ne(profiles.id, profile.id)
+        ),
+        columns: { slug: true },
+      });
+      const existingSlugs = existingProfiles.map((p) => p.slug);
+
+      slug = ensureUniqueSlug(baseSlug, existingSlugs);
+    }
+
     const [result] = await db
       .update(profiles)
       .set({
         name: profile.name,
+        slug,
         updatedAt: new Date(),
       })
       .where(eq(profiles.id, profile.id))
@@ -138,6 +182,7 @@ export class ProfilesRepository {
     return new Profile(
       result.id,
       result.name,
+      result.slug,
       result.userId,
       result.createdAt,
       result.updatedAt,

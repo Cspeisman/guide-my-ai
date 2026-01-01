@@ -40,6 +40,7 @@ class FakeProfilesRepository extends ProfilesRepository {
     const newProfile = new Profile(
       "new-profile-123",
       data.name,
+      "my-new-profile",
       data.userId,
       new Date(),
       new Date(),
@@ -93,6 +94,7 @@ describe("profileHandlers", () => {
       new Profile(
         "profile1",
         "Profile 1",
+        "profile-1",
         "user123",
         new Date("2024-01-01"),
         new Date("2024-01-01"),
@@ -120,6 +122,7 @@ describe("profileHandlers", () => {
       new Profile(
         "profile2",
         "Profile 2",
+        "profile-2",
         "user123",
         new Date("2024-01-02"),
         new Date("2024-01-02"),
@@ -155,6 +158,7 @@ describe("profileHandlers", () => {
     const testProfile = new Profile(
       "profile-1",
       "Profile profile-1",
+      "profile-profile-1",
       "user123",
       new Date(),
       new Date(),
@@ -232,6 +236,7 @@ describe("profileHandlers", () => {
       const otherUsersProfile = new Profile(
         "profile-999",
         "Other User's Profile",
+        "other-users-profile",
         "other-user-id",
         new Date(),
         new Date(),
@@ -258,6 +263,7 @@ describe("profileHandlers", () => {
       const otherUsersProfile = new Profile(
         "profile-999",
         "Other User's Profile",
+        "other-users-profile",
         "other-user-id",
         new Date(),
         new Date(),
@@ -295,6 +301,7 @@ describe("profileHandlers", () => {
       const otherUsersProfile = new Profile(
         "profile-999",
         "Other User's Profile",
+        "other-users-profile",
         "other-user-id",
         new Date(),
         new Date(),
@@ -322,6 +329,7 @@ describe("profileHandlers", () => {
       const otherUsersProfile = new Profile(
         "profile-999",
         "Other User's Profile",
+        "other-users-profile",
         "other-user-id",
         new Date(),
         new Date(),
