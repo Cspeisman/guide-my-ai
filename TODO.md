@@ -1,8 +1,5 @@
-- [x] show a user's profiles/rules/mcps
-  - [x] as I user I can see other users profiles
-  - [x] as I user I can see other users rules
-  - [x] as I user I can see other users mcps
-  - [x] as a user I can pull in another user's profiles
+- [ ] in extension display profile selection as [username]/[profile-name]
+  - [ ] support browsing profiles by [username]/[profile-name]
 - [ ] User settings
   - [ ] can change username
   - [ ] set profile as public or private
