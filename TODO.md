@@ -1,5 +1,6 @@
-- [ ] in extension display profile selection as [username]/[profile-name]
-  - [ ] support browsing profiles by [username]/[profile-name]
+- [ ] slugify rules and mcps
+- [ ] in extension display profile selection as [username]/profiles/[profile-name]
+  - [ ] support browsing profiles by [username]/profiles/[profile-name], [username]/rules/[rule-name]
 - [ ] User settings
   - [ ] can change username
   - [ ] set profile as public or private

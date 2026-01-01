@@ -14,6 +14,7 @@ const getRule = async (id: string) => {
   return response.json() as Promise<{
     id: string;
     name: string;
+    slug: string;
     content: string;
     createdAt: string;
     userId: string;
@@ -26,6 +27,7 @@ const RuleDisplay = ({
   rulePromise: Promise<{
     id: string;
     name: string;
+    slug: string;
     content: string;
     createdAt: string;
     userId: string;
@@ -35,6 +37,7 @@ const RuleDisplay = ({
   const rule = new Rule(
     ruleData.id,
     ruleData.name,
+    ruleData.slug,
     ruleData.content,
     new Date(ruleData.createdAt),
     ruleData.userId

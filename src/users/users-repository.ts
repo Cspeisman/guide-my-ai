@@ -61,6 +61,7 @@ export class UsersRepository {
               new Rule(
                 ptr.rule.id,
                 ptr.rule.name,
+                ptr.rule.slug,
                 ptr.rule.content,
                 ptr.rule.createdAt,
                 ptr.rule.userId

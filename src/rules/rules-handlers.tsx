@@ -138,6 +138,7 @@ export const rulesHandlers = (
                 new Rule(
                   currentRule.id,
                   name,
+                  currentRule.slug,
                   content,
                   new Date(),
                   currentRule.userId

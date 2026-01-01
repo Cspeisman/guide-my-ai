@@ -102,6 +102,7 @@ describe("profileHandlers", () => {
           new Rule(
             "rule1",
             "Test Rule",
+            "test-rule",
             "Rule content",
             new Date("2024-01-01"),
             "user123"
@@ -109,6 +110,7 @@ describe("profileHandlers", () => {
           new Rule(
             "rule2",
             "Another Rule",
+            "another-rule",
             "More content",
             new Date("2024-01-01"),
             "user123"
@@ -130,6 +132,7 @@ describe("profileHandlers", () => {
           new Rule(
             "rule3",
             "Production Rule",
+            "production-rule",
             "Prod content",
             new Date("2024-01-02"),
             "user123"

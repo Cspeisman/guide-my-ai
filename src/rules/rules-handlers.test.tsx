@@ -29,6 +29,7 @@ class FakeRulesRepository extends RulesRepository {
     const newRule = new Rule(
       "new-rule-123",
       data.name,
+      "test-slug",
       data.content,
       new Date(),
       data.userId
@@ -71,6 +72,7 @@ describe("rulesHandlers", () => {
       new Rule(
         "rule1",
         "First Rule",
+        "first-rule",
         "Content 1",
         new Date("2024-01-01"),
         "user123"
@@ -78,6 +80,7 @@ describe("rulesHandlers", () => {
       new Rule(
         "rule2",
         "Second Rule",
+        "second-rule",
         "Content 2",
         new Date("2024-01-02"),
         "user123"
@@ -103,6 +106,7 @@ describe("rulesHandlers", () => {
       const otherUsersRule = new Rule(
         "rule-999",
         "Other User's Rule",
+        "other-users-rule",
         "Content",
         new Date(),
         "other-user-id"
@@ -126,6 +130,7 @@ describe("rulesHandlers", () => {
       const otherUsersRule = new Rule(
         "rule-999",
         "Other User's Rule",
+        "other-users-rule",
         "Content",
         new Date(),
         "other-user-id"
@@ -152,6 +157,7 @@ describe("rulesHandlers", () => {
       const otherUsersRule = new Rule(
         "rule-999",
         "Other User's Rule",
+        "other-users-rule",
         "Content",
         new Date(),
         "other-user-id"
@@ -192,6 +198,7 @@ describe("rulesHandlers", () => {
       const otherUsersRule = new Rule(
         "rule-999",
         "Other User's Rule",
+        "other-users-rule",
         "Content",
         new Date(),
         "other-user-id"
