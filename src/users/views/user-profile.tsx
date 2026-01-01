@@ -4,17 +4,24 @@ import { Profile } from "../../profiles/profile";
 import { CreatedAt } from "../../utils/created-at";
 import { routes } from "../../routes";
 import { UserContext } from "../../auth/user-context";
+import { User } from "better-auth";
 
-export const UserProfile = (props: { profile: Profile; user: UserContext }) => {
+export const UserProfile = (props: {
+  profile: Profile;
+  currentUser: UserContext;
+  user: User;
+}) => {
   return (
-    <Layout activeNav="profiles" user={props.user}>
+    <Layout activeNav="profiles" user={props.currentUser}>
       <div className="mb-4">
         <a
-          href={routes.users.show.href({ user: props.user.userName ?? "" })}
+          href={routes.users.show.href({
+            user: props.user.name,
+          })}
           className="inline-flex items-center gap-2 underline  hover:text-indigo-900 transition-colors"
         >
           <ArrowLeft className="w-4 h-4" />
-          <span>{props.user.userName}'s Dashboard</span>
+          <span>{props.user.name}'s Dashboard</span>
         </a>
       </div>
       <div>
@@ -76,7 +83,7 @@ export const UserProfile = (props: { profile: Profile; user: UserContext }) => {
                   </div>
                   <a
                     href={routes.users.rule.href({
-                      user: props.user.userName ?? "",
+                      user: props.user.name ?? "",
                       id: rule.id,
                     })}
                     className="text-sm text-blue-600 hover:text-blue-800 mt-3 inline-block font-medium"
@@ -112,7 +119,7 @@ export const UserProfile = (props: { profile: Profile; user: UserContext }) => {
                   </h3>
                   <a
                     href={routes.users.mcp.href({
-                      user: props.user.userName ?? "",
+                      user: props.user.name ?? "",
                       id: mcp.id,
                     })}
                     className="text-sm text-blue-600 hover:text-blue-800 inline-block font-medium"

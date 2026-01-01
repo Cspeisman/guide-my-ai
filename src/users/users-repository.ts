@@ -1,9 +1,9 @@
-import { db } from "../db/db";
+import { eq } from "drizzle-orm";
 import { user } from "../auth/db-schema";
-import { eq, and } from "drizzle-orm";
-import { profiles } from "../profiles/profiles-schema";
-import { Profile } from "../profiles/profile";
+import { db } from "../db/db";
 import { Mcp } from "../mcps/mcp";
+import { Profile } from "../profiles/profile";
+import { profiles } from "../profiles/profiles-schema";
 import { Rule } from "../rules/rule";
 
 export type User = {

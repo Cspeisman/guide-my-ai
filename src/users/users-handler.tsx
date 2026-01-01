@@ -238,7 +238,11 @@ export const usersHandler = (
           if (profile) {
             const currentUser = getUserContext(context);
             return render(
-              <UserProfile profile={profile} user={currentUser ?? {}} />
+              <UserProfile
+                profile={profile}
+                user={user}
+                currentUser={currentUser ?? {}}
+              />
             );
           }
         }
@@ -263,7 +267,8 @@ export const usersHandler = (
                 name={rule.name}
                 content={rule.content}
                 createdAt={rule.createdAt}
-                user={currentUser ?? {}}
+                currentUser={currentUser ?? {}}
+                userName={user.name}
               />
             );
           }
@@ -286,7 +291,8 @@ export const usersHandler = (
                 name={mcp.name}
                 content={mcp.context}
                 createdAt={mcp.createdAt}
-                user={currentUser ?? {}}
+                currentUser={currentUser ?? {}}
+                userName={user.name}
               />
             );
           }

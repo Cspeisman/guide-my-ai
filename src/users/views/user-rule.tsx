@@ -8,18 +8,21 @@ interface Props {
   name: string;
   content: string;
   createdAt: Date;
-  user: UserContext;
+  currentUser: UserContext;
+  userName: string;
 }
 export const UserResource = (props: Props) => {
   return (
-    <Layout activeNav="rules" user={props.user}>
+    <Layout activeNav="rules" user={props.currentUser}>
       <div className="mb-4">
         <a
-          href={routes.users.show.href({ user: props.user.userName ?? "" })}
+          href={routes.users.show.href({
+            user: props.userName,
+          })}
           className="inline-flex items-center gap-2 underline  hover:text-indigo-900 transition-colors"
         >
           <ArrowLeft className="w-4 h-4" />
-          <span>{props.user.userName ?? "unknown"}'s Dashboard</span>
+          <span>{props.userName}'s Dashboard</span>
         </a>
       </div>
       <div className="block bg-white rounded-xl border border-gray-200 p-6 transition-all group">
