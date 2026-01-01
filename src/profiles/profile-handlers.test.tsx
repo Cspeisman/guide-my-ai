@@ -117,8 +117,8 @@ describe("profileHandlers", () => {
           ),
         ],
         [
-          new Mcp("mcp1", "Test MCP", "", new Date("2024-01-01"), "user123"),
-          new Mcp("mcp2", "Another MCP", "", new Date("2024-01-01"), "user123"),
+          new Mcp("mcp1", "Test MCP", "test-mcp", "", new Date("2024-01-01"), "user123"),
+          new Mcp("mcp2", "Another MCP", "another-mcp", "", new Date("2024-01-01"), "user123"),
         ]
       ),
       new Profile(

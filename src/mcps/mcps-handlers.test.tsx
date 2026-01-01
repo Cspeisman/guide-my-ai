@@ -29,6 +29,7 @@ class FakeMcpsRepository extends McpsRepository {
     const newMcp = new Mcp(
       "new-mcp-123",
       data.name,
+      "test-slug",
       data.context,
       new Date(),
       data.userId
@@ -55,10 +56,10 @@ describe("mcpsHandlers", () => {
     getMcpsByUserId: mock(() => Promise.resolve([])),
     getMcpByIdAndUserId: mock(() => Promise.resolve(null as Mcp | null)),
     createMcp: mock(() =>
-      Promise.resolve(new Mcp("1", "Test", "{}", new Date(), "user123"))
+      Promise.resolve(new Mcp("1", "Test", "test", "{}", new Date(), "user123"))
     ),
     updateMcp: mock(() =>
-      Promise.resolve(new Mcp("1", "Updated", "{}", new Date(), "user123"))
+      Promise.resolve(new Mcp("1", "Updated", "updated", "{}", new Date(), "user123"))
     ),
     deleteMcp: mock(() => Promise.resolve()),
   };
@@ -98,7 +99,7 @@ describe("mcpsHandlers", () => {
         },
       });
       mockMcpsRepository.getMcpByIdAndUserId = mock(() =>
-        Promise.resolve(new Mcp("", "", "", new Date(), "user123"))
+        Promise.resolve(new Mcp("", "", "", "", new Date(), "user123"))
       );
 
       const handlers = mcpsHandlers({ mcpsRepository: mockMcpsRepository });
@@ -119,7 +120,7 @@ describe("mcpsHandlers", () => {
       });
 
       mockMcpsRepository.getMcpByIdAndUserId = mock(() =>
-        Promise.resolve(new Mcp("", "", "", new Date(), "user123"))
+        Promise.resolve(new Mcp("", "", "", "", new Date(), "user123"))
       );
       const handlers = mcpsHandlers({ mcpsRepository: mockMcpsRepository });
       const response = await handlers.api.show.action(context as any);
@@ -139,7 +140,7 @@ describe("mcpsHandlers", () => {
       });
 
       mockMcpsRepository.getMcpByIdAndUserId = mock(() =>
-        Promise.resolve(new Mcp("", "", "", new Date(), "user123"))
+        Promise.resolve(new Mcp("", "", "", "", new Date(), "user123"))
       );
       const handlers = mcpsHandlers({ mcpsRepository: mockMcpsRepository });
       const response = await handlers.api.show.action(context as any);
@@ -167,12 +168,12 @@ describe("mcpsHandlers", () => {
 
     // Mock getMcpById to return an existing MCP
     mockMcpsRepository.getMcpByIdAndUserId.mockResolvedValueOnce(
-      new Mcp("1", "Old Name", "{}", createdAt, "user123")
+      new Mcp("1", "Old Name", "old-name", "{}", createdAt, "user123")
     );
 
     // Mock updateMcp to return the updated MCP
     mockMcpsRepository.updateMcp.mockResolvedValueOnce(
-      new Mcp("1", "Test", validJson, createdAt, "user123")
+      new Mcp("1", "Test", "test", validJson, createdAt, "user123")
     );
 
     const handlers = mcpsHandlers({ mcpsRepository: mockMcpsRepository });
@@ -211,6 +212,7 @@ describe("mcpsHandlers", () => {
       const otherUsersMcp = new Mcp(
         "mcp-999",
         "Other User's MCP",
+        "other-users-mcp",
         "{}",
         new Date(),
         "other-user-id"
@@ -234,6 +236,7 @@ describe("mcpsHandlers", () => {
       const otherUsersMcp = new Mcp(
         "mcp-999",
         "Other User's MCP",
+        "other-users-mcp",
         "{}",
         new Date(),
         "other-user-id"
@@ -263,6 +266,7 @@ describe("mcpsHandlers", () => {
       const otherUsersMcp = new Mcp(
         "mcp-999",
         "Other User's MCP",
+        "other-users-mcp",
         "{}",
         new Date(),
         "other-user-id"
@@ -303,6 +307,7 @@ describe("mcpsHandlers", () => {
       const otherUsersMcp = new Mcp(
         "mcp-999",
         "Other User's MCP",
+        "other-users-mcp",
         "{}",
         new Date(),
         "other-user-id"

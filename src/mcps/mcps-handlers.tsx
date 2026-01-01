@@ -182,6 +182,7 @@ export const mcpsHandlers = (
                 new Mcp(
                   currentMcp.id,
                   name,
+                  currentMcp.slug,
                   mcpContext,
                   currentMcp.createdAt,
                   currentMcp.userId

@@ -14,6 +14,7 @@ const getMcp = async (id: string) => {
   return response.json() as Promise<{
     id: string;
     name: string;
+    slug: string;
     context: string;
     createdAt: string;
     userId: string;
@@ -26,6 +27,7 @@ const McpDisplay = ({
   mcpPromise: Promise<{
     id: string;
     name: string;
+    slug: string;
     context: string;
     createdAt: string;
     userId: string;
@@ -35,6 +37,7 @@ const McpDisplay = ({
   const mcp = new Mcp(
     mcpData.id,
     mcpData.name,
+    mcpData.slug,
     mcpData.context,
     new Date(mcpData.createdAt),
     mcpData.userId

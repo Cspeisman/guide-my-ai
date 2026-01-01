@@ -72,6 +72,7 @@ export class UsersRepository {
               new Mcp(
                 ptm.mcp.id,
                 ptm.mcp.name,
+                ptm.mcp.slug,
                 ptm.mcp.context,
                 ptm.mcp.createdAt,
                 ptm.mcp.userId
