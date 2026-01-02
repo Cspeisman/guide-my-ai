@@ -36,7 +36,7 @@ export function RulesList({ rules }: { rules: Rule[] }) {
           {rules.map((rule) => (
             <a
               key={rule.id}
-              href={routes.rules.show.href({ id: rule.id })}
+              href={routes.rules.show.href({ slug: rule.slug })}
               className="block bg-white rounded-xl border border-gray-200 p-6 hover:shadow-lg transition-all group"
             >
               <div className="flex justify-between items-start mb-3">

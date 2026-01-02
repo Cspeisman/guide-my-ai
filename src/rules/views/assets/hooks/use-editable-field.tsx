@@ -3,7 +3,7 @@ import { routes } from "../../../../routes";
 
 // Custom hook for managing editable field state
 export const useEditableField = (
-  ruleId: string,
+  slug: string,
   fieldName: "name" | "content",
   initialValue: string,
   allFields: { name: string; content: string }
@@ -21,7 +21,7 @@ export const useEditableField = (
     setIsSaving(true);
     try {
       const response = await fetch(
-        routes.rules.api.show.action.href({ id: ruleId }),
+        routes.rules.api.show.action.href({ slug }),
         {
           method: "POST",
           body: JSON.stringify({

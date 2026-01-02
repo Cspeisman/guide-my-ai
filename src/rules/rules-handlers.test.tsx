@@ -21,6 +21,15 @@ class FakeRulesRepository extends RulesRepository {
     return this.rules.find((r) => r.id === id && r.userId === userId) || null;
   }
 
+  async getRuleBySlugAndUserId(
+    slug: string,
+    userId: string
+  ): Promise<Rule | null> {
+    return (
+      this.rules.find((r) => r.slug === slug && r.userId === userId) || null
+    );
+  }
+
   async createRule(data: {
     name: string;
     content: string;

@@ -117,7 +117,7 @@ export function UserDashboard({
                   key={rule.id}
                   href={routes.users.rule.href({
                     user: userName,
-                    id: rule.id,
+                    slug: rule.slug,
                   })}
                   className="block bg-white rounded-xl border border-gray-200 p-6 hover:shadow-lg transition-all group"
                 >

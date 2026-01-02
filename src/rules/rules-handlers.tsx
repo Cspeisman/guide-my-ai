@@ -68,8 +68,8 @@ export const rulesHandlers = (
     async show(context) {
       const user = getUserContext(context);
       if (user.userId) {
-        const rule = await rulesRepository.getRuleByIdAndUserId(
-          context.params.id,
+        const rule = await rulesRepository.getRuleBySlugAndUserId(
+          context.params.slug,
           user.userId
         );
         if (rule) {
@@ -81,9 +81,8 @@ export const rulesHandlers = (
           );
         }
       }
-      return render(<NotFoundComponent id={context.params.id} />);
+      return render(<NotFoundComponent id={context.params.slug} />);
     },
-
     api: {
       async index(context) {
         const user = getUserContext(context);
@@ -95,8 +94,8 @@ export const rulesHandlers = (
         async index(context) {
           const user = getUserContext(context);
           if (user.userId) {
-            const rule = await rulesRepository.getRuleByIdAndUserId(
-              context.params?.id!,
+            const rule = await rulesRepository.getRuleBySlugAndUserId(
+              context.params?.slug,
               user.userId
             );
             if (rule) {
@@ -111,8 +110,8 @@ export const rulesHandlers = (
         async action(context) {
           const user = getUserContext(context);
           if (user.userId) {
-            const currentRule = await rulesRepository.getRuleByIdAndUserId(
-              context.params.id,
+            const currentRule = await rulesRepository.getRuleBySlugAndUserId(
+              context.params.slug,
               user.userId
             );
             if (currentRule) {

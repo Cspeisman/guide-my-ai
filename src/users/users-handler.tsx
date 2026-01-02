@@ -98,12 +98,12 @@ export const usersHandler = (
     async rule(context) {
       const matches = routes.users.rule.match(context.request.url);
       const userName = matches?.params.user;
-      const ruleId = matches?.params.id;
-      if (userName && ruleId) {
+      const slug = matches?.params.slug;
+      if (userName && slug) {
         const user = await usersRepository.getUserByUsername(userName);
         if (user) {
-          const rule = await rulesRepository.getRuleByIdAndUserId(
-            ruleId,
+          const rule = await rulesRepository.getRuleBySlugAndUserId(
+            slug,
             user.id
           );
           if (rule) {
@@ -120,7 +120,7 @@ export const usersHandler = (
           }
         }
       }
-      return render(<NotFoundComponent id={ruleId ?? ""} type="rule" />);
+      return render(<NotFoundComponent id={slug ?? ""} type="rule" />);
     },
     async mcp(context) {
       const matches = routes.users.mcp.match(context.request.url);

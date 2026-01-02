@@ -6,8 +6,8 @@ import { useEditableField } from "./hooks/use-editable-field";
 import { routes } from "../../../routes";
 import { CreatedAt } from "../../../utils/created-at";
 
-const getRule = async (id: string) => {
-  const response = await fetch(routes.rules.api.show.index.href({ id }));
+const getRule = async (slug: string) => {
+  const response = await fetch(routes.rules.api.show.index.href({ slug }));
   if (!response.ok) {
     throw new Error("Failed to fetch rule");
   }
@@ -47,12 +47,12 @@ const RuleDisplay = ({
   const [currentName, setCurrentName] = useState(rule.name);
   const [currentContent, setCurrentContent] = useState(rule.content);
 
-  const nameField = useEditableField(rule.id, "name", currentName, {
+  const nameField = useEditableField(rule.slug, "name", currentName, {
     name: currentName,
     content: currentContent,
   });
 
-  const contentField = useEditableField(rule.id, "content", currentContent, {
+  const contentField = useEditableField(rule.slug, "content", currentContent, {
     name: currentName,
     content: currentContent,
   });
@@ -142,7 +142,7 @@ const RuleDisplay = ({
   );
 };
 
-const RuleView = ({ ruleId }: { ruleId: string }) => {
+const RuleView = ({ slug: ruleId }: { slug: string }) => {
   const rulePromise = useMemo(() => getRule(ruleId), [ruleId]);
 
   return (
@@ -163,19 +163,17 @@ const RuleView = ({ ruleId }: { ruleId: string }) => {
   );
 };
 
-// Extract rule ID from URL (e.g., /rules/123)
-const getRuleIdFromUrl = () => {
-  const pathParts = window.location.pathname.split("/");
-  const rulesIndex = pathParts.indexOf("rules");
-  return rulesIndex !== -1 ? pathParts[rulesIndex + 1] : null;
+const getSlugFromUrl = () => {
+  const match = routes.rules.show.match(window.location.href);
+  return match?.params.slug ?? null;
 };
 
 const rootElement = document.getElementById("root");
 if (rootElement) {
-  const ruleId = getRuleIdFromUrl();
-  if (ruleId) {
+  const slug = getSlugFromUrl();
+  if (slug) {
     const root = createRoot(rootElement);
-    root.render(<RuleView ruleId={ruleId} />);
+    root.render(<RuleView slug={slug} />);
   } else {
     console.error("No rule ID found in URL");
   }

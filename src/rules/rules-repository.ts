@@ -43,6 +43,26 @@ export class RulesRepository {
     );
   }
 
+  async getRuleBySlugAndUserId(
+    slug: string,
+    userId: string
+  ): Promise<Rule | null> {
+    const result = await db.query.rules.findFirst({
+      where: and(eq(rules.slug, slug), eq(rules.userId, userId)),
+    });
+    if (!result) {
+      return null;
+    }
+    return new Rule(
+      result.id,
+      result.name,
+      result.slug,
+      result.content,
+      result.createdAt,
+      result.userId
+    );
+  }
+
   async createRule(rule: {
     name: string;
     content: string;

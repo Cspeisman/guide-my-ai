@@ -119,7 +119,7 @@ export const Show = (props: Props) => {
                     </p>
                   </div>
                   <a
-                    href={routes.rules.show.href({ id: rule.id })}
+                    href={routes.rules.show.href({ slug: rule.slug })}
                     className="text-sm text-blue-600 hover:text-blue-800 mt-3 inline-block font-medium"
                   >
                     View Details →

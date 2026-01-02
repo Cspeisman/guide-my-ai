@@ -84,7 +84,7 @@ export const UserProfile = (props: {
                   <a
                     href={routes.users.rule.href({
                       user: props.user.name ?? "",
-                      id: rule.id,
+                      slug: rule.slug,
                     })}
                     className="text-sm text-blue-600 hover:text-blue-800 mt-3 inline-block font-medium"
                   >
