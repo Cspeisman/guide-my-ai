@@ -22,11 +22,12 @@ export const routes = route({
   profiles: {
     ...resources("profiles", {
       exclude: ["destroy", "update"],
+      param: "slug",
     }),
     destroy: { pattern: "/profiles/destroy/:id", method: "POST" },
     api: {
       index: "/api/profiles",
-      edit: form("/api/profiles/:id"),
+      edit: form("/api/profiles/:slug"),
     },
   },
   rules: {

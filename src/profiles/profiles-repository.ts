@@ -34,28 +34,9 @@ export class ProfilesRepository {
           result.userId,
           result.createdAt,
           result.updatedAt,
-          result.profilesToRules?.map(
-            (ptr) =>
-              new Rule(
-                ptr.rule.id,
-                ptr.rule.name,
-                ptr.rule.slug,
-                ptr.rule.content,
-                ptr.rule.createdAt,
-                ptr.rule.userId
-              )
-          ) || [],
-          result.profilesToMcps?.map(
-            (ptm) =>
-              new Mcp(
-                ptm.mcp.id,
-                ptm.mcp.name,
-                ptm.mcp.slug,
-                ptm.mcp.context,
-                ptm.mcp.createdAt,
-                ptm.mcp.userId
-              )
-          ) || []
+          result.profilesToRules?.map((ptr) => Rule.fromPayload(ptr.rule)) ||
+            [],
+          result.profilesToMcps?.map((ptm) => Mcp.fromPayload(ptm.mcp)) || []
         )
     );
   }
@@ -91,28 +72,44 @@ export class ProfilesRepository {
       result.userId,
       result.createdAt,
       result.updatedAt,
-      result.profilesToRules?.map(
-        (ptr) =>
-          new Rule(
-            ptr.rule.id,
-            ptr.rule.name,
-            ptr.rule.slug,
-            ptr.rule.content,
-            ptr.rule.createdAt,
-            ptr.rule.userId
-          )
-      ) || [],
-      result.profilesToMcps?.map(
-        (ptm) =>
-          new Mcp(
-            ptm.mcp.id,
-            ptm.mcp.name,
-            ptm.mcp.slug,
-            ptm.mcp.context,
-            ptm.mcp.createdAt,
-            ptm.mcp.userId
-          )
-      ) || []
+      result.profilesToRules?.map((ptr) => Rule.fromPayload(ptr.rule)) || [],
+      result.profilesToMcps?.map((ptm) => Mcp.fromPayload(ptm.mcp)) || []
+    );
+  }
+
+  async getProfileBySlugAndUserId(
+    slug: string,
+    userId: string
+  ): Promise<Profile | null> {
+    const result = await db.query.profiles.findFirst({
+      where: and(eq(profiles.slug, slug), eq(profiles.userId, userId)),
+      with: {
+        profilesToRules: {
+          with: {
+            rule: true,
+          },
+        },
+        profilesToMcps: {
+          with: {
+            mcp: true,
+          },
+        },
+      },
+    });
+
+    if (!result) {
+      return null;
+    }
+
+    return new Profile(
+      result.id,
+      result.name,
+      result.slug,
+      result.userId,
+      result.createdAt,
+      result.updatedAt,
+      result.profilesToRules?.map((ptr) => Rule.fromPayload(ptr.rule)) || [],
+      result.profilesToMcps?.map((ptm) => Mcp.fromPayload(ptm.mcp)) || []
     );
   }
 

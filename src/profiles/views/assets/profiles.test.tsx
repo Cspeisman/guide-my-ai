@@ -9,6 +9,7 @@ test("Profiles component renders correctly", async () => {
       id: "id-1234",
       name: "Profile 1",
       rules: [],
+      slug: "id-1234",
     },
   ];
 

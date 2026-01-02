@@ -1,4 +1,4 @@
-import React, { Suspense, use, useMemo } from "react";
+import { Suspense, use, useMemo } from "react";
 import { createRoot } from "react-dom/client";
 import { routes } from "../../../routes";
 
@@ -12,6 +12,7 @@ const getProfiles = async () => {
       id: string;
       name: string;
       rules: Array<{ name: string; details: string }>;
+      slug: string;
     }>
   >;
 };
@@ -24,6 +25,7 @@ export const ProfilesList = ({
       id: string;
       name: string;
       rules: Array<{ name: string; details: string }>;
+      slug: string;
     }>
   >;
 }) => {
@@ -54,7 +56,7 @@ export const ProfilesList = ({
           {profiles.map((profile, index) => (
             <a
               key={index}
-              href={routes.profiles.show.href({ id: profile.id })}
+              href={routes.profiles.show.href({ slug: profile.slug })}
               className="block bg-white rounded-xl border border-gray-200 p-6 hover:shadow-lg transition-all group"
             >
               <h3 className="text-lg font-semibold text-slate-900 mb-4">

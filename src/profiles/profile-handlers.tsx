@@ -31,15 +31,15 @@ export const profileHandlers = (
     async show(context) {
       const user = getUserContext(context);
       if (user.userId) {
-        const profile = await profilesRepository.getProfileByIdAndUserId(
-          context.params.id,
+        const profile = await profilesRepository.getProfileBySlugAndUserId(
+          context.params.slug,
           user.userId
         );
         if (profile) {
           return render(<Show profile={profile} user={user} />);
         }
       }
-      return render(<NotFoundComponent id={context.params.id} />);
+      return render(<NotFoundComponent id={context.params.slug} />);
     },
     new(context) {
       const user = getUserContext(context);
@@ -60,7 +60,7 @@ export const profileHandlers = (
       });
 
       return Response.redirect(
-        routes.profiles.edit.href({ id: profile.id }),
+        routes.profiles.edit.href({ slug: profile.slug }),
         303
       );
     },
@@ -125,8 +125,8 @@ export const profileHandlers = (
         async index(context) {
           const user = getUserContext(context);
           if (user.userId) {
-            const profile = await profilesRepository.getProfileByIdAndUserId(
-              context.params?.id,
+            const profile = await profilesRepository.getProfileBySlugAndUserId(
+              context.params?.slug,
               user.userId!
             );
             if (profile) {
@@ -142,8 +142,8 @@ export const profileHandlers = (
           const user = getUserContext(context);
           if (user.userId) {
             const existProfile =
-              await profilesRepository.getProfileByIdAndUserId(
-                context.params.id,
+              await profilesRepository.getProfileBySlugAndUserId(
+                context.params.slug,
                 user.userId
               );
             if (existProfile) {

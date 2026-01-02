@@ -1,4 +1,11 @@
-- [ ] slugify rules and mcps
+- [ ] Replace /:id with /:slug
+  - [ ] profiles
+  - [ ] rules
+  - [ ] mcps
+  - [ ] user
+    - [ ] profiles
+    - [ ] rules
+    - [ ] mcps
 - [ ] in extension display profile selection as [username]/profiles/[profile-name]
   - [ ] support browsing profiles by [username]/profiles/[profile-name], [username]/rules/[rule-name]
 - [ ] User settings

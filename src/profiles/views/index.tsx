@@ -45,7 +45,7 @@ export const Index = (props: Props) => {
             {props.userProfiles.map((profile) => (
               <a
                 key={profile.id}
-                href={routes.profiles.show.href({ id: profile.id })}
+                href={routes.profiles.show.href({ slug: profile.slug })}
                 className="block bg-white rounded-xl border border-gray-200 p-6 hover:shadow-lg transition-all group"
               >
                 <div className="flex justify-between items-start mb-3">

@@ -8,6 +8,24 @@ export class Mcp {
     public userId: string
   ) {}
 
+  static fromPayload(obj: {
+    id: string;
+    name: string;
+    slug: string;
+    context: string;
+    createdAt: Date;
+    userId: string;
+  }): Mcp {
+    return new Mcp(
+      obj.id,
+      obj.name,
+      obj.slug,
+      obj.context,
+      obj.createdAt,
+      obj.userId
+    );
+  }
+
   toJson() {
     return {
       id: this.id,

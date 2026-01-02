@@ -33,6 +33,19 @@ class FakeProfilesRepository extends ProfilesRepository {
     return profile;
   }
 
+  async getProfileBySlugAndUserId(
+    slug: string,
+    userId: string
+  ): Promise<Profile | null> {
+    const profile = this.profiles.find(
+      (p) => p.slug === slug && p.userId === userId
+    );
+    if (!profile) {
+      return null;
+    }
+    return profile;
+  }
+
   async createProfile(data: {
     name: string;
     userId: string;
@@ -117,8 +130,22 @@ describe("profileHandlers", () => {
           ),
         ],
         [
-          new Mcp("mcp1", "Test MCP", "test-mcp", "", new Date("2024-01-01"), "user123"),
-          new Mcp("mcp2", "Another MCP", "another-mcp", "", new Date("2024-01-01"), "user123"),
+          new Mcp(
+            "mcp1",
+            "Test MCP",
+            "test-mcp",
+            "",
+            new Date("2024-01-01"),
+            "user123"
+          ),
+          new Mcp(
+            "mcp2",
+            "Another MCP",
+            "another-mcp",
+            "",
+            new Date("2024-01-01"),
+            "user123"
+          ),
         ]
       ),
       new Profile(
@@ -157,7 +184,7 @@ describe("profileHandlers", () => {
     expect(html).toContain("Profile 2");
   });
 
-  it("should a SHOW page for the profile with the url params id", async () => {
+  it("renders a SHOW page for the profile with matching slug", async () => {
     const testProfile = new Profile(
       "profile-1",
       "Profile profile-1",
@@ -175,7 +202,7 @@ describe("profileHandlers", () => {
 
     const context = createMockContext({
       userId: "user123",
-      params: { id: "profile-1" },
+      params: { slug: "profile-profile-1" },
     });
     const response = await handlers.show(context as any);
     const html = await response.text();
@@ -224,7 +251,7 @@ describe("profileHandlers", () => {
 
     expect(response.status).toBe(303);
     expect(response.headers.get("Location")).toContain(
-      routes.profiles.edit.href({ id: "new-profile-123" })
+      routes.profiles.edit.href({ slug: "my-new-profile" })
     );
 
     // Assert the repository now contains the new profile
@@ -253,7 +280,7 @@ describe("profileHandlers", () => {
 
       const context = createMockContext({
         userId: "user456",
-        params: { id: "profile-999" },
+        params: { slug: "profile-999" },
       });
 
       const response = await handlers.show(context as any);

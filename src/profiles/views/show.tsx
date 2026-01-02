@@ -54,7 +54,7 @@ export const Show = (props: Props) => {
                 <Download size={16} width={24} />
               </button>
               <a
-                href={routes.profiles.edit.href({ id: props.profile.id })}
+                href={routes.profiles.edit.href({ slug: props.profile.slug })}
                 className="px-6 py-2.5 rounded-lg bg-white border border-indigo-200 text-indigo-600 hover:bg-indigo-50 hover:border-indigo-300 transition-all shadow-sm hover:shadow"
               >
                 Edit Profile
