@@ -53,7 +53,7 @@ export const routes = route({
   users: {
     show: { pattern: "/:user", method: "GET" },
     profile: {
-      pattern: "/:user/profiles/:id",
+      pattern: "/:user/profiles/:slug",
       method: "GET",
     },
     rule: {

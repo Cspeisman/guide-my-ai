@@ -73,12 +73,12 @@ export const usersHandler = (
     async profile(context) {
       const matches = routes.users.profile.match(context.request.url);
       const userName = matches?.params.user;
-      const profileId = matches?.params.id;
-      if (userName && profileId) {
+      const slug = matches?.params.slug;
+      if (userName && slug) {
         const user = await usersRepository.getUserByUsername(userName);
         if (user) {
-          const profile = await profilesRepository.getProfileByIdAndUserId(
-            profileId,
+          const profile = await profilesRepository.getProfileBySlugAndUserId(
+            slug,
             user.id
           );
           if (profile) {
@@ -93,7 +93,7 @@ export const usersHandler = (
           }
         }
       }
-      return render(<NotFoundComponent id={profileId ?? ""} type="profile" />);
+      return render(<NotFoundComponent id={slug ?? ""} type="profile" />);
     },
     async rule(context) {
       const matches = routes.users.rule.match(context.request.url);

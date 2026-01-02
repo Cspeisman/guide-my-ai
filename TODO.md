@@ -1,9 +1,9 @@
 - [ ] Replace /:id with /:slug
-  - [ ] profiles
+  - [x] profiles
   - [ ] rules
   - [ ] mcps
   - [ ] user
-    - [ ] profiles
+    - [x] profiles
     - [ ] rules
     - [ ] mcps
 - [ ] in extension display profile selection as [username]/profiles/[profile-name]

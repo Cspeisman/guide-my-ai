@@ -1,43 +1,24 @@
 import { FileCode, Settings, User } from "lucide-react";
 import { Layout } from "../../layouts/Layout";
+import { Mcp } from "../../mcps/mcp";
+import { Profile } from "../../profiles/profile";
 import { routes } from "../../routes";
+import { Rule } from "../../rules/rule";
 import { CreatedAt } from "../../utils/created-at";
-
-type Profile = {
-  id: string;
-  name: string;
-  rules: any[];
-  mcps: any[];
-  createdAt: Date;
-};
-
-type Rule = {
-  id: string;
-  name: string;
-  content: string;
-  createdAt: Date;
-};
-
-type Mcp = {
-  id: string;
-  name: string;
-  context: string;
-  createdAt: Date;
-};
 
 type User = {
   githubUrl?: string | null;
   githubUsername?: string | null;
 };
 
-type UserDashboardProps = {
+interface Props {
   userName: string;
   user: User | null;
   profiles: Profile[];
   userRules: Rule[];
   userMcps: Mcp[];
   currentUser: any;
-};
+}
 
 export function UserDashboard({
   userName,
@@ -46,7 +27,7 @@ export function UserDashboard({
   userRules,
   userMcps,
   currentUser,
-}: UserDashboardProps) {
+}: Props) {
   return (
     <Layout activeNav="dashboard" user={currentUser}>
       <div className="space-y-8">
@@ -94,7 +75,7 @@ export function UserDashboard({
                   key={profile.id}
                   href={routes.users.profile.href({
                     user: userName,
-                    id: profile.id,
+                    slug: profile.slug,
                   })}
                   className="block bg-white rounded-xl border border-gray-200 p-6 hover:shadow-lg transition-all group"
                 >
