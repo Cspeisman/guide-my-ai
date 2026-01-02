@@ -40,6 +40,26 @@ export class McpsRepository {
     );
   }
 
+  async getMcpBySlugAndUserId(
+    slug: string,
+    userId: string
+  ): Promise<Mcp | null> {
+    const result = await db.query.mcps.findFirst({
+      where: and(eq(mcps.slug, slug), eq(mcps.userId, userId)),
+    });
+    if (!result) {
+      return null;
+    }
+    return new Mcp(
+      result.id,
+      result.name,
+      result.slug,
+      result.context,
+      result.createdAt,
+      result.userId
+    );
+  }
+
   async createMcp(mcp: {
     name: string;
     context: string;

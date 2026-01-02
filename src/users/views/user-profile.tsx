@@ -120,7 +120,7 @@ export const UserProfile = (props: {
                   <a
                     href={routes.users.mcp.href({
                       user: props.user.name ?? "",
-                      id: mcp.id,
+                      slug: mcp.slug,
                     })}
                     className="text-sm text-blue-600 hover:text-blue-800 inline-block font-medium"
                   >

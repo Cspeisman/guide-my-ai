@@ -125,11 +125,11 @@ export const usersHandler = (
     async mcp(context) {
       const matches = routes.users.mcp.match(context.request.url);
       const userName = matches?.params.user;
-      const mcpId = matches?.params.id;
-      if (userName && mcpId) {
+      const slug = matches?.params.slug;
+      if (userName && slug) {
         const user = await usersRepository.getUserByUsername(userName);
         if (user) {
-          const mcp = await mcpsRepository.getMcpByIdAndUserId(mcpId, user.id);
+          const mcp = await mcpsRepository.getMcpBySlugAndUserId(slug, user.id);
           if (mcp) {
             const currentUser = getUserContext(context);
             return render(
@@ -144,7 +144,7 @@ export const usersHandler = (
           }
         }
       }
-      return render(<NotFoundComponent id={mcpId ?? ""} type="mcp" />);
+      return render(<NotFoundComponent id={slug ?? ""} type="mcp" />);
     },
     api: {
       async show(context) {

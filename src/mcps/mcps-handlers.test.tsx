@@ -21,6 +21,15 @@ class FakeMcpsRepository extends McpsRepository {
     return this.mcps.find((m) => m.id === id && m.userId === userId) || null;
   }
 
+  async getMcpBySlugAndUserId(
+    slug: string,
+    userId: string
+  ): Promise<Mcp | null> {
+    return (
+      this.mcps.find((m) => m.slug === slug && m.userId === userId) || null
+    );
+  }
+
   async createMcp(data: {
     name: string;
     context: string;
@@ -55,11 +64,14 @@ describe("mcpsHandlers", () => {
   const mockMcpsRepository = {
     getMcpsByUserId: mock(() => Promise.resolve([])),
     getMcpByIdAndUserId: mock(() => Promise.resolve(null as Mcp | null)),
+    getMcpBySlugAndUserId: mock(() => Promise.resolve(null as Mcp | null)),
     createMcp: mock(() =>
       Promise.resolve(new Mcp("1", "Test", "test", "{}", new Date(), "user123"))
     ),
     updateMcp: mock(() =>
-      Promise.resolve(new Mcp("1", "Updated", "updated", "{}", new Date(), "user123"))
+      Promise.resolve(
+        new Mcp("1", "Updated", "updated", "{}", new Date(), "user123")
+      )
     ),
     deleteMcp: mock(() => Promise.resolve()),
   };
@@ -67,6 +79,7 @@ describe("mcpsHandlers", () => {
   beforeEach(() => {
     mockMcpsRepository.getMcpsByUserId.mockClear();
     mockMcpsRepository.getMcpByIdAndUserId.mockClear();
+    mockMcpsRepository.getMcpBySlugAndUserId.mockClear();
     mockMcpsRepository.createMcp.mockClear();
     mockMcpsRepository.updateMcp.mockClear();
   });
@@ -93,12 +106,12 @@ describe("mcpsHandlers", () => {
     test("validates JSON context", async () => {
       const context = createMockContext({
         userId: "user123",
-        params: { id: "1" },
+        params: { slug: "test-slug" },
         request: {
           json: async () => ({ name: "Test", context: "invalid json" }),
         },
       });
-      mockMcpsRepository.getMcpByIdAndUserId = mock(() =>
+      mockMcpsRepository.getMcpBySlugAndUserId = mock(() =>
         Promise.resolve(new Mcp("", "", "", "", new Date(), "user123"))
       );
 
@@ -113,13 +126,13 @@ describe("mcpsHandlers", () => {
       const invalidContext = JSON.stringify({ someOtherKey: "value" });
       const context = createMockContext({
         userId: "user123",
-        params: { id: "1" },
+        params: { slug: "test-slug" },
         request: {
           json: async () => ({ name: "Test", context: invalidContext }),
         },
       });
 
-      mockMcpsRepository.getMcpByIdAndUserId = mock(() =>
+      mockMcpsRepository.getMcpBySlugAndUserId = mock(() =>
         Promise.resolve(new Mcp("", "", "", "", new Date(), "user123"))
       );
       const handlers = mcpsHandlers({ mcpsRepository: mockMcpsRepository });
@@ -133,13 +146,13 @@ describe("mcpsHandlers", () => {
       const invalidContext = JSON.stringify({ mcpServers: {} });
       const context = createMockContext({
         userId: "user123",
-        params: { id: "1" },
+        params: { slug: "test-slug" },
         request: {
           json: async () => ({ name: "Test", context: invalidContext }),
         },
       });
 
-      mockMcpsRepository.getMcpByIdAndUserId = mock(() =>
+      mockMcpsRepository.getMcpBySlugAndUserId = mock(() =>
         Promise.resolve(new Mcp("", "", "", "", new Date(), "user123"))
       );
       const handlers = mcpsHandlers({ mcpsRepository: mockMcpsRepository });
@@ -160,14 +173,14 @@ describe("mcpsHandlers", () => {
     const createdAt = new Date();
     const context = createMockContext({
       userId: "user123",
-      params: { id: "1" },
+      params: { slug: "old-name" },
       request: {
         json: async () => ({ name: "Test", context: validJson }),
       },
     });
 
-    // Mock getMcpById to return an existing MCP
-    mockMcpsRepository.getMcpByIdAndUserId.mockResolvedValueOnce(
+    // Mock getMcpBySlug to return an existing MCP
+    mockMcpsRepository.getMcpBySlugAndUserId.mockResolvedValueOnce(
       new Mcp("1", "Old Name", "old-name", "{}", createdAt, "user123")
     );
 
@@ -224,7 +237,7 @@ describe("mcpsHandlers", () => {
 
       const context = createMockContext({
         userId: "user123",
-        params: { id: "mcp-999" },
+        params: { slug: "other-users-mcp" },
       });
 
       const response = await handlers.show(context as any);
@@ -248,7 +261,7 @@ describe("mcpsHandlers", () => {
 
       const context = createMockContext({
         userId: "user123",
-        params: { id: "mcp-999" },
+        params: { slug: "other-users-mcp" },
       });
 
       const response = await handlers.api.show.index(context as any);
@@ -287,7 +300,7 @@ describe("mcpsHandlers", () => {
 
       const context = createMockContext({
         userId: "user123",
-        params: { id: "mcp-999" },
+        params: { slug: "other-users-mcp" },
         request,
       });
 

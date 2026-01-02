@@ -48,7 +48,7 @@ export function McpsList({ mcps }: { mcps: Mcp[] }) {
           {mcps.map((mcp) => (
             <a
               key={mcp.id}
-              href={routes.mcps.show.href({ id: mcp.id })}
+              href={routes.mcps.show.href({ slug: mcp.slug })}
               className="block bg-white rounded-xl border border-gray-200 p-6 hover:shadow-lg transition-all group"
             >
               <div className="flex justify-between items-start mb-4">

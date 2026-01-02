@@ -37,8 +37,8 @@ export const mcpsHandlers = (
     async show(context) {
       const user = getUserContext(context);
       if (user.userId) {
-        const mcp = await mcpsRepository.getMcpByIdAndUserId(
-          context.params.id,
+        const mcp = await mcpsRepository.getMcpBySlugAndUserId(
+          context.params.slug,
           user.userId
         );
         if (mcp) {
@@ -50,7 +50,7 @@ export const mcpsHandlers = (
           );
         }
       }
-      return render(<NotFoundComponent id={context.params.id} />);
+      return render(<NotFoundComponent id={context.params.slug} />);
     },
     new(context) {
       const user = getUserContext(context);
@@ -130,8 +130,8 @@ export const mcpsHandlers = (
         async index(context) {
           const user = getUserContext(context);
           if (user.userId) {
-            const mcp = await mcpsRepository.getMcpByIdAndUserId(
-              context.params?.id!,
+            const mcp = await mcpsRepository.getMcpBySlugAndUserId(
+              context.params?.slug!,
               user.userId
             );
             if (mcp) {
@@ -146,8 +146,8 @@ export const mcpsHandlers = (
         async action(context) {
           const user = getUserContext(context);
           if (user.userId) {
-            const currentMcp = await mcpsRepository.getMcpByIdAndUserId(
-              context.params.id,
+            const currentMcp = await mcpsRepository.getMcpBySlugAndUserId(
+              context.params.slug,
               user.userId
             );
             if (currentMcp) {

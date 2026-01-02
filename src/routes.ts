@@ -44,11 +44,12 @@ export const routes = route({
   mcps: {
     ...resources("mcps", {
       exclude: ["update", "destroy", "edit"],
+      param: "slug",
     }),
     destroy: { pattern: "/mcps/destroy/:id", method: "POST" },
     api: {
       index: "api/mcps",
-      show: form("/api/mcps/:id"),
+      show: form("/api/mcps/:slug"),
     },
   },
   users: {
@@ -62,7 +63,7 @@ export const routes = route({
       method: "GET",
     },
     mcp: {
-      pattern: "/:user/mcps/:id",
+      pattern: "/:user/mcps/:slug",
       method: "GET",
     },
     api: {

@@ -79,7 +79,7 @@ export const Show = (props: Props) => {
                     {mcp.name}
                   </h3>
                   <a
-                    href={routes.mcps.show.href({ id: mcp.id })}
+                    href={routes.mcps.show.href({ slug: mcp.slug })}
                     className="text-sm text-blue-600 hover:text-blue-800 inline-block font-medium"
                   >
                     View Details →

@@ -6,8 +6,8 @@ import { useEditableField } from "./hooks/use-editable-field";
 import { routes } from "../../../routes";
 import { CreatedAt } from "../../../utils/created-at";
 
-const getMcp = async (id: string) => {
-  const response = await fetch(routes.mcps.api.show.index.href({ id }));
+const getMcp = async (slug: string) => {
+  const response = await fetch(routes.mcps.api.show.index.href({ slug }));
   if (!response.ok) {
     throw new Error("Failed to fetch MCP");
   }
@@ -58,13 +58,13 @@ const McpDisplay = ({
     }
   };
 
-  const nameField = useEditableField(mcp.id, "name", currentName, {
+  const nameField = useEditableField(mcp.slug, "name", currentName, {
     name: currentName,
     context: currentContext,
   });
 
   const contextField = useEditableField(
-    mcp.id,
+    mcp.slug,
     "context",
     formatJson(currentContext),
     {
@@ -207,8 +207,8 @@ const McpDisplay = ({
   );
 };
 
-const McpView = ({ mcpId }: { mcpId: string }) => {
-  const mcpPromise = useMemo(() => getMcp(mcpId), [mcpId]);
+const McpView = ({ slug }: { slug: string }) => {
+  const mcpPromise = useMemo(() => getMcp(slug), [slug]);
 
   return (
     <Suspense
@@ -231,15 +231,15 @@ const McpView = ({ mcpId }: { mcpId: string }) => {
 // Extract mcp ID from URL (e.g., /mcps/123)
 const getMcpIdFromUrl = () => {
   const match = routes.mcps.show.match(window.location.toString());
-  return match?.params?.id ?? null;
+  return match?.params?.slug ?? null;
 };
 
 const rootElement = document.getElementById("root");
 if (rootElement) {
-  const mcpId = getMcpIdFromUrl();
-  if (mcpId) {
+  const slug = getMcpIdFromUrl();
+  if (slug) {
     const root = createRoot(rootElement);
-    root.render(<McpView mcpId={mcpId} />);
+    root.render(<McpView slug={slug} />);
   } else {
     console.error("No MCP ID found in URL");
   }

@@ -158,7 +158,7 @@ export function UserDashboard({
                   key={mcp.id}
                   href={routes.users.mcp.href({
                     user: userName,
-                    id: mcp.id,
+                    slug: mcp.slug,
                   })}
                   className="block bg-white rounded-xl border border-gray-200 p-6 hover:shadow-lg transition-all group"
                 >

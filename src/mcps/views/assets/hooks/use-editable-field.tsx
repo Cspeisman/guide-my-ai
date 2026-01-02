@@ -3,7 +3,7 @@ import { routes } from "../../../../routes";
 
 // Custom hook for managing editable field state
 export const useEditableField = (
-  mcpId: string,
+  slug: string,
   fieldName: "name" | "context",
   initialValue: string,
   allFields: { name: string; context: string }
@@ -21,7 +21,7 @@ export const useEditableField = (
     setIsSaving(true);
     try {
       const response = await fetch(
-        routes.mcps.api.show.action.href({ id: mcpId }),
+        routes.mcps.api.show.action.href({ slug: slug }),
         {
           method: "POST",
           body: JSON.stringify({
