@@ -1,42 +1,40 @@
-import { test as base, expect } from "@playwright/test";
+import { test, expect } from "./fixtures";
 
-/**
- * Extended test fixture that provides authenticated context
- *
- * Usage:
- * test('my authenticated test', async ({ page, authenticatedPage }) => {
- *   await authenticatedPage.goto('/dashboard');
- *   // ... test logic
- * });
- */
+test.describe("Going to home page without auth should show sign up sign in buttons", () => {
+  test("should display Sign Up and Sign In buttons on home page", async ({
+    page,
+  }) => {
+    // Navigate to the home page
+    await page.goto("/");
+    // Verify the welcome heading is present
+    await expect(
+      page.getByRole("heading", { name: /Welcome to Guide My AI/i })
+    ).toBeVisible();
 
-// Define fixture types
-type AuthFixtures = {
-  authenticatedPage: any;
-};
+    // Verify the Sign Up button is visible and has the correct link
+    const signUpButton = page.getByRole("link", { name: /Sign Up/i });
+    await expect(signUpButton).toBeVisible();
+    await expect(signUpButton).toHaveAttribute("href", "/auth/signup");
 
-// Extend base test with authentication fixture
-export const test = base.extend<AuthFixtures>({
-  authenticatedPage: async ({ page }, use) => {
-    // TODO: Implement authentication logic here
-    // This is a placeholder - adjust based on your authentication mechanism
+    // Verify the Sign In button is visible and has the correct link
+    const signInButton = page.getByRole("link", { name: /Sign In/i });
+    await expect(signInButton).toBeVisible();
+    await expect(signInButton).toHaveAttribute("href", "/auth/login");
+  });
+});
 
-    // Option 1: Login via UI
-    // await page.goto('/auth/login');
-    // await page.fill('input[type="email"]', 'test@example.com');
-    // await page.fill('input[type="password"]', 'password123');
-    // await page.click('button[type="submit"]');
-    // await page.waitForURL('/dashboard'); // or wherever login redirects
+test.describe("Login with test user", () => {
+  test("authenticated users should be redirected to dashboard", async ({
+    authenticatedPage,
+  }) => {
+    await authenticatedPage.goto("/");
 
-    // Option 2: Set authentication state directly (faster)
-    // await page.context().addCookies([
-    //   { name: 'auth_token', value: 'your-token', domain: 'localhost', path: '/' }
-    // ]);
+    // Verify the user is redirected to dashboard
+    await expect(authenticatedPage).toHaveURL(/\/dashboard/);
 
-    // Option 3: Use API to get token and set it
-    // const token = await getAuthToken();
-    // await page.context().addCookies([...]);
-
-    await use(page);
-  },
+    // Verify the Dashboard heading is visible
+    await expect(
+      authenticatedPage.getByRole("heading", { level: 1, name: /Dashboard/i })
+    ).toBeVisible();
+  });
 });

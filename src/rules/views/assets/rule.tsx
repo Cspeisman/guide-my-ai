@@ -23,6 +23,7 @@ const getRule = async (slug: string) => {
 
 const RuleDisplay = ({
   rulePromise,
+  slug,
 }: {
   rulePromise: Promise<{
     id: string;
@@ -32,6 +33,7 @@ const RuleDisplay = ({
     createdAt: string;
     userId: string;
   }>;
+  slug: string;
 }) => {
   const ruleData = use(rulePromise);
   const rule = new Rule(
@@ -47,12 +49,12 @@ const RuleDisplay = ({
   const [currentName, setCurrentName] = useState(rule.name);
   const [currentContent, setCurrentContent] = useState(rule.content);
 
-  const nameField = useEditableField(rule.slug, "name", currentName, {
+  const nameField = useEditableField(slug, "name", currentName, {
     name: currentName,
     content: currentContent,
   });
 
-  const contentField = useEditableField(rule.slug, "content", currentContent, {
+  const contentField = useEditableField(slug, "content", currentContent, {
     name: currentName,
     content: currentContent,
   });
@@ -142,8 +144,8 @@ const RuleDisplay = ({
   );
 };
 
-const RuleView = ({ slug: ruleId }: { slug: string }) => {
-  const rulePromise = useMemo(() => getRule(ruleId), [ruleId]);
+const RuleView = ({ slug }: { slug: string }) => {
+  const rulePromise = useMemo(() => getRule(slug), [slug]);
 
   return (
     <Suspense
@@ -158,7 +160,7 @@ const RuleView = ({ slug: ruleId }: { slug: string }) => {
         </div>
       }
     >
-      <RuleDisplay rulePromise={rulePromise} />
+      <RuleDisplay rulePromise={rulePromise} slug={slug} />
     </Suspense>
   );
 };

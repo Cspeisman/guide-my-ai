@@ -147,8 +147,8 @@ export const usersHandler = (
       return render(<NotFoundComponent id={slug ?? ""} type="mcp" />);
     },
     api: {
-      async show(context) {
-        const matches = routes.users.api.show.match(context.request.url);
+      async profiles(context) {
+        const matches = routes.users.api.profiles.match(context.request.url);
         const userName = matches?.params.user;
 
         if (!userName) {
@@ -173,6 +173,75 @@ export const usersHandler = (
         const { profiles } = result ?? { profiles: [] };
 
         return Response.json(profiles.map((p) => p.toJson()));
+      },
+      async profile(context) {
+        const matches = routes.users.api.profile.match(context.request.url);
+        const userName = matches?.params.user;
+        const slug = matches?.params.slug;
+        if (!userName || !slug) {
+          return Response.json(
+            { error: "Missing required information" },
+            { status: 400 }
+          );
+        }
+        const user = await usersRepository.getUserByUsername(userName);
+        if (user) {
+          const profile = await profilesRepository.getProfileBySlugAndUserId(
+            slug,
+            user.id
+          );
+          const { userId, ...rest } = profile?.toJson() ?? { userId: null };
+          return Response.json(rest);
+        }
+        return Response.json(
+          { msg: `No profle matching the requested data` },
+          { status: 404 }
+        );
+      },
+      async rule(context) {
+        const matches = routes.users.api.rule.match(context.request.url);
+        const userName = matches?.params.user;
+        const slug = matches?.params.slug;
+        if (!userName || !slug) {
+          return Response.json(
+            { error: "Missing required information" },
+            { status: 400 }
+          );
+        }
+        const user = await usersRepository.getUserByUsername(userName);
+        if (user) {
+          const rule = await rulesRepository.getRuleBySlugAndUserId(
+            slug,
+            user.id
+          );
+          const { userId, ...rest } = rule?.toJson() ?? { userId: null };
+          return Response.json(rest);
+        }
+        return Response.json(
+          { msg: `No slug matching the requested data` },
+          { status: 404 }
+        );
+      },
+      async mcp(context) {
+        const matches = routes.users.api.mcp.match(context.request.url);
+        const userName = matches?.params.user;
+        const slug = matches?.params.slug;
+        if (!userName || !slug) {
+          return Response.json(
+            { error: "Missing required information" },
+            { status: 400 }
+          );
+        }
+        const user = await usersRepository.getUserByUsername(userName);
+        if (user) {
+          const mcp = await mcpsRepository.getMcpBySlugAndUserId(slug, user.id);
+          const { userId, ...rest } = mcp?.toJson() ?? { userId: null };
+          return Response.json(rest);
+        }
+        return Response.json(
+          { msg: `No mcp matching the requested data` },
+          { status: 404 }
+        );
       },
     },
   } satisfies Controller<typeof routes.users>;

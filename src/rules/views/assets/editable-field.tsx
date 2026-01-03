@@ -40,14 +40,21 @@ export const EditableField = ({
   const lineCount = value.split("\n").length;
   const rows = Math.max(lineCount, 3);
 
+  // Generate a unique ID for the field based on the label
+  const fieldId = `editable-field-${label.toLowerCase()}`;
+
   return (
     <div className="flex flex-col">
-      <span className="text-sm font-semibold text-gray-600 uppercase tracking-wide mb-2">
+      <label
+        htmlFor={fieldId}
+        className="text-sm font-semibold text-gray-600 uppercase tracking-wide mb-2"
+      >
         {label}
-      </span>
+      </label>
       {isEditing ? (
         multiline ? (
           <textarea
+            id={fieldId}
             value={value}
             onChange={(e) => onChange(e.target.value)}
             onBlur={onSave}
@@ -59,6 +66,7 @@ export const EditableField = ({
           />
         ) : (
           <input
+            id={fieldId}
             type="text"
             value={value}
             onChange={(e) => onChange(e.target.value)}
@@ -71,23 +79,35 @@ export const EditableField = ({
         )
       ) : multiline ? (
         <pre
+          id={fieldId}
           className={`text-gray-800 bg-gray-50 p-4 rounded-lg leading-relaxed whitespace-pre-wrap font-mono text-sm transition-colors cursor-pointer ${
-            disabled
-              ? "opacity-75"
-              : "hover:bg-gray-100"
+            disabled ? "opacity-75" : "hover:bg-gray-100"
           }`}
           onClick={disabled ? undefined : onEdit}
+          role="button"
+          tabIndex={disabled ? -1 : 0}
+          onKeyDown={(e) => {
+            if (!disabled && (e.key === "Enter" || e.key === " ")) {
+              onEdit();
+            }
+          }}
         >
           {value}
         </pre>
       ) : (
         <span
+          id={fieldId}
           className={`text-gray-800 font-semibold bg-gray-50 p-3 rounded-lg transition-colors cursor-pointer ${
-            disabled
-              ? "opacity-75"
-              : "hover:bg-gray-100"
+            disabled ? "opacity-75" : "hover:bg-gray-100"
           }`}
           onClick={disabled ? undefined : onEdit}
+          role="button"
+          tabIndex={disabled ? -1 : 0}
+          onKeyDown={(e) => {
+            if (!disabled && (e.key === "Enter" || e.key === " ")) {
+              onEdit();
+            }
+          }}
         >
           {value}
         </span>
