@@ -91,7 +91,48 @@ bun run build:assets:watch
 - `bun run build:assets:watch`: Build Tailwind CSS output in watch mode.
 - `bun run db:generate`: Generate Drizzle migrations.
 - `bun run db:migrate`: Apply Drizzle migrations.
-- `bun test`: Run tests.
+- `bun test`: Run unit tests.
+- `bun run test:e2e`: Run end-to-end tests with Playwright.
+- `bun run test:e2e:ui`: Run Playwright tests in UI mode.
+- `bun run test:e2e:debug`: Run Playwright tests in debug mode.
+- `bun run test:e2e:headed`: Run Playwright tests in headed mode (visible browser).
+- `bun run test:e2e:report`: Show the Playwright HTML test report.
+
+## 🧪 Testing
+
+### Unit Tests
+
+Unit tests are written using Bun's built-in test runner with React Testing Library:
+
+```bash
+bun test
+```
+
+### End-to-End Tests
+
+This project uses [Playwright](https://playwright.dev) for end-to-end testing. Playwright tests simulate real user interactions in a browser.
+
+#### Writing E2E Tests
+
+E2E tests are located in the `tests/e2e/` directory. Here's a simple example:
+
+```typescript
+import { test, expect } from "@playwright/test";
+
+test("should load the home page", async ({ page }) => {
+  await page.goto("/");
+  await expect(page).toHaveURL("/");
+});
+```
+
+#### Playwright Configuration
+
+The Playwright configuration is in `playwright.config.ts`. Key settings:
+
+- **Base URL**: `http://localhost:3000`
+- **Browsers**: Chromium, Firefox, and WebKit
+- **Auto-start**: The dev server automatically starts before running tests
+- **Test DB**: E2E spin up and spin down a dedicated test.sqlite db
 
 ## 📂 Project Structure
 

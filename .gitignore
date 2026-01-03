@@ -8,3 +8,8 @@ data.sqlite
 linkedin-post.txt
 .agent/
 .vscode/
+
+# Playwright
+test-results/
+playwright-report/
+playwright/.cache/
