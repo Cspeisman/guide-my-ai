@@ -16,6 +16,7 @@ export type User = {
   updatedAt: Date;
   githubUsername?: string | null;
   githubUrl?: string | null;
+  private: boolean;
 };
 
 export class UsersRepository {
@@ -103,6 +104,60 @@ export class UsersRepository {
       updatedAt: userRecord.updatedAt,
       githubUsername: userRecord.githubUsername,
       githubUrl: userRecord.githubUrl,
+      private: userRecord.private,
     };
+  }
+
+  async getUserById(userId: string): Promise<User | null> {
+    const userRecord = await db.query.user.findFirst({
+      where: eq(user.id, userId),
+    });
+
+    if (!userRecord) {
+      return null;
+    }
+
+    return {
+      id: userRecord.id,
+      name: userRecord.name,
+      email: userRecord.email,
+      emailVerified: userRecord.emailVerified,
+      image: userRecord.image,
+      createdAt: userRecord.createdAt,
+      updatedAt: userRecord.updatedAt,
+      githubUsername: userRecord.githubUsername,
+      githubUrl: userRecord.githubUrl,
+      private: userRecord.private,
+    };
+  }
+
+  async updateUser(
+    userId: string,
+    updates: { name: string; private: boolean }
+  ): Promise<void> {
+    await db
+      .update(user)
+      .set({ ...updates, updatedAt: new Date() })
+      .where(eq(user.id, userId));
+  }
+
+  async isUsernameTaken(
+    username: string,
+    excludeUserId?: string
+  ): Promise<boolean> {
+    const existingUser = await db.query.user.findFirst({
+      where: eq(user.name, username.toLowerCase()),
+    });
+
+    if (!existingUser) {
+      return false;
+    }
+
+    // If we're checking for update, allow the current user's username
+    if (excludeUserId && existingUser.id === excludeUserId) {
+      return false;
+    }
+
+    return true;
   }
 }

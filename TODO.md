@@ -1,11 +1,11 @@
-- [ ] in extension display profile selection as [username]/profiles/[profile-name]
-  - [ ] support browsing profiles by [username]/profiles/[profile-name], [username]/rules/[rule-name]
 - [ ] User settings
   - [ ] can change username
   - [ ] set profile as public or private
 - [ ] Community
   - [ ] list all profiles, rules, and mcps
-  - [ ] add download count to all resources
+    - [ ] add download count to all resources
+    - [ ] sort by created, updated, and download count
+- [ ] support browsing profiles by [username]/profiles, [username]/rules
 - [ ] Supply default example rules or quickly pull in rules from somwhere else
 - [ ] Google oauth
 - [ ] make it more mobile friendly

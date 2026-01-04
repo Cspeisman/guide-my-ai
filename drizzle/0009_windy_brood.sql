@@ -1,0 +1,1 @@
+ALTER TABLE `user` ADD `private` integer DEFAULT false NOT NULL;

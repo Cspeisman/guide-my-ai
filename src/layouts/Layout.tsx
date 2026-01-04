@@ -1,4 +1,5 @@
 import {
+  Ellipsis,
   FileCode,
   FolderCode,
   LayoutDashboard,
@@ -6,10 +7,10 @@ import {
   Settings,
 } from "lucide-react";
 import React from "react";
+import type { UserContext } from "../auth/user-context";
 import { IdeDownloadMenu } from "../components/IdeDownloadMenu";
 import { TopNavBar } from "../components/TopNavBar";
 import { routes } from "../routes";
-import type { UserContext } from "../auth/user-context";
 
 export function Document({
   title = "Title",
@@ -61,10 +62,11 @@ export function Layout({
                 <a href={routes.home.href()}>
                   <h2 className="font-bold text-gray-900">Guide My AI</h2>
                   {user?.userName && (
-                    <p className="text-xs text-gray-600 mt-1">
-                      Logged in as{" "}
-                      <span className="font-medium">{user.userName}</span>
-                    </p>
+                    <div className="flex items-center gap-2 mt-1">
+                      <p className="text-xs text-gray-600">
+                        <span className="font-medium">{user.userName}</span>
+                      </p>
+                    </div>
                   )}
                   {user?.githubUrl && user?.githubUsername && (
                     <a
@@ -135,26 +137,13 @@ export function Layout({
             </a>
           </nav>
 
-          {/* Logout Section */}
-          <div className="p-4 border-t border-gray-200 space-y-1">
+          <div className="p-4 border-t border-gray-200 space-y-2">
             <IdeDownloadMenu />
-            <form
-              method={routes.auth.logout.method}
-              action={routes.auth.logout.href()}
-            >
-              <button
-                type="submit"
-                className="flex items-center gap-3 px-4 py-3 rounded-lg transition-all text-xs text-gray-700 hover:bg-gray-100 hover:text-text-900 border-l-2 border-transparent w-full"
-              >
-                <LogOut size={16} />
-                <span>Logout</span>
-              </button>
-            </form>
           </div>
         </aside>
         {/* Main Content */}
         <div className="flex-1 flex flex-col relative">
-          <TopNavBar />
+          <TopNavBar user={user} />
           <main className="flex-1 p-8">
             {children}
             <div id="root" />

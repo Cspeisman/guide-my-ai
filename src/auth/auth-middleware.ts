@@ -94,6 +94,7 @@ export function createApiAuthMiddleware(): Middleware {
 
       if (userRecord) {
         context.storage.set(userNameKey, userRecord.name);
+
         if (userRecord.githubUrl) {
           context.storage.set(userGithubUrlKey, userRecord.githubUrl);
         }

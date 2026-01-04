@@ -21,6 +21,8 @@ export const user = sqliteTable("user", {
   // GitHub profile fields
   githubUsername: text("githubUsername"),
   githubUrl: text("githubUrl"),
+  // Privacy settings
+  private: integer("private", { mode: "boolean" }).notNull().default(false),
 });
 
 export const session = sqliteTable("session", {

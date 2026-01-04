@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "bun --watch src/server.ts",
     "start": "bun run src/server.ts",
-    "test": "bun test",
+    "test": "bun test src/**/*.test.{ts,tsx}",
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
     "test:e2e:debug": "playwright test --debug",
@@ -17,7 +17,7 @@
     "build:assets:watch": "bun run scripts/build-assets.ts --watch & bunx @tailwindcss/cli -i ./src/input.css -o ./dist/css/output.css --watch & cp scripts/favicon.ico dist/favicon.ico & wait",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
-    "deploy:check": "bun run typecheck && bun run test"
+    "deploy:check": "bun run typecheck && bun run test && bun run test:e2e"
   },
   "keywords": [
     "oauth2",

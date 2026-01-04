@@ -66,6 +66,7 @@ export const routes = route({
       pattern: "/:user/mcps/:slug",
       method: "GET",
     },
+    settings: form("/settings/:id"),
     api: {
       profiles: "/api/:user/profiles",
       profile: "/api/:user/profiles/:slug",

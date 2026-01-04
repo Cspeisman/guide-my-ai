@@ -10,6 +10,7 @@ import { UserProfile } from "./views/user-profile";
 import { getUserContext } from "../auth/user-context";
 import { UserResource } from "./views/user-rule";
 import { UserDashboard } from "./views/user-dashboard";
+import { UserSettings } from "./views/user-settings";
 
 export const usersHandler = (
   dependencies = {
@@ -242,6 +243,82 @@ export const usersHandler = (
           { msg: `No mcp matching the requested data` },
           { status: 404 }
         );
+      },
+    },
+    settings: {
+      async index(context) {
+        const currentUser = getUserContext(context);
+
+        if (currentUser?.userId) {
+          const user = await usersRepository.getUserById(currentUser.userId);
+          if (user) {
+            return render(<UserSettings user={user} />);
+          }
+        }
+
+        return Response.redirect(routes.auth.login.index.href(), 302);
+      },
+      async action(context) {
+        const currentUser = getUserContext(context);
+
+        if (!currentUser?.userId) {
+          return Response.json({ error: "Unauthorized" }, { status: 401 });
+        }
+
+        const formData = await context.request.formData();
+        const newName = formData.get("name");
+        const isPrivate = formData.get("private") === "on";
+        const user = await usersRepository.getUserById(currentUser.userId);
+
+        if (user) {
+          if (!newName || typeof newName !== "string") {
+            return render(
+              <UserSettings user={user} error="Username is required" />
+            );
+          }
+
+          const trimmedName = newName.trim();
+
+          // Check if username contains only valid characters (alphanumeric, dash, underscore)
+          if (!/^[a-zA-Z0-9_-]+$/.test(trimmedName)) {
+            return render(
+              <UserSettings
+                user={user}
+                error="Username can only contain letters, numbers, dashes, and underscores"
+              />
+            );
+          }
+
+          // Check if username is taken
+          const isTaken = await usersRepository.isUsernameTaken(
+            trimmedName,
+            currentUser.userId
+          );
+
+          if (isTaken) {
+            return render(
+              <UserSettings
+                user={user}
+                error="This username is already taken"
+              />
+            );
+          }
+
+          // Update the username and privacy settings
+          await usersRepository.updateUser(currentUser.userId, {
+            name: trimmedName,
+            private: isPrivate,
+          });
+          return Response.redirect(
+            routes.users.show.href({ user: trimmedName.toLowerCase() }),
+            302
+          );
+        }
+        const id = routes.users.settings.action.match(context.url)?.params.id;
+        if (id) {
+          return Response.redirect(routes.users.settings.index.href({ id }));
+        }
+        return Response.redirect(routes.home.href());
       },
     },
   } satisfies Controller<typeof routes.users>;
