@@ -198,6 +198,24 @@ export const mcpsHandlers = (
           );
         },
       },
+      async incrementDownloadCount(context) {
+        const user = getUserContext(context);
+        const mcpId = context.params.id;
+
+        // Get the mcp to check ownership
+        const mcp = await mcpsRepository.getMcpById(mcpId);
+
+        if (!mcp) {
+          return Response.json({ msg: "MCP not found" }, { status: 404 });
+        }
+
+        // Only increment if the current user is NOT the mcp owner
+        if (user.userId && user.userId !== mcp.userId) {
+          await mcpsRepository.incrementDownloadCount(mcpId);
+        }
+
+        return Response.json({ success: true });
+      },
     },
   } satisfies Controller<typeof routes.mcps>;
 };

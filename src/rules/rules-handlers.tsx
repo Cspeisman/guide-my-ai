@@ -153,6 +153,24 @@ export const rulesHandlers = (
           );
         },
       },
+      async incrementDownloadCount(context) {
+        const user = getUserContext(context);
+        const ruleId = context.params.id;
+
+        // Get the rule to check ownership
+        const rule = await rulesRepository.getRuleById(ruleId);
+
+        if (!rule) {
+          return Response.json({ msg: "Rule not found" }, { status: 404 });
+        }
+
+        // Only increment if the current user is NOT the rule owner
+        if (user.userId && user.userId !== rule.userId) {
+          await rulesRepository.incrementDownloadCount(ruleId);
+        }
+
+        return Response.json({ success: true });
+      },
     },
     async destroy(context) {
       const user = getUserContext(context);

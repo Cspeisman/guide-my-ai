@@ -77,6 +77,9 @@ describe("mcpsHandlers", () => {
     ),
     deleteMcp: mock(() => Promise.resolve()),
     incrementDownloadCount: mock(() => Promise.resolve()),
+    getMcpById: mock((id: string) =>
+      Promise.resolve(new Mcp("id", "name", "slug", "", new Date(), "user-id"))
+    ),
   };
 
   beforeEach(() => {

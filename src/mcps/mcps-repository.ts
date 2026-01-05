@@ -140,6 +140,23 @@ export class McpsRepository {
     await db.delete(mcps).where(and(eq(mcps.id, id), eq(mcps.userId, userId)));
   }
 
+  async getMcpById(mcpId: string): Promise<Mcp | null> {
+    const result = await db.query.mcps.findFirst({
+      where: eq(mcps.id, mcpId),
+    });
+    if (!result) {
+      return null;
+    }
+    return new Mcp(
+      result.id,
+      result.name,
+      result.slug,
+      result.context,
+      result.createdAt,
+      result.userId
+    );
+  }
+
   async incrementDownloadCount(mcpId: string): Promise<void> {
     await db
       .update(mcps)

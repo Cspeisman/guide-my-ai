@@ -43,6 +43,10 @@ export const routes = route({
     api: {
       index: "api/rules",
       show: form("/api/rules/:slug"),
+      incrementDownloadCount: {
+        pattern: "/api/rules/:id/increment-download",
+        method: "POST",
+      },
     },
   },
   mcps: {
@@ -54,6 +58,10 @@ export const routes = route({
     api: {
       index: "api/mcps",
       show: form("/api/mcps/:slug"),
+      incrementDownloadCount: {
+        pattern: "/api/mcps/:id/increment-download",
+        method: "POST",
+      },
     },
   },
   users: {

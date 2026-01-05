@@ -145,6 +145,23 @@ export class RulesRepository {
       .where(and(eq(rules.id, id), eq(rules.userId, userId)));
   }
 
+  async getRuleById(ruleId: string): Promise<Rule | null> {
+    const result = await db.query.rules.findFirst({
+      where: eq(rules.id, ruleId),
+    });
+    if (!result) {
+      return null;
+    }
+    return new Rule(
+      result.id,
+      result.name,
+      result.slug,
+      result.content,
+      result.createdAt,
+      result.userId
+    );
+  }
+
   async incrementDownloadCount(ruleId: string): Promise<void> {
     await db
       .update(rules)
