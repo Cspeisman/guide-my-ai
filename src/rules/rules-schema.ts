@@ -14,6 +14,7 @@ export const rules = sqliteTable(
     userId: text("userId")
       .notNull()
       .references(() => user.id, { onDelete: "cascade" }),
+    communityDownloads: integer("communityDownloads").notNull().default(0),
     createdAt: integer("createdAt", { mode: "timestamp" })
       .notNull()
       .$defaultFn(() => new Date()),

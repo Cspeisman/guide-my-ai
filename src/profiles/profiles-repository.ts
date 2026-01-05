@@ -1,4 +1,4 @@
-import { and, eq, ne } from "drizzle-orm";
+import { and, eq, ne, sql } from "drizzle-orm";
 import { db } from "../db/db";
 import { Profile } from "./profile";
 import { profiles, profilesToMcps, profilesToRules } from "./profiles-schema";
@@ -251,5 +251,47 @@ export class ProfilesRepository {
         .insert(profilesToMcps)
         .values(mcpIds.map((mcpId) => ({ profileId, mcpId })));
     }
+  }
+
+  async getProfileById(profileId: string): Promise<Profile | null> {
+    const result = await db.query.profiles.findFirst({
+      where: eq(profiles.id, profileId),
+      with: {
+        profilesToRules: {
+          with: {
+            rule: true,
+          },
+        },
+        profilesToMcps: {
+          with: {
+            mcp: true,
+          },
+        },
+      },
+    });
+
+    if (!result) {
+      return null;
+    }
+
+    return new Profile(
+      result.id,
+      result.name,
+      result.slug,
+      result.userId,
+      result.createdAt,
+      result.updatedAt,
+      result.profilesToRules?.map((ptr) => Rule.fromPayload(ptr.rule)) || [],
+      result.profilesToMcps?.map((ptm) => Mcp.fromPayload(ptm.mcp)) || []
+    );
+  }
+
+  async incrementDownloadCount(profileId: string): Promise<void> {
+    await db
+      .update(profiles)
+      .set({
+        communityDownloads: sql`${profiles.communityDownloads} + 1`,
+      })
+      .where(eq(profiles.id, profileId));
   }
 }

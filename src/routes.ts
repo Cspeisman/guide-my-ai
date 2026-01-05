@@ -28,6 +28,10 @@ export const routes = route({
     api: {
       index: "/api/profiles",
       edit: form("/api/profiles/:slug"),
+      incrementDownloadCount: {
+        pattern: "/api/profiles/:id/incement-download",
+        method: "POST",
+      },
     },
   },
   rules: {

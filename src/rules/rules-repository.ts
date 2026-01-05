@@ -1,7 +1,7 @@
 import { db } from "../db/db";
 import { Rule } from "./rule";
 import { rules } from "./rules-schema";
-import { eq, and, ne } from "drizzle-orm";
+import { eq, and, ne, sql } from "drizzle-orm";
 import { generateSlug, ensureUniqueSlug } from "../profiles/slug-utils";
 
 export class RulesRepository {
@@ -143,5 +143,14 @@ export class RulesRepository {
     await db
       .delete(rules)
       .where(and(eq(rules.id, id), eq(rules.userId, userId)));
+  }
+
+  async incrementDownloadCount(ruleId: string): Promise<void> {
+    await db
+      .update(rules)
+      .set({
+        communityDownloads: sql`${rules.communityDownloads} + 1`,
+      })
+      .where(eq(rules.id, ruleId));
   }
 }

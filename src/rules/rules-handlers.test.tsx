@@ -58,6 +58,7 @@ class FakeRulesRepository extends RulesRepository {
   async deleteRule(id: string): Promise<void> {
     this.rules = this.rules.filter((r) => r.id !== id);
   }
+  async incrementDownloadCount(ruleId: string): Promise<void> {}
 }
 
 function createMockContext(options: {

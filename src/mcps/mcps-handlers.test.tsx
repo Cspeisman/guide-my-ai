@@ -58,6 +58,8 @@ class FakeMcpsRepository extends McpsRepository {
   async deleteMcp(id: string, userId: string): Promise<void> {
     this.mcps = this.mcps.filter((m) => !(m.id === id && m.userId === userId));
   }
+
+  async incrementDownloadCount(mcpId: string): Promise<void> {}
 }
 
 describe("mcpsHandlers", () => {
@@ -74,6 +76,7 @@ describe("mcpsHandlers", () => {
       )
     ),
     deleteMcp: mock(() => Promise.resolve()),
+    incrementDownloadCount: mock(() => Promise.resolve()),
   };
 
   beforeEach(() => {

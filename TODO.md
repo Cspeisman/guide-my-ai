@@ -1,6 +1,3 @@
-- [ ] User settings
-  - [ ] can change username
-  - [ ] set profile as public or private
 - [ ] Community
   - [ ] list all profiles, rules, and mcps
     - [ ] add download count to all resources

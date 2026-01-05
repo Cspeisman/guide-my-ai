@@ -4,12 +4,18 @@ import { Layout } from "../layouts/Layout";
 import { routes } from "../routes";
 import { render } from "../utils";
 import { ProfilesRepository } from "./profiles-repository";
+import { RulesRepository } from "../rules/rules-repository";
+import { McpsRepository } from "../mcps/mcps-repository";
 import { Index, New, Show } from "./views";
 
 export const profileHandlers = (
-  dependencies = { profilesRepository: new ProfilesRepository() }
+  dependencies = {
+    profilesRepository: new ProfilesRepository(),
+    rulesRepository: new RulesRepository(),
+    mcpsRepository: new McpsRepository(),
+  }
 ) => {
-  const { profilesRepository } = dependencies;
+  const { profilesRepository, rulesRepository, mcpsRepository } = dependencies;
   const NotFoundComponent = (props: { id: string }) => (
     <Layout>
       <pre>
@@ -184,6 +190,35 @@ export const profileHandlers = (
             { status: 404 }
           );
         },
+      },
+      async incrementDownloadCount(context) {
+        const user = getUserContext(context);
+        const profileId = context.params.id;
+
+        // Get the profile to check ownership
+        const profile = await profilesRepository.getProfileById(profileId);
+
+        if (!profile) {
+          return Response.json({ msg: "Profile not found" }, { status: 404 });
+        }
+
+        // Only increment if the current user is NOT the profile owner
+        if (user.userId && user.userId !== profile.userId) {
+          // Increment profile download count
+          await profilesRepository.incrementDownloadCount(profileId);
+
+          // Increment download counts for all associated rules
+          for (const rule of profile.rules) {
+            await rulesRepository.incrementDownloadCount(rule.id);
+          }
+
+          // Increment download counts for all associated mcps
+          for (const mcp of profile.mcps) {
+            await mcpsRepository.incrementDownloadCount(mcp.id);
+          }
+        }
+
+        return Response.json({ success: true });
       },
     },
   } satisfies Controller<typeof routes.profiles>;

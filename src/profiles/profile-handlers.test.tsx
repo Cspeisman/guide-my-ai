@@ -5,6 +5,8 @@ import { routes } from "../routes";
 import { Profile } from "./profile";
 import { profileHandlers } from "./profile-handlers";
 import { ProfilesRepository } from "./profiles-repository";
+import { RulesRepository } from "../rules/rules-repository";
+import { McpsRepository } from "../mcps/mcps-repository";
 import { Rule } from "../rules/rule";
 import { Mcp } from "../mcps/mcp";
 
@@ -83,6 +85,33 @@ class FakeProfilesRepository extends ProfilesRepository {
   async deleteProfile(id: string): Promise<void> {
     this.profiles = this.profiles.filter((p) => p.id !== id);
   }
+
+  async getProfileById(profileId: string): Promise<Profile | null> {
+    const profile = this.profiles.find((p) => p.id === profileId);
+    return profile || null;
+  }
+
+  incrementDownloadCountCalls: string[] = [];
+
+  async incrementDownloadCount(profileId: string): Promise<void> {
+    this.incrementDownloadCountCalls.push(profileId);
+  }
+}
+
+class FakeRulesRepository extends RulesRepository {
+  incrementDownloadCountCalls: string[] = [];
+
+  async incrementDownloadCount(ruleId: string): Promise<void> {
+    this.incrementDownloadCountCalls.push(ruleId);
+  }
+}
+
+class FakeMcpsRepository extends McpsRepository {
+  incrementDownloadCountCalls: string[] = [];
+
+  async incrementDownloadCount(mcpId: string): Promise<void> {
+    this.incrementDownloadCountCalls.push(mcpId);
+  }
 }
 
 function createMockContext(options: {
@@ -99,6 +128,14 @@ function createMockContext(options: {
     params: options.params,
     request: options.request,
   };
+}
+
+function createHandlers(profilesRepository: FakeProfilesRepository) {
+  return profileHandlers({
+    profilesRepository: profilesRepository as any,
+    rulesRepository: new FakeRulesRepository() as any,
+    mcpsRepository: new FakeMcpsRepository() as any,
+  });
 }
 
 describe("profileHandlers", () => {
@@ -170,9 +207,7 @@ describe("profileHandlers", () => {
     ];
 
     const fakeRepository = new FakeProfilesRepository(testProfiles);
-    const handlers = profileHandlers({
-      profilesRepository: fakeRepository as any,
-    });
+    const handlers = createHandlers(fakeRepository);
 
     const context = createMockContext({ userId: "user123" });
     const response = await handlers.index(context as any);
@@ -196,9 +231,7 @@ describe("profileHandlers", () => {
       []
     );
     const fakeRepository = new FakeProfilesRepository([testProfile]);
-    const handlers = profileHandlers({
-      profilesRepository: fakeRepository as any,
-    });
+    const handlers = createHandlers(fakeRepository);
 
     const context = createMockContext({
       userId: "user123",
@@ -211,9 +244,7 @@ describe("profileHandlers", () => {
 
   it("should return a NEW page with a form to create a new profile", async () => {
     const fakeRepository = new FakeProfilesRepository([]);
-    const handlers = profileHandlers({
-      profilesRepository: fakeRepository as any,
-    });
+    const handlers = createHandlers(fakeRepository);
 
     const context = createMockContext({
       userId: "user123",
@@ -230,9 +261,7 @@ describe("profileHandlers", () => {
 
   it("should CREATE a new profile and redirect to edit page", async () => {
     const fakeRepository = new FakeProfilesRepository([]);
-    const handlers = profileHandlers({
-      profilesRepository: fakeRepository as any,
-    });
+    const handlers = createHandlers(fakeRepository);
 
     const formData = new FormData();
     formData.append("name", "My New Profile");
@@ -274,9 +303,7 @@ describe("profileHandlers", () => {
         []
       );
       const fakeRepository = new FakeProfilesRepository([otherUsersProfile]);
-      const handlers = profileHandlers({
-        profilesRepository: fakeRepository as any,
-      });
+      const handlers = createHandlers(fakeRepository);
 
       const context = createMockContext({
         userId: "user456",
@@ -301,9 +328,7 @@ describe("profileHandlers", () => {
         []
       );
       const fakeRepository = new FakeProfilesRepository([otherUsersProfile]);
-      const handlers = profileHandlers({
-        profilesRepository: fakeRepository as any,
-      });
+      const handlers = createHandlers(fakeRepository);
 
       const formData = new FormData();
       formData.append("_method", "DELETE");
@@ -339,9 +364,7 @@ describe("profileHandlers", () => {
         []
       );
       const fakeRepository = new FakeProfilesRepository([otherUsersProfile]);
-      const handlers = profileHandlers({
-        profilesRepository: fakeRepository as any,
-      });
+      const handlers = createHandlers(fakeRepository);
 
       const context = createMockContext({
         userId: "user123",
@@ -367,9 +390,7 @@ describe("profileHandlers", () => {
         []
       );
       const fakeRepository = new FakeProfilesRepository([otherUsersProfile]);
-      const handlers = profileHandlers({
-        profilesRepository: fakeRepository as any,
-      });
+      const handlers = createHandlers(fakeRepository);
 
       const request = new Request("http://localhost/api/profiles/profile-999", {
         method: "POST",
@@ -392,6 +413,109 @@ describe("profileHandlers", () => {
       // Verify profile was not modified
       const profile = fakeRepository.profiles[0];
       expect(profile.name).toBe("Other User's Profile");
+    });
+  });
+
+  describe("incrementDownloadCount", () => {
+    it("increments download count when user is NOT the profile owner, but does not increment when user IS the owner", async () => {
+      const testRule1 = new Rule(
+        "rule-1",
+        "Test Rule 1",
+        "test-rule-1",
+        "Rule content 1",
+        new Date(),
+        "owner-user-id"
+      );
+      const testRule2 = new Rule(
+        "rule-2",
+        "Test Rule 2",
+        "test-rule-2",
+        "Rule content 2",
+        new Date(),
+        "owner-user-id"
+      );
+      const testMcp1 = new Mcp(
+        "mcp-1",
+        "Test MCP 1",
+        "test-mcp-1",
+        "MCP context 1",
+        new Date(),
+        "owner-user-id"
+      );
+      const testProfile = new Profile(
+        "profile-123",
+        "Test Profile",
+        "test-profile",
+        "owner-user-id",
+        new Date(),
+        new Date(),
+        [testRule1, testRule2],
+        [testMcp1]
+      );
+
+      const fakeProfilesRepository = new FakeProfilesRepository([testProfile]);
+      const fakeRulesRepository = new FakeRulesRepository();
+      const fakeMcpsRepository = new FakeMcpsRepository();
+
+      const handlers = profileHandlers({
+        profilesRepository: fakeProfilesRepository as any,
+        rulesRepository: fakeRulesRepository as any,
+        mcpsRepository: fakeMcpsRepository as any,
+      });
+
+      // Case 1: Different user (not the owner) - should increment profile, rules, and mcps
+      const differentUserContext = createMockContext({
+        userId: "different-user-id",
+        params: { id: "profile-123" },
+      });
+
+      const response1 = await handlers.api.incrementDownloadCount(
+        differentUserContext as any
+      );
+      expect(response1.status).toBe(200);
+      const json1 = await response1.json();
+      expect(json1.success).toBe(true);
+
+      // Check profile download count was incremented
+      expect(fakeProfilesRepository.incrementDownloadCountCalls).toHaveLength(
+        1
+      );
+      expect(fakeProfilesRepository.incrementDownloadCountCalls[0]).toBe(
+        "profile-123"
+      );
+
+      // Check rules download counts were incremented
+      expect(fakeRulesRepository.incrementDownloadCountCalls).toHaveLength(2);
+      expect(fakeRulesRepository.incrementDownloadCountCalls).toContain(
+        "rule-1"
+      );
+      expect(fakeRulesRepository.incrementDownloadCountCalls).toContain(
+        "rule-2"
+      );
+
+      // Check mcps download counts were incremented
+      expect(fakeMcpsRepository.incrementDownloadCountCalls).toHaveLength(1);
+      expect(fakeMcpsRepository.incrementDownloadCountCalls[0]).toBe("mcp-1");
+
+      // Case 2: Same user (the owner) - should NOT increment
+      const ownerUserContext = createMockContext({
+        userId: "owner-user-id",
+        params: { id: "profile-123" },
+      });
+
+      const response2 = await handlers.api.incrementDownloadCount(
+        ownerUserContext as any
+      );
+      expect(response2.status).toBe(200);
+      const json2 = await response2.json();
+      expect(json2.success).toBe(true);
+
+      // Verify counts remain unchanged (still 1 profile, 2 rules, 1 mcp)
+      expect(fakeProfilesRepository.incrementDownloadCountCalls).toHaveLength(
+        1
+      );
+      expect(fakeRulesRepository.incrementDownloadCountCalls).toHaveLength(2);
+      expect(fakeMcpsRepository.incrementDownloadCountCalls).toHaveLength(1);
     });
   });
 });

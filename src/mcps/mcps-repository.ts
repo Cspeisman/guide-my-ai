@@ -1,7 +1,7 @@
 import { db } from "../db/db";
 import { Mcp } from "./mcp";
 import { mcps } from "./mcp-schema";
-import { and, eq, ne } from "drizzle-orm";
+import { and, eq, ne, sql } from "drizzle-orm";
 import { generateSlug, ensureUniqueSlug } from "../profiles/slug-utils";
 
 export class McpsRepository {
@@ -138,5 +138,14 @@ export class McpsRepository {
 
   async deleteMcp(id: string, userId: string): Promise<void> {
     await db.delete(mcps).where(and(eq(mcps.id, id), eq(mcps.userId, userId)));
+  }
+
+  async incrementDownloadCount(mcpId: string): Promise<void> {
+    await db
+      .update(mcps)
+      .set({
+        communityDownloads: sql`${mcps.communityDownloads} + 1`,
+      })
+      .where(eq(mcps.id, mcpId));
   }
 }
