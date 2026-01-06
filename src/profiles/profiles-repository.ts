@@ -1,10 +1,11 @@
-import { and, eq, ne, sql } from "drizzle-orm";
+import { and, eq, ne, sql, desc, inArray } from "drizzle-orm";
 import { db } from "../db/db";
 import { Profile } from "./profile";
 import { profiles, profilesToMcps, profilesToRules } from "./profiles-schema";
 import { Rule } from "../rules/rule";
 import { Mcp } from "../mcps/mcp";
 import { generateSlug, ensureUniqueSlug } from "./slug-utils";
+import { user } from "../auth/db-schema";
 
 export class ProfilesRepository {
   async getProfilesByUserId(userId: string): Promise<Profile[]> {
@@ -293,5 +294,73 @@ export class ProfilesRepository {
         communityDownloads: sql`${profiles.communityDownloads} + 1`,
       })
       .where(eq(profiles.id, profileId));
+  }
+
+  async getAllProfiles(): Promise<Profile[]> {
+    // First, get profiles where the associated user's private field is false
+    const publicProfileRecords = await db
+      .select({
+        id: profiles.id,
+        name: profiles.name,
+        slug: profiles.slug,
+        userId: profiles.userId,
+        createdAt: profiles.createdAt,
+        updatedAt: profiles.updatedAt,
+        communityDownloads: profiles.communityDownloads,
+        userName: user.name,
+      })
+      .from(profiles)
+      .innerJoin(user, eq(profiles.userId, user.id))
+      .where(eq(user.private, false))
+      .orderBy(desc(profiles.createdAt))
+      .limit(100); // Limit to 100 for now, can add pagination later
+
+    if (publicProfileRecords.length === 0) {
+      return [];
+    }
+
+    // Extract profile IDs to fetch full profiles with relations
+    const profileIds = publicProfileRecords.map((p) => p.id);
+
+    // Fetch full profiles with relations
+    const results = await db.query.profiles.findMany({
+      where: inArray(profiles.id, profileIds),
+      with: {
+        profilesToRules: {
+          with: {
+            rule: true,
+          },
+        },
+        profilesToMcps: {
+          with: {
+            mcp: true,
+          },
+        },
+      },
+    });
+
+    // Map results maintaining the original order
+    return publicProfileRecords
+      .map((publicProfile) => {
+        const fullProfile = results.find((r) => r.id === publicProfile.id);
+        if (!fullProfile) return null;
+
+        return new Profile(
+          fullProfile.id,
+          fullProfile.name,
+          fullProfile.slug,
+          fullProfile.userId,
+          fullProfile.createdAt,
+          fullProfile.updatedAt,
+          fullProfile.profilesToRules?.map((ptr) =>
+            Rule.fromPayload(ptr.rule)
+          ) || [],
+          fullProfile.profilesToMcps?.map((ptm) => Mcp.fromPayload(ptm.mcp)) ||
+            [],
+          publicProfile.userName,
+          fullProfile.communityDownloads
+        );
+      })
+      .filter((p): p is Profile => p !== null);
   }
 }

@@ -3,6 +3,7 @@ import { Rule } from "./rule";
 import { rules } from "./rules-schema";
 import { eq, and, ne, sql } from "drizzle-orm";
 import { generateSlug, ensureUniqueSlug } from "../profiles/slug-utils";
+import { user } from "../auth/db-schema";
 
 export class RulesRepository {
   async getRulesByUserId(userId: string): Promise<Rule[]> {
@@ -169,5 +170,38 @@ export class RulesRepository {
         communityDownloads: sql`${rules.communityDownloads} + 1`,
       })
       .where(eq(rules.id, ruleId));
+  }
+
+  async getAllRules(): Promise<Rule[]> {
+    const results = await db
+      .select({
+        id: rules.id,
+        name: rules.name,
+        slug: rules.slug,
+        content: rules.content,
+        createdAt: rules.createdAt,
+        userId: rules.userId,
+        userName: user.name,
+        communityDownloads: rules.communityDownloads,
+      })
+      .from(rules)
+      .innerJoin(user, eq(rules.userId, user.id))
+      .where(eq(user.private, false))
+      .orderBy(sql`${rules.communityDownloads} DESC, ${rules.createdAt} DESC`)
+      .limit(100);
+
+    return results.map(
+      (result) =>
+        new Rule(
+          result.id,
+          result.name,
+          result.slug,
+          result.content,
+          result.createdAt,
+          result.userId,
+          result.userName,
+          result.communityDownloads
+        )
+    );
   }
 }

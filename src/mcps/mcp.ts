@@ -5,7 +5,9 @@ export class Mcp {
     public slug: string,
     public context: string, // JSON string
     public createdAt: Date,
-    public userId: string
+    public userId: string,
+    public userName?: string,
+    public communityDownloads?: number
   ) {}
 
   static fromPayload(obj: {
@@ -15,6 +17,8 @@ export class Mcp {
     context: string;
     createdAt: Date;
     userId: string;
+    userName?: string;
+    communityDownloads?: number;
   }): Mcp {
     return new Mcp(
       obj.id,
@@ -22,7 +26,9 @@ export class Mcp {
       obj.slug,
       obj.context,
       obj.createdAt,
-      obj.userId
+      obj.userId,
+      obj.userName,
+      obj.communityDownloads
     );
   }
 
@@ -34,6 +40,8 @@ export class Mcp {
       context: this.context,
       createdAt: this.createdAt,
       userId: this.userId,
+      userName: this.userName,
+      communityDownloads: this.communityDownloads,
     };
   }
 }

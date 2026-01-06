@@ -64,6 +64,12 @@ export const routes = route({
       },
     },
   },
+  community: {
+    index: "/community",
+    api: {
+      index: "/api/community",
+    },
+  },
   users: {
     show: { pattern: "/:user", method: "GET" },
     profile: {

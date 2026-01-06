@@ -5,7 +5,9 @@ export class Rule {
     public slug: string,
     public content: string,
     public createdAt: Date,
-    public userId: string
+    public userId: string,
+    public userName?: string,
+    public communityDownloads?: number
   ) {}
 
   static fromPayload(obj: {
@@ -15,6 +17,8 @@ export class Rule {
     content: string;
     createdAt: Date;
     userId: string;
+    userName?: string;
+    communityDownloads?: number;
   }): Rule {
     return new Rule(
       obj.id,
@@ -22,7 +26,9 @@ export class Rule {
       obj.slug,
       obj.content,
       obj.createdAt,
-      obj.userId
+      obj.userId,
+      obj.userName,
+      obj.communityDownloads
     );
   }
 
@@ -34,6 +40,8 @@ export class Rule {
       content: this.content,
       createdAt: this.createdAt,
       userId: this.userId,
+      userName: this.userName,
+      communityDownloads: this.communityDownloads,
     };
   }
 }

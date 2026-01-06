@@ -71,7 +71,11 @@ export const profilesToMcps = sqliteTable(
 );
 
 // Relations
-export const profilesRelations = relations(profiles, ({ many }) => ({
+export const profilesRelations = relations(profiles, ({ one, many }) => ({
+  user: one(user, {
+    fields: [profiles.userId],
+    references: [user.id],
+  }),
   profilesToRules: many(profilesToRules),
   profilesToMcps: many(profilesToMcps),
 }));

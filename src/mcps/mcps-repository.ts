@@ -3,6 +3,7 @@ import { Mcp } from "./mcp";
 import { mcps } from "./mcp-schema";
 import { and, eq, ne, sql } from "drizzle-orm";
 import { generateSlug, ensureUniqueSlug } from "../profiles/slug-utils";
+import { user } from "../auth/db-schema";
 
 export class McpsRepository {
   async getMcpsByUserId(userId: string): Promise<Mcp[]> {
@@ -164,5 +165,38 @@ export class McpsRepository {
         communityDownloads: sql`${mcps.communityDownloads} + 1`,
       })
       .where(eq(mcps.id, mcpId));
+  }
+
+  async getAllMcps(): Promise<Mcp[]> {
+    const results = await db
+      .select({
+        id: mcps.id,
+        name: mcps.name,
+        slug: mcps.slug,
+        context: mcps.context,
+        createdAt: mcps.createdAt,
+        userId: mcps.userId,
+        userName: user.name,
+        communityDownloads: mcps.communityDownloads,
+      })
+      .from(mcps)
+      .innerJoin(user, eq(mcps.userId, user.id))
+      .where(eq(user.private, false))
+      .orderBy(sql`${mcps.communityDownloads} DESC, ${mcps.createdAt} DESC`)
+      .limit(100);
+
+    return results.map(
+      (result) =>
+        new Mcp(
+          result.id,
+          result.name,
+          result.slug,
+          result.context,
+          result.createdAt,
+          result.userId,
+          result.userName,
+          result.communityDownloads
+        )
+    );
   }
 }

@@ -1,18 +1,18 @@
 import { createRouter } from "@remix-run/fetch-router";
-import { betterAuthClient } from "./auth";
-import { createApiAuthMiddleware } from "./auth/auth-middleware";
-import { authHandlers } from "./auth/auth-handlers";
-import { profileHandlers } from "./profiles/profile-handlers";
-import { serveStaticFile } from "./utils";
-import { rulesHandlers } from "./rules/rules-handlers";
-import { mcpsHandlers } from "./mcps/mcps-handlers";
-import { routes } from "./routes";
-import { homeHandler } from "./home-handler";
-import { AuthService } from "./auth/auth-service";
-import { logger } from "./middleware/logger";
 import { aboutHandler } from "./about-handler";
-import { UsersRepository } from "./users/users-repository";
+import { betterAuthClient } from "./auth";
+import { authHandlers } from "./auth/auth-handlers";
+import { createApiAuthMiddleware } from "./auth/auth-middleware";
+import { AuthService } from "./auth/auth-service";
+import { homeHandler } from "./home-handler";
+import { mcpsHandlers } from "./mcps/mcps-handlers";
+import { logger } from "./middleware/logger";
+import { profileHandlers } from "./profiles/profile-handlers";
+import { routes } from "./routes";
+import { rulesHandlers } from "./rules/rules-handlers";
 import { usersHandler } from "./users/users-handler";
+import { serveStaticFile } from "./utils";
+import { communityHandlers } from "./community/community-handlers";
 
 // Create router with middleware
 const router = createRouter({
@@ -36,6 +36,7 @@ router.map(routes, {
   profiles: profileHandlers(),
   rules: rulesHandlers(),
   mcps: mcpsHandlers(),
+  community: communityHandlers(),
   users: usersHandler(),
 });
 

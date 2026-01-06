@@ -80,6 +80,7 @@ describe("mcpsHandlers", () => {
     getMcpById: mock((id: string) =>
       Promise.resolve(new Mcp("id", "name", "slug", "", new Date(), "user-id"))
     ),
+    getAllMcps: mock(() => Promise.resolve([])),
   };
 
   beforeEach(() => {

@@ -10,7 +10,9 @@ export class Profile {
     public createdAt: Date,
     public updatedAt: Date,
     public rules: Array<Rule> = [],
-    public mcps: Array<Mcp> = []
+    public mcps: Array<Mcp> = [],
+    public userName?: string,
+    public communityDownloads: number = 0
   ) {}
 
   static fromPayload(obj: {
@@ -22,6 +24,8 @@ export class Profile {
     updatedAt: Date;
     rules: Array<ReturnType<Rule["toJson"]>>;
     mcps: Array<ReturnType<Mcp["toJson"]>>;
+    userName?: string;
+    communityDownloads?: number;
   }): Profile {
     return new Profile(
       obj.id,
@@ -31,7 +35,9 @@ export class Profile {
       obj.createdAt,
       obj.updatedAt,
       obj.rules.map((rule) => Rule.fromPayload(rule)),
-      obj.mcps.map((mcp) => Mcp.fromPayload(mcp))
+      obj.mcps.map((mcp) => Mcp.fromPayload(mcp)),
+      obj.userName,
+      obj.communityDownloads ?? 0
     );
   }
 
@@ -45,6 +51,8 @@ export class Profile {
       updatedAt: this.updatedAt,
       rules: this.rules.map((rule) => rule.toJson()),
       mcps: this.mcps.map((mcp) => mcp.toJson()),
+      userName: this.userName,
+      communityDownloads: this.communityDownloads,
     };
   }
 }

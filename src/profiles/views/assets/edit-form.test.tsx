@@ -15,10 +15,11 @@ test("loads and displays the profile title", async () => {
     new Date(),
     new Date(),
     [],
-    []
+    [],
+    ""
   );
 
-  const mockGetProfile = async () => mockProfile;
+  const mockGetProfile = async () => mockProfile.toJson();
   const emotionCache = createCache({ key: "test", container: document.head });
 
   await act(async () => {

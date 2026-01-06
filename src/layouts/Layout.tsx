@@ -5,6 +5,7 @@ import {
   LayoutDashboard,
   LogOut,
   Settings,
+  Users,
 } from "lucide-react";
 import React from "react";
 import type { UserContext } from "../auth/user-context";
@@ -134,6 +135,17 @@ export function Layout({
             >
               <Settings />
               <span className="font-medium">MCPs</span>
+            </a>
+            <a
+              href={routes.community.index.href()}
+              className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-all ${
+                activeNav === "community"
+                  ? "bg-indigo-50 text-indigo-900 border-l-2 border-indigo-500"
+                  : "text-gray-700 hover:bg-gray-100 border-l-2 border-transparent"
+              }`}
+            >
+              <Users />
+              <span className="font-medium">Community</span>
             </a>
           </nav>
 
