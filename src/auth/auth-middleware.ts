@@ -114,6 +114,16 @@ export function createApiAuthMiddleware(): Middleware {
 
     // Require authentication for all other routes
     if (!userId) {
+      // Check if this is a browser request by looking at the Accept header
+      const acceptHeader = context.request.headers.get("accept") || "";
+      const isBrowserRequest = acceptHeader.includes("text/html");
+      
+      // Redirect browser requests to login page
+      if (isBrowserRequest) {
+        return Response.redirect(routes.auth.login.index.href(), 302);
+      }
+      
+      // Return JSON error for API requests
       return Response.json(
         {
           error: "unauthorized",
