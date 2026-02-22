@@ -1,9 +1,15 @@
 import { and, eq, ne, sql, desc, inArray } from "drizzle-orm";
 import { db } from "../db/db";
 import { Profile } from "./profile";
-import { profiles, profilesToMcps, profilesToRules } from "./profiles-schema";
+import {
+  profiles,
+  profilesToMcps,
+  profilesToRules,
+  profilesToSkills,
+} from "./profiles-schema";
 import { Rule } from "../rules/rule";
 import { Mcp } from "../mcps/mcp";
+import { Skill } from "../skills/skill";
 import { generateSlug, ensureUniqueSlug } from "./slug-utils";
 import { user } from "../auth/db-schema";
 
@@ -23,6 +29,11 @@ export class ProfilesRepository {
             mcp: true,
           },
         },
+        profilesToSkills: {
+          with: {
+            skill: true,
+          },
+        },
       },
     });
 
@@ -37,7 +48,10 @@ export class ProfilesRepository {
           result.updatedAt,
           result.profilesToRules?.map((ptr) => Rule.fromPayload(ptr.rule)) ||
             [],
-          result.profilesToMcps?.map((ptm) => Mcp.fromPayload(ptm.mcp)) || []
+          result.profilesToMcps?.map((ptm) => Mcp.fromPayload(ptm.mcp)) || [],
+          result.profilesToSkills?.map((pts) =>
+            Skill.fromPayload(pts.skill)
+          ) || []
         )
     );
   }
@@ -59,6 +73,11 @@ export class ProfilesRepository {
             mcp: true,
           },
         },
+        profilesToSkills: {
+          with: {
+            skill: true,
+          },
+        },
       },
     });
 
@@ -74,7 +93,8 @@ export class ProfilesRepository {
       result.createdAt,
       result.updatedAt,
       result.profilesToRules?.map((ptr) => Rule.fromPayload(ptr.rule)) || [],
-      result.profilesToMcps?.map((ptm) => Mcp.fromPayload(ptm.mcp)) || []
+      result.profilesToMcps?.map((ptm) => Mcp.fromPayload(ptm.mcp)) || [],
+      result.profilesToSkills?.map((pts) => Skill.fromPayload(pts.skill)) || []
     );
   }
 
@@ -95,6 +115,11 @@ export class ProfilesRepository {
             mcp: true,
           },
         },
+        profilesToSkills: {
+          with: {
+            skill: true,
+          },
+        },
       },
     });
 
@@ -110,7 +135,8 @@ export class ProfilesRepository {
       result.createdAt,
       result.updatedAt,
       result.profilesToRules?.map((ptr) => Rule.fromPayload(ptr.rule)) || [],
-      result.profilesToMcps?.map((ptm) => Mcp.fromPayload(ptm.mcp)) || []
+      result.profilesToMcps?.map((ptm) => Mcp.fromPayload(ptm.mcp)) || [],
+      result.profilesToSkills?.map((pts) => Skill.fromPayload(pts.skill)) || []
     );
   }
 
@@ -142,6 +168,7 @@ export class ProfilesRepository {
       result.userId,
       result.createdAt,
       result.updatedAt,
+      [],
       [],
       []
     );
@@ -189,7 +216,8 @@ export class ProfilesRepository {
       result.createdAt,
       result.updatedAt,
       profile.rules,
-      profile.mcps
+      profile.mcps,
+      profile.skills
     );
   }
 
@@ -229,7 +257,8 @@ export class ProfilesRepository {
   async updateProfileAssociations(
     profileId: string,
     ruleIds: string[],
-    mcpIds: string[]
+    mcpIds: string[],
+    skillIds: string[] = []
   ): Promise<void> {
     // Delete existing associations
     await db
@@ -238,6 +267,9 @@ export class ProfilesRepository {
     await db
       .delete(profilesToMcps)
       .where(eq(profilesToMcps.profileId, profileId));
+    await db
+      .delete(profilesToSkills)
+      .where(eq(profilesToSkills.profileId, profileId));
 
     // Insert new rule associations
     if (ruleIds.length > 0) {
@@ -251,6 +283,13 @@ export class ProfilesRepository {
       await db
         .insert(profilesToMcps)
         .values(mcpIds.map((mcpId) => ({ profileId, mcpId })));
+    }
+
+    // Insert new skill associations
+    if (skillIds.length > 0) {
+      await db
+        .insert(profilesToSkills)
+        .values(skillIds.map((skillId) => ({ profileId, skillId })));
     }
   }
 
@@ -268,6 +307,11 @@ export class ProfilesRepository {
             mcp: true,
           },
         },
+        profilesToSkills: {
+          with: {
+            skill: true,
+          },
+        },
       },
     });
 
@@ -283,7 +327,8 @@ export class ProfilesRepository {
       result.createdAt,
       result.updatedAt,
       result.profilesToRules?.map((ptr) => Rule.fromPayload(ptr.rule)) || [],
-      result.profilesToMcps?.map((ptm) => Mcp.fromPayload(ptm.mcp)) || []
+      result.profilesToMcps?.map((ptm) => Mcp.fromPayload(ptm.mcp)) || [],
+      result.profilesToSkills?.map((pts) => Skill.fromPayload(pts.skill)) || []
     );
   }
 
@@ -336,6 +381,11 @@ export class ProfilesRepository {
             mcp: true,
           },
         },
+        profilesToSkills: {
+          with: {
+            skill: true,
+          },
+        },
       },
     });
 
@@ -357,6 +407,9 @@ export class ProfilesRepository {
           ) || [],
           fullProfile.profilesToMcps?.map((ptm) => Mcp.fromPayload(ptm.mcp)) ||
             [],
+          fullProfile.profilesToSkills?.map((pts) =>
+            Skill.fromPayload(pts.skill)
+          ) || [],
           publicProfile.userName,
           fullProfile.communityDownloads
         );

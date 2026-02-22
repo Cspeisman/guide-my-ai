@@ -10,6 +10,7 @@ import { logger } from "./middleware/logger";
 import { profileHandlers } from "./profiles/profile-handlers";
 import { routes } from "./routes";
 import { rulesHandlers } from "./rules/rules-handlers";
+import { skillsHandlers } from "./skills/skills-handlers";
 import { usersHandler } from "./users/users-handler";
 import { serveStaticFile } from "./utils";
 import { communityHandlers } from "./community/community-handlers";
@@ -36,6 +37,7 @@ router.map(routes, {
   profiles: profileHandlers(),
   rules: rulesHandlers(),
   mcps: mcpsHandlers(),
+  skills: skillsHandlers(),
   community: communityHandlers(),
   users: usersHandler(),
 });

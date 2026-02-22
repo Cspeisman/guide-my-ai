@@ -16,6 +16,7 @@ test("loads and displays the profile title", async () => {
     new Date(),
     [],
     [],
+    [],
     ""
   );
 

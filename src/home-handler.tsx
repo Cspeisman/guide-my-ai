@@ -5,18 +5,21 @@ import { routes } from "./routes";
 import { render } from "./utils";
 import { RulesRepository } from "./rules/rules-repository";
 import { McpsRepository } from "./mcps/mcps-repository";
+import { SkillsRepository } from "./skills/skills-repository";
 import { ProfilesRepository } from "./profiles/profiles-repository";
 import { Rule } from "./rules/rule";
 import { Mcp } from "./mcps/mcp";
+import { Skill } from "./skills/skill";
 import { Profile } from "./profiles/profile";
 import { Layout } from "./layouts/Layout";
-import { FileCode, Settings, User } from "lucide-react";
+import { Asterisk, FileCode, Settings, User } from "lucide-react";
 import { CreatedAt } from "./utils/created-at";
 
 export const homeHandler = (
   dependencies = {
     rulesRepository: new RulesRepository(),
     mcpsRepository: new McpsRepository(),
+    skillsRepository: new SkillsRepository(),
     profilesRepository: new ProfilesRepository(),
   }
 ) => {
@@ -57,16 +60,18 @@ export const homeHandler = (
       );
     },
     async dashboard(context: RequestContext) {
-      const { rulesRepository, mcpsRepository, profilesRepository } =
+      const { rulesRepository, mcpsRepository, skillsRepository, profilesRepository } =
         dependencies;
       const user = getUserContext(context);
 
       let userRules: Rule[] = [];
       let userMcps: Mcp[] = [];
+      let userSkills: Skill[] = [];
       let userProfiles: Profile[] = [];
       if (user.userId) {
         userRules = await rulesRepository.getRulesByUserId(user.userId);
         userMcps = await mcpsRepository.getMcpsByUserId(user.userId);
+        userSkills = await skillsRepository.getSkillsByUserId(user.userId);
         userProfiles = await profilesRepository.getProfilesByUserId(
           user.userId
         );
@@ -174,6 +179,56 @@ export const homeHandler = (
                           : rule.content}
                       </p>
                       <CreatedAt date={rule.createdAt} className="mt-4" />
+                    </a>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Skills Section */}
+            <div>
+              <div className="flex justify-between items-center mb-6">
+                <div className=" text-gray-900 flex items-center gap-3">
+                  <Asterisk className="h-4 w-4 text-amber-500" /> Skills
+                </div>
+                <a
+                  href={routes.skills.new.href()}
+                  className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium underline hover:bg-indigo-50 hover:text-indigo-900 transition-colors px-3 py-2"
+                >
+                  + New Skill
+                </a>
+              </div>
+              {userSkills.length === 0 ? (
+                <div className="bg-white rounded-xl border border-gray-200 p-8 text-center shadow-sm">
+                  <p className="text-gray-600 mb-4">
+                    No skills yet. Create your first skill!
+                  </p>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {userSkills.map((skill) => (
+                    <a
+                      key={skill.id}
+                      href={routes.skills.show.href({ slug: skill.slug })}
+                      className="block bg-white rounded-xl border border-gray-200 p-6 hover:shadow-lg transition-all group"
+                    >
+                      <div className="flex justify-between items-start mb-3">
+                        <h3 className="text-lg font-semibold text-slate-900">
+                          {skill.name}
+                        </h3>
+                      </div>
+                      <p className="text-gray-600 text-sm mb-3">
+                        {skill.description.length > 200
+                          ? skill.description.substring(0, 200) + "..."
+                          : skill.description}
+                      </p>
+                      <div className="flex gap-4 text-sm text-gray-500">
+                        <span>
+                          {skill.files.length} file
+                          {skill.files.length !== 1 ? "s" : ""}
+                        </span>
+                      </div>
+                      <CreatedAt date={skill.createdAt} className="mt-4" />
                     </a>
                   ))}
                 </div>

@@ -3,3 +3,4 @@ export * from "../auth/db-schema";
 export * from "../rules/rules-schema";
 export * from "../mcps/mcp-schema";
 export * from "../profiles/profiles-schema";
+export * from "../skills/skills-schema";

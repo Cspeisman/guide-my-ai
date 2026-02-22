@@ -5,6 +5,7 @@ import {
   LayoutDashboard,
   LogOut,
   Settings,
+  Asterisk,
   Users,
 } from "lucide-react";
 import React from "react";
@@ -124,6 +125,17 @@ export function Layout({
             >
               <FileCode />
               <span className="font-medium">Rules</span>
+            </a>
+            <a
+              href={routes.skills.index.href()}
+              className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-all ${
+                activeNav === "skills"
+                  ? "bg-indigo-50 text-indigo-900 border-l-2 border-indigo-500"
+                  : "text-gray-700 hover:bg-gray-100 border-l-2 border-transparent"
+              }`}
+            >
+              <Asterisk />
+              <span className="font-medium">Skills</span>
             </a>
             <a
               href={routes.mcps.index.href()}

@@ -7,6 +7,7 @@ import { profileHandlers } from "./profile-handlers";
 import { ProfilesRepository } from "./profiles-repository";
 import { RulesRepository } from "../rules/rules-repository";
 import { McpsRepository } from "../mcps/mcps-repository";
+import { SkillsRepository } from "../skills/skills-repository";
 import { Rule } from "../rules/rule";
 import { Mcp } from "../mcps/mcp";
 
@@ -114,6 +115,14 @@ class FakeMcpsRepository extends McpsRepository {
   }
 }
 
+class FakeSkillsRepository extends SkillsRepository {
+  incrementDownloadCountCalls: string[] = [];
+
+  async incrementDownloadCount(skillId: string): Promise<void> {
+    this.incrementDownloadCountCalls.push(skillId);
+  }
+}
+
 function createMockContext(options: {
   userId: string;
   params?: Record<string, string>;
@@ -135,6 +144,7 @@ function createHandlers(profilesRepository: FakeProfilesRepository) {
     profilesRepository: profilesRepository as any,
     rulesRepository: new FakeRulesRepository() as any,
     mcpsRepository: new FakeMcpsRepository() as any,
+    skillsRepository: new FakeSkillsRepository() as any,
   });
 }
 
@@ -456,11 +466,13 @@ describe("profileHandlers", () => {
       const fakeProfilesRepository = new FakeProfilesRepository([testProfile]);
       const fakeRulesRepository = new FakeRulesRepository();
       const fakeMcpsRepository = new FakeMcpsRepository();
+      const fakeSkillsRepository = new FakeSkillsRepository();
 
       const handlers = profileHandlers({
         profilesRepository: fakeProfilesRepository as any,
         rulesRepository: fakeRulesRepository as any,
         mcpsRepository: fakeMcpsRepository as any,
+        skillsRepository: fakeSkillsRepository as any,
       });
 
       // Case 1: Different user (not the owner) - should increment profile, rules, and mcps

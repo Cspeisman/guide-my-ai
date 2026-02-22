@@ -6,15 +6,18 @@ import { render } from "../utils";
 import { ProfilesRepository } from "../profiles/profiles-repository";
 import { RulesRepository } from "../rules/rules-repository";
 import { McpsRepository } from "../mcps/mcps-repository";
+import { SkillsRepository } from "../skills/skills-repository";
 
 export const communityHandlers = (
   dependencies = {
     profilesRepository: new ProfilesRepository(),
     rulesRepository: new RulesRepository(),
     mcpsRepository: new McpsRepository(),
+    skillsRepository: new SkillsRepository(),
   }
 ) => {
-  const { profilesRepository, rulesRepository, mcpsRepository } = dependencies;
+  const { profilesRepository, rulesRepository, mcpsRepository, skillsRepository } =
+    dependencies;
 
   return {
     async index(context) {
@@ -62,7 +65,14 @@ export const communityHandlers = (
           return Response.json(allMcps.map((m) => m.toJson()));
         }
 
-        return Response.json({ message: "Specify ?type=profiles|rules|mcps" });
+        if (type === "skills") {
+          const allSkills = await skillsRepository.getAllSkills();
+          return Response.json(allSkills.map((s) => s.toJson()));
+        }
+
+        return Response.json({
+          message: "Specify ?type=profiles|rules|mcps|skills",
+        });
       },
     },
   } satisfies Controller<typeof routes.community>;

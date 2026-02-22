@@ -64,6 +64,21 @@ export const routes = route({
       },
     },
   },
+  skills: {
+    ...resources("skills", {
+      exclude: ["update", "destroy", "edit"],
+      param: "slug",
+    }),
+    destroy: { pattern: "/skills/destroy/:id", method: "POST" },
+    api: {
+      index: "api/skills",
+      show: form("/api/skills/:slug"),
+      incrementDownloadCount: {
+        pattern: "/api/skills/:id/increment-download",
+        method: "POST",
+      },
+    },
+  },
   community: {
     index: "/community",
     api: {
@@ -84,12 +99,17 @@ export const routes = route({
       pattern: "/:user/mcps/:slug",
       method: "GET",
     },
+    skill: {
+      pattern: "/:user/skills/:slug",
+      method: "GET",
+    },
     settings: form("/settings/:id"),
     api: {
       profiles: "/api/:user/profiles",
       profile: "/api/:user/profiles/:slug",
       rule: "/api/:user/rules/:slug",
       mcp: "/api/:user/mcps/:slug",
+      skill: "/api/:user/skills/:slug",
     },
   },
 });

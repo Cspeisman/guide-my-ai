@@ -1,5 +1,6 @@
 import { Mcp } from "../mcps/mcp";
 import { Rule } from "../rules/rule";
+import { Skill } from "../skills/skill";
 
 export class Profile {
   constructor(
@@ -11,6 +12,7 @@ export class Profile {
     public updatedAt: Date,
     public rules: Array<Rule> = [],
     public mcps: Array<Mcp> = [],
+    public skills: Array<Skill> = [],
     public userName?: string,
     public communityDownloads: number = 0
   ) {}
@@ -24,6 +26,7 @@ export class Profile {
     updatedAt: Date;
     rules: Array<ReturnType<Rule["toJson"]>>;
     mcps: Array<ReturnType<Mcp["toJson"]>>;
+    skills?: Array<ReturnType<Skill["toJson"]>>;
     userName?: string;
     communityDownloads?: number;
   }): Profile {
@@ -36,6 +39,7 @@ export class Profile {
       obj.updatedAt,
       obj.rules.map((rule) => Rule.fromPayload(rule)),
       obj.mcps.map((mcp) => Mcp.fromPayload(mcp)),
+      (obj.skills ?? []).map((skill) => Skill.fromPayload(skill)),
       obj.userName,
       obj.communityDownloads ?? 0
     );
@@ -51,6 +55,7 @@ export class Profile {
       updatedAt: this.updatedAt,
       rules: this.rules.map((rule) => rule.toJson()),
       mcps: this.mcps.map((mcp) => mcp.toJson()),
+      skills: this.skills.map((skill) => skill.toJson()),
       userName: this.userName,
       communityDownloads: this.communityDownloads,
     };

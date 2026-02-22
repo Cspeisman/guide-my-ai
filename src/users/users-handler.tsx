@@ -6,6 +6,7 @@ import { UsersRepository } from "./users-repository";
 import { ProfilesRepository } from "../profiles/profiles-repository";
 import { RulesRepository } from "../rules/rules-repository";
 import { McpsRepository } from "../mcps/mcps-repository";
+import { SkillsRepository } from "../skills/skills-repository";
 import { UserProfile } from "./views/user-profile";
 import { getUserContext } from "../auth/user-context";
 import { UserResource } from "./views/user-rule";
@@ -18,6 +19,7 @@ export const usersHandler = (
     profilesRepository: new ProfilesRepository(),
     rulesRepository: new RulesRepository(),
     mcpsRepository: new McpsRepository(),
+    skillsRepository: new SkillsRepository(),
   }
 ) => {
   const {
@@ -25,6 +27,7 @@ export const usersHandler = (
     profilesRepository,
     rulesRepository,
     mcpsRepository,
+    skillsRepository,
   } = dependencies;
 
   const NotFoundComponent = (props: { id: string; type: string }) => (
@@ -52,12 +55,15 @@ export const usersHandler = (
       // Get the user to access GitHub profile info
       const user = await usersRepository.getUserByUsername(userName);
 
-      // Query rules and MCPs directly from their repositories using userId
+      // Query rules, MCPs, and skills directly from their repositories using userId
       const userRules = userId
         ? await rulesRepository.getRulesByUserId(userId)
         : [];
       const userMcps = userId
         ? await mcpsRepository.getMcpsByUserId(userId)
+        : [];
+      const userSkills = userId
+        ? await skillsRepository.getSkillsByUserId(userId)
         : [];
       const currentUser = getUserContext(context);
       return render(
@@ -67,6 +73,7 @@ export const usersHandler = (
           profiles={profiles}
           userRules={userRules}
           userMcps={userMcps}
+          userSkills={userSkills}
           currentUser={currentUser}
         />
       );
@@ -146,6 +153,33 @@ export const usersHandler = (
         }
       }
       return render(<NotFoundComponent id={slug ?? ""} type="mcp" />);
+    },
+    async skill(context) {
+      const matches = routes.users.skill.match(context.request.url);
+      const userName = matches?.params.user;
+      const slug = matches?.params.slug;
+      if (userName && slug) {
+        const user = await usersRepository.getUserByUsername(userName);
+        if (user) {
+          const skill = await skillsRepository.getSkillBySlugAndUserId(
+            slug,
+            user.id
+          );
+          if (skill) {
+            const currentUser = getUserContext(context);
+            return render(
+              <UserResource
+                name={skill.name}
+                content={skill.content}
+                createdAt={skill.createdAt}
+                currentUser={currentUser ?? {}}
+                userName={user.name}
+              />
+            );
+          }
+        }
+      }
+      return render(<NotFoundComponent id={slug ?? ""} type="skill" />);
     },
     api: {
       async profiles(context) {
@@ -241,6 +275,30 @@ export const usersHandler = (
         }
         return Response.json(
           { msg: `No mcp matching the requested data` },
+          { status: 404 }
+        );
+      },
+      async skill(context) {
+        const matches = routes.users.api.skill.match(context.request.url);
+        const userName = matches?.params.user;
+        const slug = matches?.params.slug;
+        if (!userName || !slug) {
+          return Response.json(
+            { error: "Missing required information" },
+            { status: 400 }
+          );
+        }
+        const user = await usersRepository.getUserByUsername(userName);
+        if (user) {
+          const skill = await skillsRepository.getSkillBySlugAndUserId(
+            slug,
+            user.id
+          );
+          const { userId, ...rest } = skill?.toJson() ?? { userId: null };
+          return Response.json(rest);
+        }
+        return Response.json(
+          { msg: `No skill matching the requested data` },
           { status: 404 }
         );
       },

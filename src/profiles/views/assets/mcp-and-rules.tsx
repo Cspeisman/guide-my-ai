@@ -4,14 +4,22 @@ import { Profile } from "../../profile";
 import { MultiSelectSection } from "./multi-select-section";
 import { Mcp } from "../../../mcps/mcp";
 import { Rule } from "../../../rules/rule";
+import { Skill } from "../../../skills/skill";
 
 export const McpAndRules = ({ profile: profileData }: { profile: Profile }) => {
   const [assignedMcps, setAssignedMcps] = useState<Mcp[]>(profileData.mcps);
   const [assignedRules, setAssignedRules] = useState<Rule[]>(profileData.rules);
+  const [assignedSkills, setAssignedSkills] = useState<Skill[]>(
+    profileData.skills
+  );
   const [isSaving, setIsSaving] = useState(false);
 
   // Save associations to the server
-  const saveAssociations = async (mcps: Mcp[], rules: Rule[]) => {
+  const saveAssociations = async (
+    mcps: Mcp[],
+    rules: Rule[],
+    skills: Skill[]
+  ) => {
     setIsSaving(true);
     try {
       const response = await fetch(
@@ -21,6 +29,7 @@ export const McpAndRules = ({ profile: profileData }: { profile: Profile }) => {
           body: JSON.stringify({
             mcpIds: mcps.map((m) => m.id),
             ruleIds: rules.map((r) => r.id),
+            skillIds: skills.map((s) => s.id),
           }),
         }
       );
@@ -38,13 +47,19 @@ export const McpAndRules = ({ profile: profileData }: { profile: Profile }) => {
   // Handle MCP changes
   const handleMcpsChange = (mcps: Mcp[]) => {
     setAssignedMcps(mcps);
-    saveAssociations(mcps, assignedRules);
+    saveAssociations(mcps, assignedRules, assignedSkills);
   };
 
   // Handle Rule changes
   const handleRulesChange = (rules: Rule[]) => {
     setAssignedRules(rules);
-    saveAssociations(assignedMcps, rules);
+    saveAssociations(assignedMcps, rules, assignedSkills);
+  };
+
+  // Handle Skill changes
+  const handleSkillsChange = (skills: Skill[]) => {
+    setAssignedSkills(skills);
+    saveAssociations(assignedMcps, assignedRules, skills);
   };
 
   if (!profileData.slug) {
@@ -69,6 +84,15 @@ export const McpAndRules = ({ profile: profileData }: { profile: Profile }) => {
         onItemsChange={handleRulesChange}
         isSaving={isSaving}
         placeholder="Search and add Rules..."
+      />
+
+      <MultiSelectSection
+        title="Skills"
+        items={assignedSkills}
+        fetchEndpoint={routes.skills.api.index.href()}
+        onItemsChange={handleSkillsChange}
+        isSaving={isSaving}
+        placeholder="Search and add Skills..."
       />
     </div>
   );

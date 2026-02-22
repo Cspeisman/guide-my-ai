@@ -6,6 +6,7 @@ import { render } from "../utils";
 import { ProfilesRepository } from "./profiles-repository";
 import { RulesRepository } from "../rules/rules-repository";
 import { McpsRepository } from "../mcps/mcps-repository";
+import { SkillsRepository } from "../skills/skills-repository";
 import { Index, New, Show } from "./views";
 
 export const profileHandlers = (
@@ -13,9 +14,11 @@ export const profileHandlers = (
     profilesRepository: new ProfilesRepository(),
     rulesRepository: new RulesRepository(),
     mcpsRepository: new McpsRepository(),
+    skillsRepository: new SkillsRepository(),
   }
 ) => {
-  const { profilesRepository, rulesRepository, mcpsRepository } = dependencies;
+  const { profilesRepository, rulesRepository, mcpsRepository, skillsRepository } =
+    dependencies;
   const NotFoundComponent = (props: { id: string }) => (
     <Layout>
       <pre>
@@ -154,7 +157,7 @@ export const profileHandlers = (
               );
             if (existProfile) {
               const body = await context.request.json();
-              const { name, ruleIds, mcpIds } = body;
+              const { name, ruleIds, mcpIds, skillIds } = body;
               if (name && name !== existProfile.name) {
                 existProfile.name = name;
                 await profilesRepository.updateProfile(existProfile);
@@ -164,7 +167,8 @@ export const profileHandlers = (
               await profilesRepository.updateProfileAssociations(
                 existProfile.id,
                 ruleIds,
-                mcpIds
+                mcpIds,
+                skillIds ?? []
               );
 
               const updatedProfile =
@@ -181,6 +185,7 @@ export const profileHandlers = (
                   updatedAt: updatedProfile.updatedAt,
                   rules: updatedProfile.rules,
                   mcps: updatedProfile.mcps,
+                  skills: updatedProfile.skills,
                 });
               }
             }
@@ -215,6 +220,11 @@ export const profileHandlers = (
           // Increment download counts for all associated mcps
           for (const mcp of profile.mcps) {
             await mcpsRepository.incrementDownloadCount(mcp.id);
+          }
+
+          // Increment download counts for all associated skills
+          for (const skill of profile.skills) {
+            await skillsRepository.incrementDownloadCount(skill.id);
           }
         }
 

@@ -4,6 +4,7 @@ import * as authSchema from "../auth/db-schema";
 import * as rulesSchema from "../rules/rules-schema";
 import * as mcpsSchema from "../mcps/mcp-schema";
 import * as profilesSchema from "../profiles/profiles-schema";
+import * as skillsSchema from "../skills/skills-schema";
 import path from "path";
 
 const dbPath =
@@ -23,5 +24,11 @@ const client = isRemoteDb
     });
 
 export const db = drizzle(client, {
-  schema: { ...authSchema, ...rulesSchema, ...mcpsSchema, ...profilesSchema },
+  schema: {
+    ...authSchema,
+    ...rulesSchema,
+    ...mcpsSchema,
+    ...profilesSchema,
+    ...skillsSchema,
+  },
 });

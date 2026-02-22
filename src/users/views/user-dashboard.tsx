@@ -1,9 +1,10 @@
-import { FileCode, Settings, User } from "lucide-react";
+import { Asterisk, FileCode, Settings, User } from "lucide-react";
 import { Layout } from "../../layouts/Layout";
 import { Mcp } from "../../mcps/mcp";
 import { Profile } from "../../profiles/profile";
 import { routes } from "../../routes";
 import { Rule } from "../../rules/rule";
+import { Skill } from "../../skills/skill";
 import { CreatedAt } from "../../utils/created-at";
 
 type User = {
@@ -17,6 +18,7 @@ interface Props {
   profiles: Profile[];
   userRules: Rule[];
   userMcps: Mcp[];
+  userSkills?: Skill[];
   currentUser: any;
 }
 
@@ -26,6 +28,7 @@ export function UserDashboard({
   profiles,
   userRules,
   userMcps,
+  userSkills = [],
   currentUser,
 }: Props) {
   return (
@@ -136,6 +139,43 @@ export function UserDashboard({
                       : rule.content}
                   </p>
                   <CreatedAt date={rule.createdAt} className="mt-4" />
+                </a>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Skills Section */}
+        <div>
+          <div className=" text-gray-900 flex items-center gap-3 mb-6">
+            <Asterisk className="h-4 w-4 text-amber-500" /> Skills
+          </div>
+          {userSkills.length === 0 ? (
+            <div className="bg-white rounded-xl border border-gray-200 p-8 text-center shadow-sm">
+              <p className="text-gray-600 mb-4">User has no skills</p>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {userSkills.map((skill) => (
+                <a
+                  key={skill.id}
+                  href={routes.users.skill.href({
+                    user: userName,
+                    slug: skill.slug,
+                  })}
+                  className="block bg-white rounded-xl border border-gray-200 p-6 hover:shadow-lg transition-all group"
+                >
+                  <div className="flex justify-between items-start mb-3">
+                    <h3 className="text-lg font-semibold text-slate-900">
+                      {skill.name}
+                    </h3>
+                  </div>
+                  <p className="text-gray-600 text-sm mb-3">
+                    {skill.description.length > 200
+                      ? skill.description.substring(0, 200) + "..."
+                      : skill.description}
+                  </p>
+                  <CreatedAt date={skill.createdAt} className="mt-4" />
                 </a>
               ))}
             </div>

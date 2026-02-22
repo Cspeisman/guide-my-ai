@@ -10,6 +10,7 @@ import { createId } from "@paralleldrive/cuid2";
 import { user } from "../auth/db-schema";
 import { rules } from "../rules/rules-schema";
 import { mcps } from "../mcps/mcp-schema";
+import { skills } from "../skills/skills-schema";
 
 export const profiles = sqliteTable(
   "profiles",
@@ -70,6 +71,23 @@ export const profilesToMcps = sqliteTable(
   (table) => [primaryKey({ columns: [table.profileId, table.mcpId] })]
 );
 
+// Junction table for profiles-skills many-to-many relationship
+export const profilesToSkills = sqliteTable(
+  "profiles_to_skills",
+  {
+    profileId: text("profileId")
+      .notNull()
+      .references(() => profiles.id, { onDelete: "cascade" }),
+    skillId: text("skillId")
+      .notNull()
+      .references(() => skills.id, { onDelete: "cascade" }),
+    createdAt: integer("createdAt", { mode: "timestamp" })
+      .notNull()
+      .$defaultFn(() => new Date()),
+  },
+  (table) => [primaryKey({ columns: [table.profileId, table.skillId] })]
+);
+
 // Relations
 export const profilesRelations = relations(profiles, ({ one, many }) => ({
   user: one(user, {
@@ -78,6 +96,7 @@ export const profilesRelations = relations(profiles, ({ one, many }) => ({
   }),
   profilesToRules: many(profilesToRules),
   profilesToMcps: many(profilesToMcps),
+  profilesToSkills: many(profilesToSkills),
 }));
 
 export const profilesToRulesRelations = relations(
@@ -104,3 +123,17 @@ export const profilesToMcpsRelations = relations(profilesToMcps, ({ one }) => ({
     references: [mcps.id],
   }),
 }));
+
+export const profilesToSkillsRelations = relations(
+  profilesToSkills,
+  ({ one }) => ({
+    profile: one(profiles, {
+      fields: [profilesToSkills.profileId],
+      references: [profiles.id],
+    }),
+    skill: one(skills, {
+      fields: [profilesToSkills.skillId],
+      references: [skills.id],
+    }),
+  })
+);

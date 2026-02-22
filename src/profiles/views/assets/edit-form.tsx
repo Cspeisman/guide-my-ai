@@ -36,6 +36,7 @@ const ProfileForm = ({ profile }: ProfileTitleProps) => {
             name,
             ruleIds: profileData.rules?.map((r: any) => r.id) || [],
             mcpIds: profileData.mcps?.map((m: any) => m.id) || [],
+            skillIds: profileData.skills?.map((s: any) => s.id) || [],
           }),
         }
       );
